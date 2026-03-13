@@ -171,13 +171,11 @@ const defaultExpBackoffBaseDelayMs = 50;
  * such as "who is the current user?" and "what is the current project?"
  */
 export interface RepositoryContext {
-  projectShardId: string;
-
   /**
    * The shard ID for this repository. Currently ignored.
    * Defaults to GLOBAL_SHARD_ID if not specified.
    */
-  shardId?: string;
+  shardId: string;
 
   /**
    * The current author reference.
