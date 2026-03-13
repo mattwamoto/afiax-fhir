@@ -61,6 +61,7 @@ interface ShardSyncStats {
   processed: number;
   skipped: number;
   deleted: number;
+  deadletter: number;
   errors: number;
 }
 
@@ -86,7 +87,7 @@ export async function execShardSyncJob(job: Job<ShardSyncJobData>): Promise<void
   const errorThreshold = config?.globalErrorThreshold ?? 3;
   const maxAttempts = config?.maxAttempts ?? 10;
 
-  const stats: ShardSyncStats = { processed: 0, skipped: 0, deleted: 0, errors: 0 };
+  const stats: ShardSyncStats = { processed: 0, skipped: 0, deleted: 0, deadletter: 0, errors: 0 };
 
   for (let i = 0; i < maxIterations; i++) {
     const count = await processOneBatch(shardId, batchSize, errorThreshold, maxAttempts, stats);
@@ -137,15 +138,14 @@ async function processOneBatch(
   try {
     await shardClient.query('BEGIN');
 
-    // Claim batch with row-level locking (skip poison rows)
+    // Claim batch with row-level locking (simple scan; poison rows moved to deadletter on failure)
     const { rows } = await shardClient.query<OutboxRow>(
       `SELECT "id", "resourceType", "resourceId"
        FROM "shard_sync_outbox"
-       WHERE "attempts" < $1
        ORDER BY "id" ASC
-       LIMIT $2
+       LIMIT $1
        FOR UPDATE SKIP LOCKED`,
-      [maxAttempts, batchSize]
+      [batchSize]
     );
 
     if (rows.length === 0) {
@@ -243,16 +243,41 @@ async function processOneBatch(
       }
     }
 
-    // Delete successful rows, increment attempts on failed rows
+    // Delete successful rows (and their attempt records)
     if (successfulOutboxIds.length > 0) {
+      await shardClient.query('DELETE FROM "shard_sync_outbox_attempts" WHERE "outbox_id" = ANY($1)', [
+        successfulOutboxIds,
+      ]);
       await shardClient.query('DELETE FROM "shard_sync_outbox" WHERE "id" = ANY($1)', [successfulOutboxIds]);
     }
 
+    // Record attempts for failed rows; move poison rows (exceeded maxAttempts) to deadletter
     if (failedOutboxIds.length > 0) {
       await shardClient.query(
-        'UPDATE "shard_sync_outbox" SET "attempts" = "attempts" + 1, "lastAttemptAt" = NOW() WHERE "id" = ANY($1)',
+        `INSERT INTO "shard_sync_outbox_attempts" ("outbox_id", "attemptedAt")
+         SELECT unnest($1::bigint[]), NOW()`,
         [failedOutboxIds]
       );
+
+      // Move rows that have exceeded maxAttempts to deadletter (INSERT...SELECT in one query)
+      const { rows: movedRows } = await shardClient.query<{ outbox_id: string }>(
+        `INSERT INTO "shard_sync_outbox_deadletter" ("outbox_id", "resourceType", "resourceId", "resourceVersionId", "movedAt")
+         SELECT o."id", o."resourceType", o."resourceId", o."resourceVersionId", NOW()
+         FROM "shard_sync_outbox" o
+         WHERE o."id" IN (
+           SELECT a."outbox_id" FROM "shard_sync_outbox_attempts" a
+           WHERE a."outbox_id" = ANY($1)
+           GROUP BY a."outbox_id"
+           HAVING COUNT(*) >= $2
+         )
+         RETURNING "outbox_id"`,
+        [failedOutboxIds, maxAttempts]
+      );
+      const poisonedOutboxIds = movedRows.map((r) => r.outbox_id);
+      if (poisonedOutboxIds.length > 0) {
+        stats.deadletter += poisonedOutboxIds.length;
+        await shardClient.query('DELETE FROM "shard_sync_outbox" WHERE "id" = ANY($1)', [poisonedOutboxIds]);
+      }
     }
 
     await shardClient.query('COMMIT');
