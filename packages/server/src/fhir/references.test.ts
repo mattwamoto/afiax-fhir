@@ -33,7 +33,7 @@ describe('Reference checks', () => {
         email: randomUUID() + '@example.com',
         password: randomUUID(),
       });
-      const systemRepo = getProjectSystemRepo(project);
+      const systemRepo = await getProjectSystemRepo(project);
       await systemRepo.updateResource({
         ...project,
         checkReferencesOnWrite: true,

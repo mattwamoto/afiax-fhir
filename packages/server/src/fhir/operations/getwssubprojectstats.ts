@@ -46,7 +46,7 @@ export async function getWsSubProjectStatsHandler(req: FhirRequest): Promise<Fhi
     return [badRequest('projectId parameter is required')];
   }
 
-  const repo = getProjectSystemRepo(projectId);
+  const repo = await getProjectSystemRepo(projectId);
   const redis = getPubSubRedis(repo.shardId);
   const pattern = `medplum:subscriptions:r4:project:${projectId}:active:*`;
   const resourceTypeMap = new Map<string, Map<string, number>>();

@@ -86,7 +86,7 @@ describe('FHIR Repo', () => {
       resourceType: 'Project',
       id: randomUUID(),
     });
-    systemRepo = getProjectSystemRepo(testProject);
+    systemRepo = await getProjectSystemRepo(testProject);
     testProjectRepo = new Repository({
       projectShardId: testProjectShardId,
       projects: [testProject],
