@@ -3162,14 +3162,14 @@ export function getShardSystemRepo(shardId: string, client?: ShardPoolClient): S
  * Note: This is a passthrough to `getGlobalSystemRepo` to facilitate
  * future sharding support.
  *
- * @param _projectId - The project's ID, reference, or resource.
+ * @param projectId - The project's ID, reference, or resource.
  * @returns A SystemRepository for the project's shard.
  */
-export function getProjectSystemRepo(_projectId: string | Reference<Project> | WithId<Project>): SystemRepository {
-  // Eventually, this will resolve the project's shard and return
-  // a SystemRepository for that shard.
-  // But for now, all projects are on the global shard.
-  return getGlobalSystemRepo();
+export async function getProjectSystemRepo(
+  projectId: string | Reference<Project> | WithId<Project>
+): Promise<SystemRepository> {
+  const { projectShardId } = await getProjectAndProjectShardId(projectId);
+  return getShardSystemRepo(projectShardId);
 }
 
 function lowercaseFirstLetter(str: string): string {
