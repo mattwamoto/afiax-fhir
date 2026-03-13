@@ -9,7 +9,7 @@ import { tryGetRequestContext, tryRunInRequestContext } from '../context';
 import { DatabaseMode, getDatabasePool } from '../database';
 import { getGlobalSystemRepo } from '../fhir/repo';
 import { GLOBAL_SHARD_ID } from '../fhir/sharding';
-import { PostgresError } from '../fhir/sql';
+import { isRetryableTransactionError } from '../fhir/sql';
 import { globalLogger } from '../logger';
 import type { WorkerInitializer, WorkerInitializerOptions } from './utils';
 import { addVerboseQueueLogging, getBullmqRedisConnectionOptions, getWorkerBullmqConfig, queueRegistry } from './utils';
@@ -220,7 +220,7 @@ async function processOneBatch(
           consecutiveErrors = 0;
         } catch (err) {
           failedOutboxIds.push(...entry.outboxIds);
-          if (isSerializationError(err)) {
+          if (err instanceof OperationOutcomeError && isRetryableTransactionError(err)) {
             globalLogger.info('Serialization conflict during shard sync, will retry', {
               resource: `${entry.resourceType}/${entry.resourceId}`,
             });
@@ -267,20 +267,6 @@ async function processOneBatch(
   } finally {
     (shardClient as PoolClient).release();
   }
-}
-
-/**
- * Checks whether an error represents a serialization conflict that can safely be retried.
- * @param err - The error to check.
- * @returns True if the error is a serialization failure.
- */
-function isSerializationError(err: unknown): boolean {
-  if (err instanceof OperationOutcomeError) {
-    return err.outcome.issue.some(
-      (i) => i.code === 'conflict' && i.details?.coding?.some((c) => c.code === PostgresError.SerializationFailure)
-    );
-  }
-  return false;
 }
 
 /**
