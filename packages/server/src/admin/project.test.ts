@@ -239,6 +239,18 @@ describe('Project Admin routes', () => {
 
     expect(res10.status).toBe(403);
 
+    const res10b = await request(app)
+      .post('/admin/projects/' + aliceRegistration.project.id + '/settings')
+      .set('Authorization', 'Bearer ' + bobRegistration.accessToken)
+      .send([
+        {
+          name: 'countryPack',
+          valueString: 'kenya',
+        },
+      ]);
+
+    expect(res10b.status).toBe(403);
+
     // Try to delete Alice's project members using Bob's access token
     // Should fail
     const res11 = await request(app)
@@ -542,6 +554,43 @@ describe('Project Admin routes', () => {
       .set('X-Medplum', 'extended');
     expect(res4.status).toBe(200);
     expect(res4.body.meta.author).toMatchObject(createReference(profile));
+  });
+
+  test('Save project settings', async () => {
+    const { project, accessToken } = await withTestContext(() =>
+      registerNew({
+        firstName: 'John',
+        lastName: 'Adams',
+        projectName: 'Adams Project',
+        email: `john${randomUUID()}@example.com`,
+        password: 'password!@#',
+      })
+    );
+
+    const res2 = await request(app)
+      .post('/admin/projects/' + project.id + '/settings')
+      .set('Authorization', 'Bearer ' + accessToken)
+      .send([
+        {
+          name: 'countryPack',
+          valueString: 'kenya',
+        },
+        {
+          name: 'countryCode',
+          valueString: 'KE',
+        },
+      ]);
+    expect(res2.status).toBe(200);
+
+    const res3 = await request(app)
+      .get('/admin/projects/' + project.id)
+      .set('Authorization', 'Bearer ' + accessToken);
+    expect(res3.status).toBe(200);
+    expect(res3.body.project.setting).toHaveLength(2);
+    expect(res3.body.project.setting[0].name).toStrictEqual('countryPack');
+    expect(res3.body.project.setting[0].valueString).toStrictEqual('kenya');
+    expect(res3.body.project.setting[1].name).toStrictEqual('countryCode');
+    expect(res3.body.project.setting[1].valueString).toStrictEqual('KE');
   });
 
   test('Save project sites', async () => {

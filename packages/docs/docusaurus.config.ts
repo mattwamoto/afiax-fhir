@@ -5,17 +5,17 @@ import type { Config } from '@docusaurus/types';
 import { themes as prismThemes } from 'prism-react-renderer';
 
 const config: Config = {
-  title: 'Medplum',
-  tagline: 'Fast and easy healthcare dev',
-  url: 'https://www.medplum.com',
+  title: 'Afiax Connected Healthcare',
+  tagline: 'Pan-African digital health infrastructure built on a FHIR-native clinical core',
+  url: 'https://www.afiax.africa',
   baseUrl: '/',
   trailingSlash: false,
   onBrokenLinks: 'throw',
   onBrokenAnchors: 'throw',
   onDuplicateRoutes: 'throw',
-  favicon: 'favicon.ico',
-  organizationName: 'medplum', // Usually your GitHub org/user name.
-  projectName: 'medplum', // Usually your repo name.
+  favicon: 'img/afiax-mark.svg',
+  organizationName: 'mattwamoto',
+  projectName: 'afiax-fhir',
 
   // Set this to true to enable the faster experimental build mode.
   // https://github.com/facebook/docusaurus/issues/10556
@@ -38,9 +38,8 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          editUrl: 'https://github.com/medplum/medplum/blob/main/packages/docs/',
+          editUrl: 'https://github.com/mattwamoto/afiax-fhir/blob/main/packages/docs/',
           async sidebarItemsGenerator({ defaultSidebarItemsGenerator, ...args }) {
-            // Example: return an hardcoded list of static sidebar items
             let items = await defaultSidebarItemsGenerator(args);
             items = items.filter((e) => !(e.type === 'doc' && e.id.endsWith('index')));
             return items;
@@ -55,9 +54,6 @@ const config: Config = {
         theme: {
           customCss: './src/css/custom.css',
         },
-        gtag: {
-          trackingID: 'G-SHW0ZNT27G',
-        },
       },
     ],
   ],
@@ -68,7 +64,7 @@ const config: Config = {
       attributes: {
         rel: 'apple-touch-icon',
         sizes: '180x180',
-        href: '/img/medplum-apple-touch-icon.png',
+        href: '/img/afiax-mark.svg',
       },
     },
     {
@@ -83,42 +79,45 @@ const config: Config = {
   themeConfig: {
     navbar: {
       logo: {
-        alt: 'Medplum Logo',
+        alt: 'Afiax Connected Healthcare',
         src: 'img/logo.svg',
-        width: 24,
-        height: 32,
+        width: 196,
+        height: 44,
       },
       items: [
         {
-          to: '/products',
-          label: 'Products',
+          type: 'doc',
+          docId: 'architecture/index',
+          label: 'Architecture',
           position: 'left',
         },
         {
-          to: '/solutions',
-          label: 'Solutions',
+          type: 'doc',
+          docId: 'country-packs/index',
+          label: 'Country Packs',
           position: 'left',
+        },
+        {
+          type: 'doc',
+          docId: 'architecture/enterprise-platform',
+          position: 'left',
+          label: 'Platform',
         },
         {
           type: 'doc',
           docId: 'home',
           position: 'left',
-          label: 'Resources',
+          label: 'Docs',
         },
         {
-          to: '/pricing',
-          label: 'Pricing',
-          position: 'left',
-        },
-        {
-          to: 'https://app.medplum.com/signin',
+          to: 'https://app.afiax.africa/signin',
           label: 'Sign In',
           position: 'right',
           className: 'button button--outline button--primary navbar-btn navbar-btn-outlined',
         },
         {
-          to: 'https://cal.com/medplum/demo',
-          label: 'Book a Demo',
+          to: 'https://www.afiax.africa',
+          label: 'Visit Afiax',
           position: 'right',
           className: 'button button--primary navbar-btn navbar-btn-filled',
         },
@@ -130,45 +129,41 @@ const config: Config = {
           title: 'Developers',
           items: [
             {
-              label: 'Getting started',
-              to: '/docs/tutorials',
+              label: 'Architecture',
+              to: '/docs/architecture',
             },
             {
-              label: 'Documentation',
-              to: '/docs',
+              label: 'Enterprise platform',
+              to: '/docs/architecture/enterprise-platform',
             },
             {
-              label: 'Search',
-              to: '/search',
+              label: 'Canonical model',
+              to: '/docs/architecture/canonical-model',
+            },
+            {
+              label: 'Country packs',
+              to: '/docs/country-packs',
             },
           ],
         },
         {
-          title: 'Community',
+          title: 'Platform',
           items: [
             {
-              label: 'Case Studies',
-              to: '/case-studies',
+              label: 'Kenya reference pack',
+              to: '/docs/country-packs/kenya',
             },
             {
-              label: 'Discord',
-              to: 'https://discord.gg/medplum',
+              label: 'Country pack SDK',
+              to: '/docs/country-packs/sdk',
             },
             {
-              label: 'Storybook',
-              to: 'https://storybook.medplum.com/',
+              label: 'Bots',
+              to: '/docs/bots',
             },
             {
-              label: 'GitHub',
-              to: 'https://github.com/medplum/medplum',
-            },
-            {
-              label: 'Knowledge Base',
-              to: 'https://linen.medplum.com',
-            },
-            {
-              label: 'Contributing',
-              to: '/docs/contributing',
+              label: 'Self hosting',
+              to: '/docs/self-hosting',
             },
           ],
         },
@@ -176,59 +171,31 @@ const config: Config = {
           title: 'Company',
           items: [
             {
-              label: 'About us',
-              to: '/about',
+              label: 'Website',
+              to: 'https://www.afiax.africa',
             },
             {
-              label: 'Pricing',
-              to: '/pricing',
+              label: 'GitHub',
+              to: 'https://github.com/mattwamoto/afiax-fhir',
             },
             {
-              label: 'Enterprise',
-              to: '/enterprise',
+              label: 'Contact',
+              to: 'mailto:info@afiax.africa',
             },
             {
-              label: 'Careers',
-              to: '/careers',
-            },
-            {
-              label: 'Blog',
-              to: '/blog',
-            },
-            {
-              label: 'Brand',
-              to: '/brand',
+              label: 'Contributing',
+              to: '/docs/contributing',
             },
           ],
         },
       ],
-      copyright: `© ${new Date().getFullYear()} Orangebot, Inc.`,
+      copyright: `© ${new Date().getFullYear()} Afiax Connected Healthcare.`,
     },
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
     },
-    image: 'img/medplum-og-cover-image.png',
-    algolia: {
-      // The application ID provided by Algolia
-      appId: '6A1DXS603N',
-
-      // Public API key: it is safe to commit it
-      apiKey: '75b991071ef4ef1145d63c0a4d0d4665',
-
-      indexName: 'medplum',
-
-      // Optional: see doc section below
-      contextualSearch: true,
-
-      // Optional: Algolia search parameters
-      searchParameters: {},
-
-      // Optional: path for search page that enabled by default (`false` to disable it)
-      searchPagePath: 'search',
-
-      //... other Algolia params
-    },
+    image: 'img/afiax-mark.svg',
   } satisfies Preset.ThemeConfig,
   markdown: {
     mermaid: true,

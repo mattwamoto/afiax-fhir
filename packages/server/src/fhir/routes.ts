@@ -68,6 +68,7 @@ import { setAccountsHandler } from './operations/set-accounts';
 import { structureDefinitionExpandProfileHandler } from './operations/structuredefinitionexpandprofile';
 import { codeSystemSubsumesOperation } from './operations/subsumes';
 import { updateUserEmailOperation } from './operations/update-user-email';
+import { verifyFacilityAuthorityHandler } from './operations/verify-facility-authority';
 import { valueSetValidateOperation } from './operations/valuesetvalidatecode';
 import { sendOutcome } from './outcomes';
 import type { ResendSubscriptionsOptions } from './repo';
@@ -340,6 +341,11 @@ function initInternalFhirRouter(): FhirRouter {
   // Patient $ccda-export operation
   router.add('GET', '/Patient/:id/$ccda-export', ccdaExportHandler);
   router.add('POST', '/Patient/:id/$ccda-export', ccdaExportHandler);
+
+  // Organization $verify-facility-authority operation
+  router.add('GET', '/Organization/:id/$verify-facility-authority', verifyFacilityAuthorityHandler);
+  router.add('POST', '/Organization/:id/$verify-facility-authority', verifyFacilityAuthorityHandler);
+  router.add('POST', '/Organization/$verify-facility-authority', verifyFacilityAuthorityHandler);
 
   // QuestionnaireResponse $extract operation
   router.add('GET', '/QuestionnaireResponse/:id/$extract', extractHandler);

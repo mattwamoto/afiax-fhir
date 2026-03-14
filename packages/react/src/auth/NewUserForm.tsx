@@ -138,10 +138,10 @@ export function NewUserForm(props: NewUserFormProps): JSX.Element {
         />
         <SubmitButton fullWidth>Register Account</SubmitButton>
         <Text c="dimmed" size="xs" pt="lg" ta="center">
-          By clicking "Register Account" you agree to the Medplum{' '}
-          <Anchor href="https://www.medplum.com/privacy">Privacy&nbsp;Policy</Anchor>
+          By clicking "Register Account" you agree to the Afiax Connected Healthcare{' '}
+          <Anchor href="https://www.afiax.africa/privacy">Privacy&nbsp;Policy</Anchor>
           {' and '}
-          <Anchor href="https://www.medplum.com/terms">Terms&nbsp;of&nbsp;Service</Anchor>.
+          <Anchor href="https://www.afiax.africa/terms">Terms&nbsp;of&nbsp;Service</Anchor>.
         </Text>
         <Text c="dimmed" size="xs" ta="center">
           This site is protected by reCAPTCHA and the Google{' '}

@@ -6,68 +6,92 @@ sidebar_position: 1
 import { Section } from '@site/src/components/landing/Section.tsx';
 import { Feature, FeatureGrid } from '@site/src/components/landing/FeatureGrid.tsx';
 
-# Welcome to Medplum
+# Welcome to Afiax Connected Healthcare
 
 <Section>
-  <FeatureGrid columns={2}>
-    <Feature title="Get Started" linkText="Read more" linkRef="./docs#get-started">
-      Set up and run your medical application in 5 minutes
+  <FeatureGrid columns={3}>
+    <Feature title="Platform architecture" linkText="Read more" linkRef="/docs/architecture">
+      Understand the broader Afiax platform model, delivery layers, and governance model.
     </Feature>
-    <Feature title="Plan your Workflows" linkText="Read more" linkRef="./docs#plan-your-workflows">
-      Learn FHIR and plan your workflows
+    <Feature title="Enterprise platform" linkText="Read more" linkRef="/docs/architecture/enterprise-platform">
+      Review the clinical core, interoperability layer, digital services, and deployment models.
     </Feature>
-    <Feature title="Build in Medplum" linkText="Read more" linkRef="./docs#build-in-medplum">
-      Medplum tools for full-stack apps with authentication
+    <Feature title="Canonical FHIR model" linkText="Read more" linkRef="/docs/architecture/canonical-model">
+      See how Afiax keeps the shared model country-neutral while country packs bind local requirements.
     </Feature>
-    <Feature title="Connect to the Ecosystem" linkText="Read more" linkRef="./docs#connect-to-the-healthcare-ecosystem">
-      Use HL7, FHIRcast, labs/prescribing, and beyond
+    <Feature title="Country packs" linkText="Read more" linkRef="/docs/country-packs">
+      Learn how national integrations are packaged without turning the core into a country-specific fork.
+    </Feature>
+    <Feature title="Kenya reference pack" linkText="Read more" linkRef="/docs/country-packs/kenya">
+      Review the first country-pack implementation for registries, eligibility, SHR publishing, and claims.
+    </Feature>
+    <Feature title="Developer stack" linkText="Read more" linkRef="/docs/self-hosting">
+      Run the platform locally, extend it with Bots and operations, and prepare for sovereign deployment.
     </Feature>
   </FeatureGrid>
 </Section>
 
-## What is Medplum?
+## What is Afiax?
 
-Medplum is a **headless EHR**. Using [Medplum products](./products) you can build many [types of healthcare applications](./solutions). The diagram below is a system overview:
+Afiax Connected Healthcare is a **pan-African digital health platform** being built on a Medplum-derived,
+FHIR-native clinical core. Kenya is the first country implementation, but the platform itself is broader than the Kenya
+pack.
 
-![Medplum system overview](/img/medplum-overview.svg)
+Afiax combines:
 
-## Get Started
+- **Clinical core**: canonical FHIR resources, access control, subscriptions, Bots, operations, and shared domain services
+- **Digital service layers**: provider workflows, patient engagement, telemedicine, analytics, and partner APIs
+- **Country packs**: national terminology, registries, payer rails, claims, and exchange connectors
+- **Tenant overlays**: customer-specific configuration, workflow toggles, and deployment choices
+- **Delivery models**: SaaS, managed PaaS, and infrastructure patterns aligned to local sovereignty and scale needs
 
-1. [Register a project](/docs/tutorials/register) for your data.
-   1. [Optional]: [Import sample data](/docs/tutorials/importing-sample-data).
-2. Use our [provider app](/docs/provider) by logging in to our [out-of-the-box EHR experience](https://provider.medplum.com/).
-3. [Build your own application](/docs/tutorials/medplum-hello-world) against our APIs.
+## Platform scope
 
-## Plan your Workflows
+- Cloud-based electronic health record and clinical operations foundation
+- Interoperability and national exchange services built on HL7/FHIR
+- Telemedicine and remote-care enablement
+- Analytics and AI-driven decision support
+- Developer and partner platform capabilities via APIs, Bots, and country-pack contracts
+- Shared SaaS, dedicated runtime, and managed deployment options depending on market and customer needs
 
-1. [Learn FHIR basics](./docs/fhir-basics) to understand the structure of FHIR resources, the healthcare standard on which Medplum is built.
-2. [Learn workflow patterns](./blog/fhir-workflow-patterns-to-simplify-your-life) to understand how resources are used to place requests, record events, and store information.
-3. Explore our docs on workflows under "Model in FHIR"! Popular workflows are included below. Step through specific use cases. Don't see a how-to guide you need? Reach out on our [Discord](https://discord.gg/medplum) or send us an email at [support@medplum.com](mailto:support@medplum.com).
-   1. [Charting patient data](./docs/charting)
-   2. [Creating and automating clinical operations](/docs/careplans/tasks)
-   3. [Recording asynchronous encounters and messaging](./docs/communications/async-encounters)
-   4. [Billing your services](./docs/billing)
-4. [Migrate your data](./docs/migration) to Medplum.
+## How the docs are organized
 
-## Build in Medplum
+1. Start with the [architecture overview](/docs/architecture) for the broad Afiax platform model.
+2. Use the [enterprise platform](/docs/architecture/enterprise-platform) and [canonical FHIR model](/docs/architecture/canonical-model) docs to define the shared core.
+3. Open [country packs](/docs/country-packs) when you are ready to localize the platform for a market.
+4. Use the [Kenya reference pack](/docs/country-packs/kenya) as the first implementation of that model.
+5. Use [Bots](/docs/bots), [FHIR operations](/docs/api/fhir/operations), and the [FHIR datastore](/docs/fhir-datastore) to deliver auditable workflows.
 
-1. [CRUD using our FHIR datastore](./docs/fhir-datastore), and learn to [search your data](./docs/search).
-2. Explore our [React components](./docs/api/react), pre-built to support Medplum data.
-3. [Run the Medplum stack locally](./docs/self-hosting/running-full-medplum-stack-in-docker) to set up your developer environment.
+## Core principles
 
-## Connect to the Healthcare Ecosystem
+- Country-neutral core, country-specific overlays
+- FHIR-native source of truth in Medplum resources
+- No direct national API calls from UI applications
+- Sovereign deployment for identifiable clinical data
+- Audit, provenance, and reconciliation before production go-live
 
-- Get on-prem connectivity with our [Medplum Agent](./docs/agent), connecting to devices over HL7/MLLP, ASTM, and DICOM and surfacing them securely to the cloud.
-- Use [FHIRcast](./docs/fhircast) for real-time synchronization.
-- Use our out-of-the-box [labs](./docs/integration/health-gorilla), [prescribing](./docs/integration/dosespot), and [RCM](./docs/integration/stedi) integrations.
-- Explore our [full menu of integrations](./docs/integration).
+## Why Kenya appears in the docs
 
-## Reference Material
+Kenya is documented because it is the **first reference country pack**, not because it defines the whole Afiax
+platform. The shared core, SDK contracts, deployment models, and operating principles are intended to support
+additional African markets without rewriting the platform.
 
-Medplum is [open source](https://github.com/medplum/medplum). [Reference material](/docs/api/index.md) and [sample applications](https://github.com/medplum) are available for browsing without authentication.
+## Building blocks
 
-## Community
+- [FHIR basics](/docs/fhir-basics)
+- [FHIR datastore](/docs/fhir-datastore)
+- [Authentication and access control](/docs/auth)
+- [Bots](/docs/bots)
+- [Self hosting](/docs/self-hosting)
 
-- **Contributing** - Medplum is open source because we believe that streamlining healthcare is based on _transparency_ and _collaboration_. If you are interested in contributing to Medplum, check out our [Contributors](./docs/contributing) page
-- **Discord** - Join the conversation by checking us out on [Discord](https://discord.gg/medplum)
-- **YouTube** — Our [YouTube channel](https://www.youtube.com/channel/UCu_sS6aXEHz3GPk2NTugtJA) includes content that aids in app development
+## Learn more
+
+Learn more about the broader company and market-facing platform at [www.afiax.africa](https://www.afiax.africa).
+
+## Reference material
+
+- [Architecture](/docs/architecture)
+- [Country packs](/docs/country-packs)
+- [API reference](/docs/api)
+- [FHIR resources](/docs/api/fhir/overview)
+- [Contributing](/docs/contributing)

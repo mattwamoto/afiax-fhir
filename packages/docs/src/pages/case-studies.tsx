@@ -4,9 +4,9 @@ import Link from '@docusaurus/Link';
 import { IconCode, IconExchange, IconFlask, IconHeartRateMonitor } from '@tabler/icons-react';
 import Layout from '@theme/Layout';
 import type { JSX } from 'react';
+import { Card } from '../components/Card';
 import { CardContainer } from '../components/CardContainer';
 import { Container } from '../components/Container';
-import { ProfileCard } from '../components/ProfileCard';
 import { Feature, FeatureGrid } from '../components/landing/FeatureGrid';
 import { Jumbotron } from '../components/landing/Jumbotron';
 import { Section } from '../components/landing/Section';
@@ -19,154 +19,115 @@ export default function CaseStudiesPage(): JSX.Element {
       <Container>
         <Jumbotron>
           <div className={styles.heroContent}>
-            <h1 className={styles.heroTitle}>Case Studies</h1>
+            <h1 className={styles.heroTitle}>Implementation Patterns</h1>
             <p className={styles.heroText}>
-              Read the details on Medplum implementations with extensive reference materials, documentation and videos.
+              Afiax is using Medplum as the clinical core for a broader pan-African platform. These reference patterns
+              describe the kinds of solutions the platform is intended to support.
             </p>
             <img src="/img/hero/hero-custom-apps-and-portals.webp" alt="Custom Apps and Portals" />
           </div>
         </Jumbotron>
         <SectionHeader>
-          <h2>Solutions</h2>
+          <h2>Reference patterns</h2>
         </SectionHeader>
         <Section>
           <FeatureGrid columns={2}>
-            <Feature title="AI" icon={<IconCode />}>
-              Medplum is a best of breed EHR for integrating AI. Our customers build sophisticated, high-fidelity{' '}
-              <Link href="/blog/tags/ai">AI driven applications</Link> on an open source platform with much attention to
-              detail.
+            <Feature title="Digital services and AI" icon={<IconCode />}>
+              Afiax should expose clean clinical and operational APIs so AI services, patient engagement tools, and
+              workforce applications can interact with the platform without owning the source record.
             </Feature>
-            <Feature title="Specialty EHR" icon={<IconHeartRateMonitor />}>
-              Medplum powers many specialty electronic health record systems and other purpose-built healthcare apps.
-              Implmentations include solutions across specialties: <Link href="/blog/tags/pediatrics">pediatrics</Link>,
-              <Link href="/blog/tags/radiology">radiology</Link>, <Link href="/blog/ensage-case-study">geriatrics</Link>
-              , cardiac care and more.
+            <Feature title="Provider and specialty workflows" icon={<IconHeartRateMonitor />}>
+              Provider portals, custom EHR workflows, scheduling, documentation, referrals, and care coordination
+              should be delivered on top of the shared Medplum core.
             </Feature>
-            <Feature title="Diagnostics" icon={<IconFlask />}>
-              Diagnostics providers need highly programmable system that can manage data securely at scale. Medplum
-              provides solutions for <Link href="/blog/ro-case-study">laboratory</Link>, medical device, imaging,{' '}
-              <Link href="/blog/codex-and-the-power-of-g10">remote patient monitoring</Link> and more.
+            <Feature title="Diagnostics and devices" icon={<IconFlask />}>
+              Laboratories, imaging partners, and device ecosystems should integrate through normalized workflows that
+              keep orders, results, attachments, and audit events consistent.
             </Feature>
-            <Feature title="Interop" icon={<IconExchange />}>
-              Reliable and transparent <Link href="/docs/integration">integrations</Link> are built on Medplum.
-              Integrate many systems on the same unified platform. Medplum's{' '}
-              <Link href="/docs/bots">bot framework</Link> and{' '}
-              <Link href="/docs/auth">industry standard authentication</Link> offering speed up development and ensure
-              that integrations really work.
+            <Feature title="Country and national interoperability" icon={<IconExchange />}>
+              Country packs, Bots, and custom operations allow Afiax to publish regulated outputs to registries,
+              payers, and national platforms without turning those external payloads into the primary clinical model.
             </Feature>
           </FeatureGrid>
         </Section>
         <Jumbotron>
           <div className={styles.heroContent}>
-            <h1 className={styles.heroTitle}>Summer Health</h1>
+            <h1 className={styles.heroTitle}>Kenya as the first reference pack</h1>
             <p className={styles.heroText}>
-              <Link href="blog/summer-case-study">Pediatric care</Link> 24 hours a day via SMS. Their custom EHR
-              features streamlined charting using AI which enhances the experience for patients and clinicians.
+              Kenya should prove the packaging model: canonical core first, country-specific exchange logic second, and
+              tenant-specific rollout third. That makes the next country an extension problem instead of a rewrite.
             </p>
           </div>
           <div className={styles.heroImage}>
-            <iframe
-              width="560"
-              height="315"
-              src="https://www.youtube.com/embed/H2fJVYG8LvQ?si=KIVtT_e-1WE2zzjs"
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
+            <img src="/img/hero/hero-custom-apps-and-portals-square.webp" alt="Kenya reference pack" />
           </div>
         </Jumbotron>
         <Section>
           <CardContainer>
-            <ProfileCard
-              name="Ro Diagnostics"
-              title="Lab, integrations, workflow"
-              imgUrl="/img/blog/ro-logo.png"
-              webUrl="/blog/ro-case-study"
-              youtubeUrl="https://youtu.be/q-22Y7Ox2jY"
-            />
-            <ProfileCard
-              name="Rad AI"
-              title="AI, Radiology, interop"
-              imgUrl="/img/blog/radai-logo.jpeg"
-              webUrl="/blog/radai-case-study"
-              youtubeUrl="https://www.youtube.com/watch?v=N5ZocZhdPZ0"
-            />
-            <ProfileCard
-              name="Develo"
-              title="Pediatrics, AI, Billing"
-              imgUrl="/img/blog/develo.jpeg"
-              youtubeUrl="https://www.youtube.com/watch?v=Jk5jSEiBYbQ"
-              webUrl="/blog/develo-case-study"
-            />
-          </CardContainer>
-        </Section>
-        <Jumbotron>
-          <div className={styles.heroContent}>
-            <h1 className={styles.heroTitle}>Rad AI</h1>
-            <p className={styles.heroText}>
-              <Link href="blog/radai-case-study">Omni Reporting</Link> is an AI powered application that saves time and
-              reduces burnout - allowing clinicians to speak less, say more.
-            </p>
-          </div>
-          <div className={styles.heroImage}>
-            <iframe
-              width="560"
-              height="315"
-              src="https://www.youtube.com/embed/N5ZocZhdPZ0"
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-          </div>
-        </Jumbotron>
-        <Section>
-          <CardContainer>
-            <ProfileCard
-              name="Chamber Cardio"
-              title="EHR integrations, workflow"
-              imgUrl="/img/blog/chamber-cardio-logo.jpeg"
-              webUrl="/blog/chamber-cardio-case-study"
-              youtubeUrl="https://youtu.be/8bsrKe6VmUs"
-            />
-            <ProfileCard
-              name="Summer Health"
-              title="AI, Pediatrics, Messaging"
-              imgUrl="/img/blog/summer-health.png"
-              webUrl="/blog/summer-case-study"
-              youtubeUrl="https://youtu.be/H2fJVYG8LvQ"
-            />
-            <ProfileCard
-              name="Flexpa"
-              title="Claims, Billing, Interop"
-              imgUrl="/img/blog/flexpa-logo.png"
-              youtubeUrl="https://youtu.be/DsdLq6DGi-0"
-              webUrl="/blog/flexpa-case-study"
-            />
+            <Card>
+              <h3>Provider operations</h3>
+              <p>
+                Custom EHR workflows, provider portals, and care coordination should all use the same canonical
+                resource model.
+              </p>
+              <p>
+                <Link href="/solutions/custom-ehr">Explore provider workflows</Link>
+              </p>
+            </Card>
+            <Card>
+              <h3>Diagnostics</h3>
+              <p>
+                Diagnostics workflows should integrate analyzers, partner labs, and reference systems through a governed
+                interoperability layer.
+              </p>
+              <p>
+                <Link href="/solutions/lab">Explore diagnostics pattern</Link>
+              </p>
+            </Card>
+            <Card>
+              <h3>Country packs</h3>
+              <p>
+                National logic should live under dedicated packaging and documentation rather than being spread across
+                the entire product story.
+              </p>
+              <p>
+                <Link href="/docs/country-packs/kenya">Explore the Kenya pack</Link>
+              </p>
+            </Card>
           </CardContainer>
         </Section>
         <Section>
           <CardContainer>
-            <ProfileCard
-              name="Tia"
-              title="Women's health"
-              imgUrl="/img/blog/tia-logo.png"
-              webUrl="https://concepttocare.substack.com/p/episode-13-ari-saft"
-            />
-            <ProfileCard
-              name="Rewind"
-              title="Metabolic health"
-              imgUrl="/img/blog/rewind-logo.png"
-              webUrl="https://www.vintasoftware.com/work/rewind"
-            />
-            <ProfileCard
-              name="Titan Intake"
-              title="AI, scheduling, interop"
-              imgUrl="/img/blog/titan-logo.jpeg"
-              webUrl="/blog/titan-case-study"
-              youtubeUrl="https://youtu.be/sy3YKRFyPII"
-            />
+            <Card>
+              <h3>Patient-facing services</h3>
+              <p>
+                Patient portals and digital front doors should reuse the same identity, consent, and longitudinal
+                record patterns as provider-facing workflows.
+              </p>
+              <p>
+                <Link href="/solutions/patient-portal">Explore patient-facing services</Link>
+              </p>
+            </Card>
+            <Card>
+              <h3>Interoperability spine</h3>
+              <p>
+                External systems should connect through subscriptions, Bots, custom operations, and normalized return
+                paths into the clinical core.
+              </p>
+              <p>
+                <Link href="/solutions/interoperability">Explore interoperability</Link>
+              </p>
+            </Card>
+            <Card>
+              <h3>Architecture guardrails</h3>
+              <p>
+                The platform should keep clinical state in Medplum and let ERP, mobile, AI, and national systems remain
+                integration peers.
+              </p>
+              <p>
+                <Link href="/docs/architecture/integration-boundaries">Review the guardrails</Link>
+              </p>
+            </Card>
           </CardContainer>
         </Section>
       </Container>

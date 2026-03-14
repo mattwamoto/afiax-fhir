@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { locationUtils } from '@medplum/core';
 import { MockClient } from '@medplum/mock';
-import { MedplumProvider } from '@medplum/react';
+import { getAppName, MedplumProvider } from '@medplum/react';
 import crypto from 'crypto';
 import { MemoryRouter } from 'react-router';
 import { AppRoutes } from './AppRoutes';
@@ -98,8 +98,8 @@ describe('OAuthPage', () => {
 
     await setup('/oauth?client_id=123');
     await waitFor(() => expect(medplum.get).toHaveBeenCalledWith('/auth/clientinfo/123'));
-    expect(screen.getByText('Sign in to Medplum')).toBeInTheDocument();
-    expect(screen.getByText('Medplum Logo')).toBeInTheDocument();
+    expect(screen.getByText(`Sign in to ${getAppName()}`)).toBeInTheDocument();
+    expect(screen.getByText(`${getAppName()} Logo`)).toBeInTheDocument();
   });
 
   test('Fetch logo and render default welcome string', async () => {
@@ -110,7 +110,7 @@ describe('OAuthPage', () => {
 
     await setup('/oauth?client_id=123');
     await waitFor(() => expect(medplum.get).toHaveBeenCalledWith('/auth/clientinfo/123'));
-    expect(screen.getByText('Sign in to Medplum')).toBeInTheDocument();
+    expect(screen.getByText(`Sign in to ${getAppName()}`)).toBeInTheDocument();
     const logo = screen.getByAltText('Welcome Logo');
     expect(logo).toBeInTheDocument();
   });

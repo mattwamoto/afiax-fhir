@@ -575,6 +575,7 @@ export interface BotResponseStream extends NodeJS.WritableStream {
 
 export interface BotEvent<T = unknown> {
   readonly bot: Reference<Bot>;
+  readonly project?: BotProjectContext;
   readonly contentType: string;
   readonly input: T;
   readonly secrets: Record<string, ProjectSetting>;
@@ -584,6 +585,13 @@ export interface BotEvent<T = unknown> {
   readonly headers?: Record<string, string | string[] | undefined>;
   /** Optional response stream when invoked with SSE (Server Side Events) */
   readonly responseStream?: BotResponseStream;
+}
+
+export interface BotProjectContext {
+  readonly reference: Reference<Project>;
+  readonly name?: string;
+  readonly countryPack?: string;
+  readonly settings: Record<string, ProjectSetting>;
 }
 
 export interface InviteRequest {

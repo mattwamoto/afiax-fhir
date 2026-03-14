@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { MedplumClient } from '@medplum/core';
 import { DrAliceSmith, MockClient } from '@medplum/mock';
-import { MedplumProvider } from '@medplum/react';
+import { getAppName, MedplumProvider } from '@medplum/react';
 import crypto from 'crypto';
 import { MemoryRouter } from 'react-router';
 import { TextEncoder } from 'util';
@@ -35,7 +35,7 @@ describe('SignInPage', () => {
   });
 
   function expectSigninPageRendered(): void {
-    expect(screen.getByText('Sign in to Medplum')).toBeInTheDocument();
+    expect(screen.getByText(`Sign in to ${getAppName()}`)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Continue' })).toBeInTheDocument();
   }
 

@@ -34,6 +34,11 @@ export function getFissionConfig(): MedplumFissionConfig {
   return config;
 }
 
+export function getFissionFunctionUrl(id: string): string {
+  const config = getFissionConfig();
+  return `http://${config.routerHost}:${config.routerPort}${getRelativeUrl(id)}`;
+}
+
 /**
  * Deploys a Fission function with the given ID and function code.
  * This function creates a Fission package, function, and HTTP trigger.
@@ -158,11 +163,7 @@ export async function deployFissionFunction(id: string, zipFile: Uint8Array): Pr
  * @returns A promise that resolves to the response body from the Fission function.
  */
 export async function executeFissionFunction(id: string, body: string): Promise<string> {
-  const config = getFissionConfig();
-
-  const relativeUrl = getRelativeUrl(id);
-
-  const url = `http://${config.routerHost}:${config.routerPort}${relativeUrl}`;
+  const url = getFissionFunctionUrl(id);
   const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

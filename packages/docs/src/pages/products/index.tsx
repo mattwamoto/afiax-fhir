@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
+import Link from '@docusaurus/Link';
 import Layout from '@theme/Layout';
 import { JSX } from 'react';
 import { Container } from '../../components/Container';
@@ -8,195 +9,200 @@ import styles from '../about.module.css';
 
 export default function ProductsPage(): JSX.Element {
   return (
-    <Layout title="Products">
+    <Layout title="Platform Capabilities">
       <Container>
         <Jumbotron>
           <div className={styles.heroContent}>
-            <h1>Integrated Tools and Services</h1>
+            <h1>Afiax Platform Capabilities</h1>
             <p className={styles.heroText}>
-              Medplum is a platform of integrated, modular products designed to accelerate the development of secure and
-              compliant healthcare applications. We provide the tools you need to manage patient data, streamline
-              clinical workflows, and build advanced integrations, all on a single, unified platform.
+              Afiax Connected Healthcare is building a pan-African digital health platform on top of a Medplum-derived,
+              FHIR-native clinical core. The product story is broader than a single app or one country integration: it
+              spans clinical operations, interoperability, digital care services, analytics, developer tooling, and
+              sovereign deployment models.
             </p>
           </div>
         </Jumbotron>
+
         <Jumbotron>
           <div className={styles.heroContent}>
-            <h2>Clinical Data Platform</h2>
+            <h2>
+              <Link to="/products/integration">Clinical Core and Interoperability Spine</Link>
+            </h2>
             <p className={styles.heroText}>
-              Your central nervous system for healthcare data. The Medplum Clinical Data Platform is a secure, compliant
-              data repository and API that simplifies how you store, access, and manage patient information. Get a
-              single source of truth for your business, with built-in access controls and a flexible data model designed
-              for clinical workflows.
+              The Afiax platform starts with a canonical FHIR data model, auditable workflow engine, and internal
+              operations layer that make clinical and operational data reusable across products, partners, and markets.
             </p>
-            <br />
             <ul>
               <li>
-                <strong>Clinical Data Repository (CDR):</strong> A single source of truth for all your patient data.
+                <strong>FHIR-native source of truth:</strong> patients, encounters, coverage, tasks, documents,
+                communications, consent, audit, and provenance on one shared model.
               </li>
               <li>
-                <strong>API:</strong> A modern API for sending, receiving, and managing data.
+                <strong>Country-pack integration layer:</strong> national registries, payer services, exchange
+                connectors, and regulatory mappings stay outside the core.
               </li>
               <li>
-                <strong>Search:</strong> Powerful, time-aware search to find the data you need, when you need it.
+                <strong>Event-driven orchestration:</strong> Bots, subscriptions, and custom operations support
+                retry-safe automation and external exchange.
               </li>
               <li>
-                <strong>Subscriptions:</strong> Event-driven notifications and webhooks for seamless integrations and
-                automations.
+                <strong>Partner-ready APIs:</strong> provider apps, patient apps, and partner systems inherit the same
+                normalized platform contracts.
               </li>
             </ul>
           </div>
           <div className={styles.heroImage}>
             <img
               src="/img/hero/hero-interop-and-data-platform-square.webp"
-              alt="Robot working in a medical office"
+              alt="Clinical data and interoperability"
               width="450"
               height="450"
             />
           </div>
         </Jumbotron>
+
         <Jumbotron>
           <div className={styles.heroContent}>
-            <h2>Integrated Services</h2>
+            <h2>Digital Care and Workflow Services</h2>
             <p className={styles.heroText}>
-              Medplum is more than just a platform; it's a suite of pre-built, turnkey solutions that save you time and
-              money. Our integrated services connect directly to a single, unified data model, eliminating the need for
-              complex, manual integrations and ensuring a consistent experience across your application.
+              Afiax uses the same platform core to power provider workflows, patient engagement, remote-care services,
+              and coordinated operations across facilities and programs.
             </p>
-            <br />
             <ul>
               <li>
-                <strong>Questionnaires:</strong> Easily build and embed custom forms, surveys, and assessments to
-                streamline patient intake and clinical workflows.
+                <strong>
+                  <Link to="/products/questionnaires">Questionnaires and structured data capture</Link>
+                </strong>
+                : intake, screening, program enrollment, assessments, and operational forms.
               </li>
               <li>
-                <strong>Scheduling:</strong> Create custom scheduling pages and workflows for practitioners, locations,
-                and patients with pre-built components or API-driven customization.
+                <strong>
+                  <Link to="/products/scheduling">Scheduling and access coordination</Link>
+                </strong>
+                : in-person, outreach, and virtual-care scheduling workflows across providers and locations.
               </li>
               <li>
-                <strong>ePrescribe & Medications:</strong> Connect to leading e-prescribing networks with a unified
-                login and a single source of truth for patient prescription history.
+                <strong>
+                  <Link to="/products/communications">Communications and care coordination</Link>
+                </strong>
+                : secure messaging, reminders, referrals, and partner notifications.
               </li>
               <li>
-                <strong>Labs & Diagnostics:</strong> Streamline lab orders and results with pre-built integrations to
-                major lab networks, automatically normalizing all data into a clean, unified patient record.
-              </li>
-              <li>
-                <strong>Billing:</strong> Simplify your revenue cycle with out-of-the-box integrations to leading
-                billing providers and a single data model that automates reconciliation and claims submission.
+                <strong>
+                  <Link to="/products/careplans">Care plans and program pathways</Link>
+                </strong>
+                : longitudinal care coordination for clinics, specialty programs, and public health initiatives.
               </li>
             </ul>
           </div>
           <div className={styles.heroImage}>
             <img
               src="/img/hero/hero-patient-allergies.webp"
-              alt="Robot working in a medical office"
+              alt="Digital care workflows"
               width="450"
               height="450"
             />
           </div>
         </Jumbotron>
+
         <Jumbotron>
           <div className={styles.heroContent}>
-            <h2>Certification and Compliance</h2>
+            <h2>
+              <Link to="/products/billing">Revenue Cycle and Payer Operations</Link>
+            </h2>
             <p className={styles.heroText}>
-              Navigating the complexities of healthcare regulations can be a major barrier to market entry and growth.
-              Medplum provides a fully ONC-certified platform, giving you a powerful, proven foundation for your
-              application. This helps you avoid the financial penalties of non-compliance and ensures your software is
-              audit-ready from day one, so you can focus on building your business, not on regulatory hurdles.
+              Billing is treated as part of a broader payer and reimbursement capability set. Afiax supports coverage,
+              eligibility, claims, reconciliation, and localized payer exchange through country packs rather than
+              hard-coding one reimbursement model into the platform.
             </p>
-            <br />
             <ul>
               <li>
-                <strong>ONC Certification:</strong> Achieve regulatory compliance with our ONC-certified platform, which
-                helps you meet the requirements for MIPS and other government incentives.
+                <strong>Coverage and eligibility:</strong> normalize public and private payer checks behind internal
+                platform operations.
               </li>
               <li>
-                <strong>HIPAA Compliance:</strong> Our platform is engineered to meet HIPAA standards, providing a
-                secure, protected environment for patient data.
+                <strong>Country-specific claims:</strong> implement localized submission rules through pack-specific
+                mappings and connectors.
               </li>
               <li>
-                <strong>Auditing and Logging:</strong> Built-in tools for tracking activity and connecting to your
-                enterprise observability suite, giving you an audit trail for all key actions.
-              </li>
-            </ul>
-          </div>
-          <div className={styles.heroImage}>
-            <img
-              src="/img/hero/hero-compliance-and-security-square.webp"
-              alt="Robot working in a medical office"
-              width="450"
-              height="450"
-            />
-          </div>
-        </Jumbotron>
-        <Jumbotron>
-          <div className={styles.heroContent}>
-            <h2>Application Development Toolkit</h2>
-            <p className={styles.heroText}>
-              Accelerate your development cycle with our comprehensive suite of tools. Our toolkit provides everything
-              you need to build user-friendly, compliant healthcare applications, from authentication and UI components
-              to server-side logic, all designed to work together perfectly.
-            </p>
-            <br />
-            <ul>
-              <li>
-                <strong>Authentication and Authorization:</strong> Secure identity solutions for patient and provider
-                logins.
-              </li>
-              <li>
-                <strong>UI Component Library:</strong> Pre-built React components to quickly develop custom
-                applications.
-              </li>
-              <li>
-                <strong>Bots:</strong> Server-side automations that extend your application logic without the need for
-                additional infrastructure.
-              </li>
-              <li>
-                <strong>SDK:</strong> Client libraries that simplify interacting with the platform's APIs.
-              </li>
-              <li>
-                <strong>Medplum App:</strong> An administrative tool for your team to manage data and troubleshoot
-                issues.
-              </li>
-            </ul>
-          </div>
-          <div className={styles.heroImage}>
-            <img src="/img/hero/hero-homepage.webp" alt="Robot working in a medical office" width="394" height="450" />
-          </div>
-        </Jumbotron>
-        <Jumbotron>
-          <div className={styles.heroContent}>
-            <h2>Enterprise Operations</h2>
-            <p className={styles.heroText}>
-              Build with confidence on a foundation of security, compliance, and control. Medplum provides the tools to
-              manage your infrastructure, meet regulatory requirements, and ensure your applications are always
-              auditable, scalable, and secure.
-            </p>
-            <br />
-            <ul>
-              <li>
-                <strong>Compliance:</strong> An audit-ready platform that helps you meet strict industry standards like
-                HIPAA.
-              </li>
-              <li>
-                <strong>Auditing and Logging:</strong> Built-in tools for tracking activity and connecting to your
-                enterprise observability suite.
-              </li>
-              <li>
-                <strong>Self-Hosting and Deployment:</strong> Flexible hosting options, giving you the choice between
-                our managed service or deploying in your own private cloud.
-              </li>
-              <li>
-                <strong>Integrations and Interoperability:</strong> Tools to connect with other healthcare systems and
-                services.
+                <strong>Operational traceability:</strong> correlate reimbursement outcomes back to canonical clinical
+                and financial records.
               </li>
             </ul>
           </div>
           <div className={styles.heroImage}>
             <img
               src="/img/hero/hero-charts-and-graphs.webp"
-              alt="Robot working in a medical office"
+              alt="Revenue cycle and analytics"
+              width="450"
+              height="450"
+            />
+          </div>
+        </Jumbotron>
+
+        <Jumbotron>
+          <div className={styles.heroContent}>
+            <h2>
+              <Link to="/products/bots">Automation and Developer Platform</Link>
+            </h2>
+            <p className={styles.heroText}>
+              Afiax is also a platform for builders. Teams can create internal operations, country-pack connectors,
+              tenant workflows, and white-label applications without forking the core.
+            </p>
+            <ul>
+              <li>
+                <strong>Bots and operations:</strong> implement workflow logic, external calls, reconciliation, and
+                automation.
+              </li>
+              <li>
+                <strong>SDKs and React components:</strong> accelerate provider, patient, and admin application
+                development.
+              </li>
+              <li>
+                <strong>Tenant and environment controls:</strong> support dev, UAT, and production rollout per
+                organization and market.
+              </li>
+              <li>
+                <strong>Country-pack contracts:</strong> let Kenya and future markets plug into the same platform
+                semantics.
+              </li>
+            </ul>
+          </div>
+          <div className={styles.heroImage}>
+            <img src="/img/hero/hero-homepage.webp" alt="Developer platform" width="394" height="450" />
+          </div>
+        </Jumbotron>
+
+        <Jumbotron>
+          <div className={styles.heroContent}>
+            <h2>Deployment, Governance, and Sovereign Operations</h2>
+            <p className={styles.heroText}>
+              Afiax is designed for African healthcare delivery realities, where data sovereignty, variable
+              infrastructure maturity, and multi-organization governance need to be first-class product concerns.
+            </p>
+            <ul>
+              <li>
+                <strong>Shared SaaS and dedicated runtime models:</strong> serve customers with different scale and
+                isolation requirements.
+              </li>
+              <li>
+                <strong>Managed PaaS patterns:</strong> operate the platform inside customer or country-specific cloud
+                footprints when needed.
+              </li>
+              <li>
+                <strong>Audit, provenance, and access control:</strong> make every workflow traceable and governable.
+              </li>
+              <li>
+                <strong>Website and market-facing story:</strong> the broader company vision lives at{' '}
+                <a href="https://www.afiax.africa">www.afiax.africa</a>, while these docs describe how the platform is
+                built.
+              </li>
+            </ul>
+          </div>
+          <div className={styles.heroImage}>
+            <img
+              src="/img/hero/hero-compliance-and-security-square.webp"
+              alt="Security and governance"
               width="450"
               height="450"
             />

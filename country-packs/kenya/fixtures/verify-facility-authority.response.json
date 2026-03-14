@@ -1,0 +1,16 @@
+{
+  "status": "verified",
+  "correlationId": "00000000-0000-0000-0000-000000000000",
+  "message": "Facility Afiax Clinic was found in AfyaLink using facility code 12345.",
+  "nextState": "ready-for-registry-check",
+  "countryPack": "kenya",
+  "registryFound": true,
+  "facilityApprovalStatus": "true",
+  "facilityOperationalStatus": "Operational",
+  "facilityName": "Afiax Clinic",
+  "facilityAuthorityIdentifier": "12345",
+  "facilityAuthoritySystem": "https://afiax.africa/kenya/identifier/mfl-code",
+  "task": {
+    "reference": "Task/example-verification-task"
+  }
+}

@@ -1,51 +1,44 @@
-# Patient Portal
+# Patient Experience and Digital Front Door
 
-Build a patient facing application that allows users to view their records, fill out questionnaires, schedule appointments, message their provider, view care plans, manage coverage and more. Medplum provides a starter kit that accelerates development, is easy to customize and will scale with your organization.
+Afiax supports white-label patient-facing experiences for registration, records access, scheduling, messaging, remote
+care, and program participation.
 
-## Sample Application
+## Common use cases
 
-The sample application is called [Foo Medical](https://www.foomedical.com). To see the experience you can [register here](https://www.foomedical.com/register). The source code for the application and how to set it up can be found [here](https://github.com/medplum/foomedical).
+- registration and onboarding
+- patient questionnaires and consent capture
+- appointment booking and visit readiness
+- records and document access
+- secure messaging and follow-up
+- virtual-care and remote-engagement workflows
+- coverage and financial self-service where appropriate
 
-<div className="responsive-iframe-wrapper">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/aXKWDJ-GBKk?controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</div>
+## Why this matters
 
-## Features
+Patient-facing experiences are often where adoption succeeds or fails. Afiax uses the same canonical data model and
+workflow engine behind provider operations, so patient apps do not become disconnected side systems.
 
-[Foo Medical](https://www.foomedical.com) shows the basics that are very common to medical practices, both in person and virtual care. You will notice that the application is completely white-label and is operating under a single domain.
+## Platform capabilities
 
-### Onboarding questionnaires and paperwork
+- [questionnaires](/products/questionnaires) for onboarding and follow-up
+- [scheduling](/products/scheduling) for patient access
+- [communications](/products/communications) for secure interaction
+- [care plans](/products/careplans) for longitudinal engagement
+- [access control](/docs/access/access-policies) for patient and caregiver permissions
 
-Create questionnaires for users, and put them in the app for them to fill out as needed. You can see an example on [Foo Medical](https://www.foomedical.com) and read in depth on [questionnaires](../products/questionnaires). You can see some sample questionnaires on our [storybook](https://storybook.medplum.com/?path=/docs/medplum-questionnaireform--us-surgeon-general-family-health-portrait).
+## Delivery patterns
 
-### Scheduling
+Patient-facing applications can support:
 
-Patients can schedule their appointments on the app, and you can control which appointments they have access to as an administrator. Read more about [scheduling](../products/scheduling). See scheduling on [Foo Medical Scheduling](https://foomedical.com/get-care).
+- clinics and hospitals
+- telemedicine and hybrid care models
+- public-health and program enrollment workflows
+- multi-facility networks
+- localized country-pack workflows where national exchange or identity requirements apply
 
-### Care Plans
+## Related docs
 
-It's often useful for patients to be able to see and (if needed) take action on their Care Plan. You can read about [care plans](../products/careplans). See care plans on [Foo Medical Care Plans](https://foomedical.com/care-plan/action-items).
-
-### Patient Records
-
-Give patients access to their records and let them input data. You can see an example on [Foo Medical Patient Records](https://foomedical.com/health-record/lab-results).
-
-### Messaging
-
-Allow patients to message their provider or care team in a chat-like interface. Read more in [communications](../products/communications). See an example on [Foo Medical Messages](https://foomedical.com/messages).
-
-## Access and Controls
-
-Giving patients access to only their data can be enabled via [access controls](/docs/access/access-policies).
-
-## Demos and Reference Material
-
-- Sample app [Foo Medical](https://www.foomedical.com) live for testing
-- [Foo Medical Source Code](https://github.com/medplum/foomedical)
-- [Sample data generation script](https://github.com/medplum/medplum-demo-bots/blob/main/src/sample-account-setup.ts)
-- [UI components on Storybook](https://storybook.medplum.com)
-
-## Case Studies
-
-- At home lab provider [Lumba Health](https://lumba.health/) used the `foomedical` template to build [my.lumba.health](https://my.lumba.health/) patient records portal.
-
+- [Custom clinical applications](/solutions/custom-ehr)
+- [Provider portal](/solutions/provider-portal)
+- [Questionnaires](/products/questionnaires)
+- [Scheduling](/products/scheduling)

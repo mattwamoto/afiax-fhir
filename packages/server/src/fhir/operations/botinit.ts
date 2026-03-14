@@ -54,7 +54,7 @@ export interface BotInitParameters {
   readonly name: string;
   readonly description?: string;
   readonly accessPolicy?: Reference<AccessPolicy>;
-  readonly runtimeVersion?: 'awslambda' | 'vmcontext';
+  readonly runtimeVersion?: NonNullable<Bot['runtimeVersion']>;
   readonly sourceCode?: Attachment;
   readonly executableCode?: Attachment;
 }

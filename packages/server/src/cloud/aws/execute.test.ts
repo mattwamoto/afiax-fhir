@@ -20,9 +20,11 @@ let bot: Bot;
 
 describe('Execute', () => {
   let mockLambdaClient: AwsClientStub<LambdaClient>;
+  let lambdaEvent: any;
 
   beforeEach(() => {
     mockLambdaClient = mockClient(LambdaClient);
+    lambdaEvent = undefined;
 
     mockLambdaClient.on(ListLayerVersionsCommand).resolves({
       LayerVersions: [
@@ -35,6 +37,7 @@ describe('Execute', () => {
     mockLambdaClient.on(InvokeCommand).callsFake(({ Payload }) => {
       const decoder = new TextDecoder();
       const event = JSON.parse(decoder.decode(Payload));
+      lambdaEvent = event;
       const output = JSON.stringify(event.input);
       const encoder = new TextEncoder();
 
@@ -46,13 +49,23 @@ describe('Execute', () => {
   });
 
   afterEach(() => {
-    mockLambdaClient.restore();
+    mockLambdaClient?.restore();
   });
 
   beforeAll(async () => {
     const config = await loadTestConfig();
     await initApp(app, config);
     accessToken = await initTestAuth();
+
+    const meRes = await request(app).get('/auth/me').set('Authorization', 'Bearer ' + accessToken);
+    expect(meRes.status).toBe(200);
+
+    const settingsRes = await request(app)
+      .post(`/admin/projects/${meRes.body.project.id}/settings`)
+      .set('Content-Type', ContentType.JSON)
+      .set('Authorization', 'Bearer ' + accessToken)
+      .send([{ name: 'countryPack', valueString: 'kenya' }]);
+    expect(settingsRes.status).toBe(200);
 
     const res = await request(app)
       .post(`/fhir/R4/Bot`)
@@ -87,6 +100,10 @@ describe('Execute', () => {
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toBe('text/plain; charset=utf-8');
     expect(res.text).toStrictEqual('input');
+    expect(lambdaEvent.project).toMatchObject({
+      reference: { reference: expect.stringMatching(/^Project\//) },
+      countryPack: 'kenya',
+    });
   });
 
   test('Submit FHIR with content type', async () => {

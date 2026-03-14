@@ -1,21 +1,21 @@
 {
-  "name": "Medplum",
-  "short_name": "Medplum",
+  "name": "Afiax Connected Healthcare",
+  "short_name": "Afiax",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#fff",
-  "description": "Fast and easy healthcare dev",
+  "description": "Pan-African digital health infrastructure built on a FHIR-native clinical core.",
   "icons": [
     {
-      "src": "/img/logo-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
+      "src": "/img/afiax-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/img/logo-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
+      "src": "/img/afiax-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ]

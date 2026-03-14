@@ -5,7 +5,7 @@ import { showNotification } from '@mantine/notifications';
 import type { CodeChallengeMethod } from '@medplum/core';
 import { locationUtils, normalizeErrorString } from '@medplum/core';
 import type { ClientApplicationSignInForm } from '@medplum/fhirtypes';
-import { Logo, SignInForm, useMedplum } from '@medplum/react';
+import { getAppName, Logo, SignInForm, useMedplum } from '@medplum/react';
 import type { JSX } from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
@@ -83,7 +83,7 @@ export function OAuthPage(): JSX.Element | null {
           ) : (
             <Logo size={32} />
           )}
-          <Title>{clientInfo?.welcomeString ?? 'Sign in to Medplum'}</Title>
+          <Title>{clientInfo?.welcomeString ?? `Sign in to ${getAppName()}`}</Title>
         </>
       )}
     </SignInForm>

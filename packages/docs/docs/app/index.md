@@ -2,19 +2,19 @@
 sidebar_position: 1
 ---
 
-# Medplum App
+# Afiax Admin App
 
-The Medplum App is a user-facing web application available at [https://app.medplum.com/](https://app.medplum.com/) targeted towards developers and project administrators. The app is a quick way to administer projects, manage users, and inspect resources.
+The Afiax Admin App is a user-facing web application available at [https://app.afiax.africa/](https://app.afiax.africa/) for platform administrators, implementation teams, and project operators. The app is the quickest way to administer projects, manage users, inspect resources, and configure automation.
 
-You can use the Medplum app to configure or view resources required for application development like credentials, automations and more.
+You can use the Afiax Admin App to configure or inspect credentials, Bots, integrations, access controls, and other resources required for a country-pack or tenant rollout.
 
 ## Getting Started
 
-1. [Register](https://app.medplum.com/register) a new account and project
-2. [Learn](./app/app-introduction) about the App interface
-3. [Invite](./app/invite) another user to your project
+1. [Register](https://app.afiax.africa/register) a new account and project
+2. [Learn](./app-introduction) about the App interface
+3. [Invite](./invite) another user to your project
 4. [Import a patient](/docs/tutorials/importing-sample-data.md)
 
 ## Reference
 
-The Medplum App is [open source](https://github.com/medplum/medplum/tree/main/packages/app). Browse a detailed list of [features and fixes](https://github.com/medplum/medplum/pulls?q=is%3Apr+label%3Amedplum-app) for more context. It is built off of the [React](/docs/react) component library.
+The Afiax Admin App is part of this [open source repository](https://github.com/mattwamoto/afiax-fhir/tree/main/packages/app). It is built on the [React](/docs/react) component library and the Medplum-based clinical core used throughout the platform.

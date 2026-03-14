@@ -145,6 +145,7 @@ const integerKeys = new Set([
   'bullmq.concurrency',
 
   'fission.routerPort',
+  'knative.timeoutMilliseconds',
 ]);
 
 export function isIntegerConfig(key: string): boolean {

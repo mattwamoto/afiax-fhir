@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { MantineProvider } from '@mantine/core';
 import { MockClient } from '@medplum/mock';
-import { MedplumProvider } from '@medplum/react';
+import { getAppName, MedplumProvider } from '@medplum/react';
 import { MemoryRouter } from 'react-router';
 import { App } from './App';
 import type { UserEvent } from './test-utils/render';
@@ -107,12 +107,12 @@ describe('App', () => {
 });
 
 function isNavOpen(): boolean {
-  return screen.getByTitle('Medplum Logo').closest('button')?.getAttribute('aria-expanded') === 'true';
+  return screen.getByTitle(`${getAppName()} Logo`).closest('button')?.getAttribute('aria-expanded') === 'true';
 }
 
 async function openNav(user: UserEvent): Promise<void> {
   if (!isNavOpen()) {
-    await user.click(screen.getByTitle('Medplum Logo'));
+    await user.click(screen.getByTitle(`${getAppName()} Logo`));
   }
 }
 

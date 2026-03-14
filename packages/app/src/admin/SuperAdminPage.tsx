@@ -163,8 +163,9 @@ export function SuperAdminPage(): JSX.Element {
       <Title order={2}>Structure Definitions</Title>
       <p>
         StructureDefinition resources contain the metadata about resource types. They are provided with the FHIR
-        specification. Medplum also includes some custom StructureDefinition resources for internal data types. Press
-        this button to update the database StructureDefinitions from the FHIR specification.
+        specification. This deployment may also include custom StructureDefinition resources for internal extensions and
+        country-pack workflows. Press this button to update the database StructureDefinitions from the FHIR
+        specification.
       </p>
       <Form>
         <Button onClick={rebuildStructureDefinitions}>Rebuild StructureDefinitions</Button>
@@ -173,8 +174,8 @@ export function SuperAdminPage(): JSX.Element {
       <Title order={2}>Search Parameters</Title>
       <p>
         SearchParameter resources contain the metadata about filters and sorting. They are provided with the FHIR
-        specification. Medplum also includes some custom SearchParameter resources for internal data types. Press this
-        button to update the database SearchParameters from the FHIR specification.
+        specification. This deployment may also include custom SearchParameter resources for internal extensions and
+        country-pack workflows. Press this button to update the database SearchParameters from the FHIR specification.
       </p>
       <Form>
         <Button onClick={rebuildSearchParameters}>Rebuild SearchParameters</Button>
@@ -191,8 +192,7 @@ export function SuperAdminPage(): JSX.Element {
       <Divider my="lg" />
       <Title order={2}>Reindex Resources</Title>
       <p>
-        When Medplum changes how resources are indexed, the system may require a reindex for old resources to be indexed
-        properly.
+        When indexing behavior changes, the system may require a reindex for older resources to be indexed properly.
       </p>
       <ReindexForm onSubmit={reindexResourceType} />
       <Divider my="lg" />

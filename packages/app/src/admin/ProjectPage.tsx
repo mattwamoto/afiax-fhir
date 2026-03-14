@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 import { Outlet } from 'react-router';
 import { getProjectId } from '../utils';
 
-const tabs = ['Details', 'Users', 'Clients', 'Bots', 'Secrets', 'Sites'];
+const tabs = ['Details', 'Users', 'Clients', 'Bots', 'Settings', 'Secrets', 'Sites'];
 
 export function ProjectPage(): JSX.Element {
   const medplum = useMedplum();

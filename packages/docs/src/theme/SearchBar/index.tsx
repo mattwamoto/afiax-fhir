@@ -271,5 +271,11 @@ function DocSearch({ externalUrlRegex, ...props }: DocSearchV4Props) {
 
 export default function SearchBar(): ReactNode {
   const { siteConfig } = useDocusaurusContext();
-  return <DocSearch {...(siteConfig.themeConfig.algolia as DocSearchV4Props)} />;
+  const algolia = siteConfig.themeConfig.algolia as DocSearchV4Props | undefined;
+
+  if (!algolia?.appId || !algolia?.apiKey || !algolia?.indexName) {
+    return null;
+  }
+
+  return <DocSearch {...algolia} />;
 }

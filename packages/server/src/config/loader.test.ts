@@ -195,6 +195,21 @@ describe('Config', () => {
     expect(config.fission?.routerPort).toStrictEqual(8888);
   });
 
+  test('Env config knative prefix', async () => {
+    setEnv('MEDPLUM_BASE_URL', 'http://localhost:3000');
+    setEnv('MEDPLUM_KNATIVE_INVOCATION_URL', 'https://bot-{{id}}.knative.example.com');
+    setEnv('MEDPLUM_KNATIVE_AUTH_HEADER', 'x-afiax-runtime-key');
+    setEnv('MEDPLUM_KNATIVE_AUTH_TOKEN', 'secret-token');
+    setEnv('MEDPLUM_KNATIVE_TIMEOUT_MILLISECONDS', '15000');
+
+    const config = await loadConfig('env');
+    expect(config.knative).toBeDefined();
+    expect(config.knative?.invocationUrl).toStrictEqual('https://bot-{{id}}.knative.example.com');
+    expect(config.knative?.authHeader).toStrictEqual('x-afiax-runtime-key');
+    expect(config.knative?.authToken).toStrictEqual('secret-token');
+    expect(config.knative?.timeoutMilliseconds).toStrictEqual(15000);
+  });
+
   test('Env config redis prefix does not capture cacheRedis', async () => {
     // Ensure REDIS_ prefix doesn't accidentally consume CACHE_REDIS_ vars
     setEnv('MEDPLUM_BASE_URL', 'http://localhost:3000');

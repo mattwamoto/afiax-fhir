@@ -1,59 +1,52 @@
-# Automation through Bots
+# Afiax Bots and Workflow Automation
 
-Automation, and the ability to build highly automated, custom workflows is one of the primary use-cases of Medplum. Medplum automations are implemented via [bots](/docs/bots), which are lambdas that implement custom functions written by developers.
+Bots are the main automation primitive inside the Afiax platform. They run workflow logic close to the clinical core
+and are used to connect internal events to external systems in an auditable, retry-safe way.
 
-Bots are often linked with integrations and are one of the most utilized features of Medplum.
+## What Bots do
 
-## Examples
+Afiax Bots are commonly used to:
 
-To get a sense of what bots are, it's useful to consider some examples. Below are examples of automations built using the [bots](/docs/bots) framework.
+- react to resource changes via subscriptions
+- call external APIs and normalize responses
+- generate derived documents or exchange bundles
+- orchestrate notifications, scheduling, and care coordination
+- implement country-pack workflows such as verification, eligibility, exchange submission, and reconciliation
 
-- **Consume event data or webhooks from other platforms**: see this tutorial on [consuming HL7 feeds and converting to FHIR](/docs/bots/hl7-into-fhir).
-- **Export data to other systems**: see this tutorial on [exporting a PDF report for human consumption](/docs/bots/creating-a-pdf).
-- **Drive workflow**: see this tutorial on checking insurance eligibility for a specific medical service.
-- **Calling out to 3rd party APIs**: see this tutorial on [uploading a file to an external API](/docs/bots/file-uploads).
+## Design principles
 
-## Writing Bots
+Bots should be:
 
-Bots are written in TypeScript using the Medplum [SDK](/docs/sdk). Bots are then deployed into and hosted as part of the core application, much like AWS Lambdas. When the bot is invoked the bot code is executed.
+- single-responsibility
+- idempotent
+- safe to retry
+- traceable through `AuditEvent` and related workflow records
+- separated from UI concerns and direct user-session logic
 
-- The bots active in your account can be viewed in on [app.medplum.com](https://app.medplum.com/Bot)
-- Tutorials on how to write bots can be found [here](/docs/bots)
-- Reference implementations of common bots can be found [here](https://github.com/medplum/medplum-demo-bots)
-- Command Line Interface (CLI) documentation for testing and deploying bots can be found [here](/docs/bots/bots-in-production)
+## Common invocation patterns
 
-## Triggering Bots
+- **via subscription** when a FHIR resource changes
+- **via custom FHIR operation** when an internal platform workflow is triggered
+- **via questionnaire workflow** when form completion should create downstream actions
+- **via API** when an external system or partner needs to invoke an auditable workflow
 
-Bots can be triggered the following ways:
+## Typical Afiax use cases
 
-- **Via subscription**: [subscriptions](/docs/bots/bot-basics#executing-automatically-using-a-subscription) are webhooks that are triggered when FHIR resources are created or updated and can trigger bots.
-- **POST to $execute endpoint**: each bot exposes an API endpoint and a POST to that endpoint will trigger the bot.
-- **Via Questionnaire**: you can link a questionnaire to a bot and when the questionnaire is filled out, the bot can [process the response](/docs/bots/bot-for-questionnaire-response).
+- registry verification and authority checks
+- eligibility and coverage lookups
+- referral routing and notification
+- record publishing and exchange submission
+- claim packaging and payer submission
+- reconciliation and exception handling
+- document generation and file movement
 
-A detailed guide on these scenarios can be found in our [bots tutorials](/docs/bots/bot-basics#executing-a-bot).
+## Related docs
 
-## FHIR Resources
+- [Bots technical docs](/docs/bots)
+- [Custom FHIR operations](/docs/bots/custom-fhir-operations)
+- [Interoperability engine](/products/integration)
+- [Country pack SDK](/docs/country-packs/sdk)
 
-| Resource              | App Link                                                  | Create New                                              | API Documentation                                     |
-| --------------------- | --------------------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------- |
-| Bot                   | [View All](https://app.medplum.com/Bot)                   | [Create New](https://app.medplum.com/Bot/new)           | [CLI](/docs/bots/bots-in-production)                  |
-| Subscription          | [View All](https://app.medplum.com/Subscription)          | [Create New](https://app.medplum.com/Subscription/new)  | [API](/docs/api/fhir/resources/subscription)          |
-| Questionnaire         | [View All](https://app.medplum.com/Questionnaire)         | [Create New](https://app.medplum.com/Questionnaire/new) | [API](/docs/api/fhir/resources/questionnaire)         |
-| QuestionnaireResponse | [View All](https://app.medplum.com/QuestionnaireResponse) | Created programmatically                                | [API](/docs/api/fhir/resources/questionnaireresponse) |
-| AuditEvent            | [View All](https://app.medplum.com/AuditEvent)            | Created automatically                                   | [API](/docs/api/fhir/resources/auditevent)            |
-
-## System Diagram
-
-This diagram shows how bots fit into the overall system architecture.
+## System diagram
 
 ![Medplum system overview](/img/medplum-overview.svg)
-
-## Demos and Reference Material
-
-- [Bot Tutorials](/docs/bots)
-- [Subscriptions](/docs/subscriptions) - these are like webhooks
-- [Sample Bot Repository](https://github.com/medplum/medplum-demo-bots) on Github
-- [Bots](https://app.medplum.com/admin/bots) in the admin panel
-- [Secrets](https://app.medplum.com/admin/secrets) in the admin panel
-- [Bot Commits](https://github.com/medplum/medplum/search?q=Bot&type=commits) on Github
-- [Example Bot in Mock Library](https://github.com/medplum/medplum/blob/main/packages/mock/src/mocks/bot.ts)

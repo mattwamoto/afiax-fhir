@@ -2,36 +2,34 @@
 // SPDX-License-Identifier: Apache-2.0
 import Link from '@docusaurus/Link';
 import {
-  IconApps,
-  IconBrandOpenSource,
-  IconBuildingBank,
-  IconChartBarPopular,
-  IconCode,
-  IconFlame,
-  IconPills,
-  IconPlugConnected,
-  IconReplace,
-  IconSettings,
-  IconShieldCheck,
-  IconTestPipe,
+  IconBuildingHospital,
+  IconDatabaseHeart,
+  IconHierarchy3,
+  IconMap2,
+  IconNetwork,
+  IconReceipt,
+  IconRoute,
+  IconRosetteDiscountCheck,
+  IconShieldLock,
+  IconStethoscope,
+  IconTopologyStar3,
 } from '@tabler/icons-react';
 import Layout from '@theme/Layout';
 import type { JSX } from 'react';
 import { useEffect } from 'react';
 import { Card } from '../Card';
-import { BuildDropdown } from './BuildDropdown';
 import { Feature, FeatureGrid } from './FeatureGrid';
 import styles from './LandingPage.module.css';
-import { LogoScroller } from './LogoScroller';
 import { Section } from './Section';
 import { SectionHeader } from './SectionHeader';
-import { SolutionAccordion } from './SolutionAccordion';
-import { StatsBento } from './StatsBento';
-import { TestimonialHeader } from './TestimonialHeader';
 
 export function LandingPage(): JSX.Element {
   useEffect(() => {
-    const navbar = document.querySelector('.navbar') as HTMLDivElement;
+    const navbar = document.querySelector<HTMLElement>('.navbar');
+    if (!navbar) {
+      return;
+    }
+
     function onScroll(): void {
       if (window.scrollY === 0) {
         navbar.classList.remove('onScroll');
@@ -50,221 +48,135 @@ export function LandingPage(): JSX.Element {
         <div className={styles.landingContent}>
           <div className={styles.heroSection}>
             <div className={styles.heroContent}>
-              <h1 className={styles.heroTitle}>Build and run modern healthcare apps</h1>
+              <h1 className={styles.heroTitle}>Build the pan-African healthcare platform without hard-coding one market into the core.</h1>
               <p className={styles.heroText}>
-                Medplum is the open source developer platform for shipping clinical software.
+                Afiax Connected Healthcare is building a pan-African digital health platform on a Medplum-derived,
+                FHIR-native clinical core.
                 <br />
-                Start with our production-ready apps, then customize them to fit your needs.
+                The platform combines clinical interoperability, digital service layers, and modular country packs so
+                national requirements stay local while the broader platform remains reusable.
               </p>
               <div className={styles.heroButtons}>
-                <Link to="/docs/provider" className={styles.purpleButton}>
-                  Explore the Provider App
+                <Link to="/docs/architecture" className={styles.purpleButton}>
+                  Explore the Architecture
                 </Link>
-                <BuildDropdown />
+                <Link to="/docs/country-packs" className={styles.ctaWhiteButton}>
+                  View Country Packs
+                </Link>
               </div>
             </div>
             <div className={styles.heroImageContainer}>
-              <img
-                className={styles.heroImage}
-                src="/img/provider/medplum-provider-app-cover-image.webp"
-                alt="Medplum Provider App screenshot"
-              />
+              <Card>
+                <h3>Afiax platform scope</h3>
+                <p>
+                  <strong>Core:</strong> Medplum FHIR services, policies, subscriptions, Bots, and internal operations.
+                </p>
+                <p>
+                  <strong>Digital services:</strong> provider workflows, patient engagement, analytics, telemedicine,
+                  and partner APIs built on the same core.
+                </p>
+                <p>
+                  <strong>Localization:</strong> country packs and tenant overlays carry national rules, deployment
+                  choices, and customer-specific workflow constraints.
+                </p>
+              </Card>
             </div>
           </div>
-          <SectionHeader style={{ marginBottom: '0', marginTop: '0' }}>
-            <h3>Trusted by Healthcare Leaders & Innovators</h3>
-          </SectionHeader>
-          <LogoScroller />
           <SectionHeader>
-            <h2>A platform built for healthcare complexity</h2>
+            <h2>Architected for sovereign, federated healthcare delivery</h2>
             <p>
-              Build what you need—without rebuilding the foundation. Medplum provides the core primitives required to
-              ship and operate healthcare software in production.
+              Afiax is designed so clinical data, digital services, and national interoperability can evolve together
+              without forcing country-specific logic into the core platform.
             </p>
           </SectionHeader>
           <Section>
             <FeatureGrid columns={3} variant="ecosystem">
-              <Feature title="API-first" icon={<IconCode />}>
-                Integrate with any partner, anywhere, in any way with data share options in a variety of formats.
+              <Feature title="FHIR-native clinical core" icon={<IconDatabaseHeart />}>
+                Clinical source-of-truth data lives in canonical FHIR resources, not in national submission payloads.
               </Feature>
-              <Feature title="FHIR-native" icon={<IconFlame />}>
-                Anticipate nuances and avoid costly re-writes down the line with default FHIR-standard formatted data
-                storage.
+              <Feature title="Country packs" icon={<IconMap2 />}>
+                National registries, terminology, payer workflows, and exchange connectors are packaged as modular
+                overlays.
               </Feature>
-              <Feature title="Automation-ready" icon={<IconSettings />}>
-                Streamline your operations and automate any workflow to activate, track, manage, and measure tasks of
-                any level of complexity.
+              <Feature title="Digital service layers" icon={<IconStethoscope />}>
+                Provider workflows, patient engagement, telemedicine, and partner-facing services can share the same
+                canonical platform.
               </Feature>
-              <Feature title="Open Source" icon={<IconBrandOpenSource />}>
-                Medplum's core technology is open source (Apache 2.0 license) and freely available in GitHub, so there’s
-                never a risk of vendor lock-in.
+              <Feature title="Sovereign deployment" icon={<IconShieldLock />}>
+                Identifiable clinical data can remain in-country while non-sovereign tooling is isolated by policy.
               </Feature>
-              <Feature title="Secure &amp; Compliant" icon={<IconShieldCheck />}>
-                Comes with HIPAA and SOC2 compliance out of the box, follows all OWASP security guidelines, and is
-                verified by multiple penetration tests.
+              <Feature title="Workflow orchestration" icon={<IconRoute />}>
+                Bots and FHIR operations coordinate auditable automation without pushing national API logic into the UI.
               </Feature>
-              <Feature title="Scalable" icon={<IconChartBarPopular />}>
-                From MVP to IPO—and every major milestone in between—Medplum’s technology backs you up and grows with
-                you.
+              <Feature title="Tenant isolation" icon={<IconHierarchy3 />}>
+                Each customer can inherit the shared platform while keeping tenant-specific workflow, secrets, and
+                policies separate.
               </Feature>
             </FeatureGrid>
           </Section>
-          <SolutionAccordion />
           <SectionHeader>
-            <h2>Connect to the healthcare ecosystem</h2>
+            <h2>The broader Afiax platform reaches beyond one country pack</h2>
             <p>
-              Medplum connects to common external systems while letting you build custom integrations when you need
-              them.
+              The business and technical platform includes clinical systems, remote care, analytics, and developer
+              infrastructure, with country packs localizing that platform for each market.
             </p>
           </SectionHeader>
           <Section>
             <FeatureGrid columns={3} variant="complexity">
-              <Feature title="Labs" icon={<IconTestPipe />}>
-                Orders, results, and workflows that fit real operations.
+              <Feature title="Clinical interoperability spine" icon={<IconRoute />}>
+                Build identity, encounters, referrals, documents, and coverage workflows on top of a shared data model.
               </Feature>
-              <Feature title="Medications" icon={<IconPills />}>
-                Medication workflows and integrations designed for clinical safety.
+              <Feature title="Telemedicine and digital access" icon={<IconNetwork />}>
+                Support virtual care, patient engagement, and remote-care experiences without fragmenting the data layer.
               </Feature>
-              <Feature title="Billing & RCM" icon={<IconBuildingBank />}>
-                Integrate financial workflows without duct-taping your system.
+              <Feature title="Analytics and AI" icon={<IconTopologyStar3 />}>
+                Add dashboards, predictive services, and operational insight on top of normalized clinical data.
               </Feature>
-              <Feature title="Health Exchange" icon={<IconReplace />}>
-                Support data exchange patterns used in real-world interoperability.
+              <Feature title="Developer platform" icon={<IconRosetteDiscountCheck />}>
+                Expose APIs, Bots, and reusable contracts so partners and internal teams can extend the platform safely.
               </Feature>
-              <Feature title="Plugins & Modules" icon={<IconPlugConnected />}>
-                Extend Medplum with reusable integration components.
+              <Feature title="SaaS, PaaS, and sovereign delivery" icon={<IconReceipt />}>
+                Operate the same platform as shared SaaS, dedicated runtimes, or managed in-country infrastructure.
               </Feature>
-              <Feature title="Third-party Tools" icon={<IconApps />}>
-                Connect CRMs, scheduling, imaging, and specialty systems.
+              <Feature title="Federated growth path" icon={<IconBuildingHospital />}>
+                Scale across providers, counties, payers, and future markets without forking the architecture.
               </Feature>
             </FeatureGrid>
           </Section>
           <SectionHeader>
-            <h2>Trusted infrastructure, to meet any future you build</h2>
+            <h2>Kenya is the first country pack, not the platform boundary</h2>
             <p>
-              Medplum lets your team skip the plumbing and ship what matters, getting you to market faster with a
-              secure, compliant, and scalable foundation.
+              Kenya is the first reference implementation used to validate the country-pack SDK and localization model.
             </p>
           </SectionHeader>
           <Section>
-            <StatsBento />
+            <FeatureGrid columns={3}>
+              <Feature title="Country-pack SDK" icon={<IconMap2 />}>
+                Profiles, terminology, mappings, connectors, Bots, and compliance artifacts define the localization contract.
+              </Feature>
+              <Feature title="Kenya reference pack" icon={<IconRoute />}>
+                Kenya implements registries, eligibility, SHR publishing, and claims behind generic internal operations.
+              </Feature>
+              <Feature title="Expansion path" icon={<IconNetwork />}>
+                Future markets should inherit the same core model, SDK contracts, and tenant architecture instead of
+                redefining the platform.
+              </Feature>
+            </FeatureGrid>
           </Section>
-          <SectionHeader>
-            <h2>What healthcare builders are saying</h2>
-            <p>Founders, directors, and developers on why they build with Medplum.</p>
-          </SectionHeader>
-          <div className={styles.masonryGrid}>
-            <Card>
-              <TestimonialHeader
-                name="Michael Caves"
-                title="Director of Product, Thirty Madison"
-                imgSrc="/img/avatars/michael-caves.webp"
-              />
-              <p>
-                Thanks to the expertise of the Medplum team, we were able to swiftly implement their product and get it
-                up and running seamlessly. Their proactive approach in anticipating and mitigating any issues during our
-                ramp-up was an example of first rate partnership.
-              </p>
-              <p style={{ paddingTop: '1rem' }}>
-                With their robust product, we've gained the agility to rapidly introduce new features, enabling Thirty
-                Madison to maintain its commitment to putting patients first.
-              </p>
-            </Card>
-            <Card>
-              <TestimonialHeader
-                name="Craig Collier"
-                title="Senior Software Engineer, Ro"
-                imgSrc="/img/avatars/craig-collier.webp"
-              />
-              <p>The Medplum GUI is very nice. There's a lot of depth there.</p>
-            </Card>
-            <Card>
-              <TestimonialHeader name="Joshua Kelly" title="CTO, Flexpa" imgSrc="/img/avatars/joshuakelly.png" />
-              <p>
-                Medplum is the best FHIR server implementation. Flexpa uses it to power our API and we wouldn't have
-                nearly as good a product without it.
-              </p>
-            </Card>
-            <Card>
-              <TestimonialHeader
-                name="Brendan Keeler"
-                title="Health API Guy Newsletter"
-                imgSrc="/img/avatars/brendan-keeler.webp"
-              />
-              <p>
-                I want to say it loudly for everyone to hear: I love Medplum, I love it so much. […] They’re awesome.
-              </p>
-            </Card>
-            <Card>
-              <TestimonialHeader
-                name="Florencia Herra Vega"
-                title="CEO, AlleyCorp Nord"
-                imgSrc="/img/avatars/florencia.webp"
-              />
-              <p>
-                We have been dreaming of a product that simplifies building custom EHRs and clinical tools for years.
-                Medplum achieves this with an expert team, a fantastic developer experience, and standards compliance.
-              </p>
-            </Card>
-            <Card>
-              <TestimonialHeader name="Hassy Veldstra" title="Artillery" imgSrc="/img/avatars/hassy.webp" />
-              <p>
-                Love seeing scalability &amp; performance treated as a first-class feature. Always a sign of a project
-                that takes quality seriously.
-              </p>
-            </Card>
-            <Card>
-              <TestimonialHeader name="Dima Goncharov" title="CEO, Metriport" imgSrc="/img/avatars/dima.webp" />
-              <p>Open source will transform healthcare, and Medplum is a prime example.</p>
-            </Card>
-            <Card>
-              <TestimonialHeader
-                name="Stuart Parmenter"
-                title="Former CTO, One Medical"
-                imgSrc="/img/avatars/stuart.png"
-              />
-              <p>
-                I've built healthcare at scale—the hard way. Skip the hidden complexity and start on Medplum's
-                infrastructure so you can ship care, not plumbing.
-              </p>
-            </Card>
-            <Card>
-              <TestimonialHeader
-                name="Phil Fung"
-                title="Co-founder, Kit.com ∙ Engineer #15, Facebook "
-                imgSrc="/img/avatars/phil-fung.webp"
-              />
-              <p>
-                Quality code base, open source and sets your data on the right path with FHIR. No-brainer for those who
-                need to build for healthcare.
-              </p>
-            </Card>
-            <Card>
-              <TestimonialHeader
-                name="Jose Rodriguez"
-                title="Head of Engineering, Summer Health"
-                imgSrc="/img/avatars/jose-rodrigues.webp"
-              />
-              <p>
-                If you don't want to reinvent everything, and want standards compliant data and well documented
-                interfaces, Medplum is what you would choose.
-              </p>
-            </Card>
-          </div>
         </div>
         <div className={styles.ctaBanner}>
           <div className={`${styles.landingContent} ${styles.ctaBannerInner}`}>
-            <h2>Start building with Medplum today</h2>
+            <h2>Start with the platform architecture, then localize through country packs</h2>
             <p className={styles.ctaBannerDescription}>
-              Join 150+ open source contributors and thousands of developers who choose Medplum to build secure and
-              compliant healthcare apps.
+              Use the architecture docs to define the Afiax platform, then open the country-pack section when you are
+              ready to localize Kenya or the next market.
             </p>
             <div className={styles.heroButtons}>
-              <Link to="/docs" className={styles.ctaWhiteButton}>
-                See Documentation
+              <Link to="/docs/architecture" className={styles.ctaWhiteButton}>
+                Read the Architecture
               </Link>
-              <Link to="https://cal.com/medplum/demo?overlayCalendar=true" className={styles.purpleButton}>
-                Book a Demo
+              <Link to="/docs/country-packs" className={styles.purpleButton}>
+                Open Country Packs
               </Link>
             </div>
           </div>

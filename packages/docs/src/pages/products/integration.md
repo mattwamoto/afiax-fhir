@@ -1,98 +1,65 @@
-# Integrations and Interoperability Engine
+# Interoperability and Integration Engine
 
-Medplum offers **a powerful integration and interoperability engine** that speaks common healthcare "languages" (FHIR, HL7, SFTP, CCD-A and more). This is **the most commonly used feature of Medplum**. It can be used to receive data from and send data to other systems - medical or cloud based.
+Afiax uses interoperability as a platform capability, not as a side feature. The integration layer connects the
+canonical clinical core to registries, payers, legacy systems, partner platforms, and national exchange services.
 
-Medplum integrations and interoperability is an **event-driven** service. It listens to notifications from medical systems like a laboratory information system or EHRs. The service logs data and supports persistence to a FHIR datastore as needed. It is [open source](https://github.com/medplum/medplum).
+## Role in Afiax
 
-## Overview
+The interoperability engine is responsible for:
 
-Medplum enables many medical and non-medical services to be effectively composed, and so allows a powerful user-facing application to be built on top. Medplum provides the following **event-driven** functionality:
+- receiving and normalizing inbound clinical and operational data
+- orchestrating outbound exchange to partner and national systems
+- transforming canonical FHIR data into country-specific payloads
+- preserving audit, provenance, correlation IDs, and reconciliation state
+- keeping national logic inside country packs instead of leaking it into the UI or core model
 
-- **Listens** to notifications from systems like LIS, EHR, and webhook enabled webapps
-- **Sends** notifications and data to external systems, triggered off events
-- **Transforms** data via a custom scripting engine, enabling bespoke workflows
-- **Stores** data, allowing applications like dashboards to be built
-- **Logs** activity and version history, enabling debugging and traceability
+## Common connection patterns
 
-Below is an **example of a medical practice "Foo Medical" with connections** to various systems. This is an example deployment, but can give a sense of what connections might be needed in practice.
+Afiax is designed to support multiple interface types:
 
-![Sample Integrations for Foo Medical](../products/img/medplum-interop-example.png)
+| Interface type | Typical uses |
+| --- | --- |
+| FHIR and REST | EHRs, payer services, partner platforms, registries |
+| HL7v2 | labs, legacy hospital systems, diagnostics workflows |
+| SFTP and file exchange | government programs, batch submissions, reconciliation feeds |
+| Documents and structured payloads | claims, referrals, reports, attachments, exchange bundles |
+| Webhooks and event APIs | notifications, payments, analytics, messaging, partner workflows |
 
-## Creating Medical Integrations
+## Country-pack localization
 
-Creating effective integrations often requires writing some code. We provide pre-built integrations, high level SDKs, testing framework, deployment and provisioning features that **greatly reduce the engineering burden to build, and to maintain integrations**.
+The interoperability engine stays generic at the platform level. Country-specific behavior belongs in country packs:
 
-Our integration framework is called bots and there are detailed [bots tutorials](/docs/bots) in our technical documentation.
+- registries and authority verification
+- eligibility and payer checks
+- shared health record or national exchange publishing
+- claims submission and reconciliation
+- local terminology and payload mappings
 
-Before starting an integration, we recommend filling out the following checklist
+Kenya is the first reference implementation of this model, but it should remain one pack in a larger platform.
 
-- [ ] What system are you trying to connect to?
-- [ ] What type of interfaces are available? (Check multiple if appropriate)
-  - [ ] FHIR or Smart-On-FHIR
-  - [ ] REST API
-  - [ ] HL7
-  - [ ] SFTP
-  - [ ] XML based, like CCD-A or CDISC
-  - [ ] File based - text or binary (e.g. X12, images, video)
-  - [ ] Delimited Text
-  - [ ] Something else?
-- [ ] How can you request credentials/access to a test environment?
-- [ ] What process is required to gain access to production?
+## How integrations are built
 
-## Examples: Integrations by Interface Type
+Afiax combines several runtime patterns:
 
-To get started integrating services into Medplum, it can be useful to think about **which type of medical applications have which type of interfaces**. Medplum provides the infrastructure that helps connect systems like these together.
+- **Bots** for event-driven orchestration and external API calls
+- **custom FHIR operations** for stable internal workflow contracts
+- **country-pack connectors** for localized remote systems
+- **Afiax Agent-based bridging** for on-prem and legacy protocols
+- **canonical mappings** to convert between internal resources and external exchange formats
 
-This is by no means a comprehensive list, but we provide this list of interfaces as examples of tools and systems indexed by type of integration is commonly seen.
+## Example Afiax exchange scenarios
 
-| Interface Type | Systems with interface                         | Examples                                                                                                                                                                                                                                                                      |
-| -------------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| HL7            | Lab (LIS), Imaging, Legacy EHR                 | [Data Innovations](https://datainnovations.com/), [eRad PACS](https://erad.com/services/hl7-interface-engine-emr-integration/), [Athena HL7](https://www.athenahealth.com/~/media/athenaweb/files/developer-portal/clinical_results_interface_implementation_guide.pdf?la=en) |
-| SFTP           | Lab, Government programs like vaccine registry | [Labcorp](https://www.labcorp.com/organizations/employers/it-solutions/integration-solutions), [Texas Immunization Registry](https://www.dshs.texas.gov/immunize/immtrac/docs/11-15236---Secure-File-Transfer-Protocol-Specifications.pdf)                                    |
-| FHIR           | EHRs and payors                                | [Epic](https://fhir.epic.com), [CMS Blue Button](https://bluebutton.cms.gov/developers/)                                                                                                                                                                                      |
-| XML Based      | Billing systems, EDC, Care Continuity          | [CCD-A](https://www.ihs.gov/rpms/PackageDocs/BCCD/bccd020u.pdf) workflow                                                                                                                                                                                                      |
-| REST           | Many modern digital health services            | [Mobile phlebotomy](https://axle-health.readme.io/reference/create-a-new-address), [Eligibility Check](https://opkit.co/)                                                                                                                                                     |
-| Text Delimited | Billing systems                                | EDI 837                                                                                                                                                                                                                                                                       |
-| Binary files   | Billing systems, video and photo               | [CMS 1500](https://www.cms.gov/Medicare/Billing/ElectronicBillingEDITrans/16_1500), [X12](https://x12.org/examples), Twilio                                                                                                                                                   |
+- verify a patient identifier against a national registry
+- confirm facility or practitioner authority status
+- check coverage or payer eligibility
+- publish an encounter-driven national record
+- submit a claim bundle through a country-specific payer connector
+- ingest referrals, lab results, or partner events into the shared clinical record
 
-If you are interested in a specific integration type, please contact us at hello@medplum.com or in our [Discord](https://discord.gg/medplum).
+## Related docs
 
-## Examples: Integrations by Product Category
-
-To get a medical application to work as intended often requires many systems to talk to each other, each with a different function. Medplum enables connectivity to various systems, through the [Bot](/docs/bots) framework.
-
-Below are some of the classes of applications indexed by common integration methods. Medplum supports building interfaces of this type to enable connectivity.
-
-| Product Category      | Common Integration Method | Comments                                                     |
-| --------------------- | ------------------------- | ------------------------------------------------------------ |
-| Lab                   | HL7, SFTP                 | HL7 ORU, OBX message types common                            |
-| Legacy EHR            | HL7, SFTP, FHIR           | HL7 ADT, SIU message types and more, may also have Mirth     |
-| PACS                  | HL7                       | HL7 ORU, OBX message types common                            |
-| Vaccine Registry      | SFTP                      | Often operated by public health departments, government      |
-| Payor                 | FHIR                      | Regulatory changes have increased payor FHIR adoption        |
-| Pharmacy              | REST                      | Pharmacy API such as DoseSpot                                |
-| Logging and Analytics | REST                      | Splunk, Freshpaint, Amplitude, Segment and related           |
-| CRM                   | REST, CSV                 | CRM often have API or file based import                      |
-| Forms                 | REST                      | Qualtrics, Jotforms, Formstack have REST API with webhooks   |
-| EDC                   | REST, binary file         | Redcap, Medidata etc. support REST API or file import        |
-| Records request       | FHIR                      | Records services like Particle or HealthGorilla support FHIR |
-| Messaging             | REST                      | Twilio, Sendbird and more have REST API                      |
-| Records request       | FHIR                      | Records services like Particle or HealthGorilla support FHIR |
-| Logistics             | REST                      | 3PL like ShipBob or Fulfilled by Amazon have REST API        |
-| Direct Project        | REST                      | Special medical grade email from companies like Paubox       |
-
-We have a lot of experience with medical integrations, and welcome questions at hello@medplum.com or on our [Discord](https://discord.gg/medplum).
-
-## System Diagram
-
-Below is a system diagram that shows, at a high level all of the systems working in concert.
-
-![System diagram](../products/img/detailed-medplum-system-diagram.png)
-
-## Reference Material
-
-- [Sample bots](https://github.com/medplum/medplum-demo-bots) these are a quickstart for building your integrations
-- [Bot tutorials](/docs/bots)
-- [Authentication, Authorization and Identity](/docs/auth/)
-- [Compliance Portal](/docs/compliance)
-- [All Epic FHIR Endpoints](https://open.epic.com/MyApps/Endpoints)
+- [Country packs](/docs/country-packs)
+- [Kenya reference pack](/docs/country-packs/kenya)
+- [Bots](/products/bots)
+- [Afiax Agent](/solutions/agent)
+- [FHIR datastore](/docs/fhir-datastore)

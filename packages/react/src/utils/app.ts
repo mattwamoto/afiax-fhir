@@ -6,5 +6,5 @@
  * @returns The application name.
  */
 export function getAppName(): string {
-  return import.meta.env.MEDPLUM_APP_NAME || 'Medplum';
+  return import.meta.env.MEDPLUM_APP_NAME || 'Afiax Connected Healthcare';
 }

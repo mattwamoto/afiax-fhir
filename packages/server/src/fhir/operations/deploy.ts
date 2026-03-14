@@ -108,5 +108,9 @@ export async function deployBot(repo: Repository, bot: WithId<Bot>, code?: strin
     }
   } else if (latestBot.runtimeVersion === 'fission') {
     await deployFissionBot(latestBot, codeToDeploy as string);
+  } else if (latestBot.runtimeVersion === 'knative') {
+    throw new OperationOutcomeError(
+      badRequest('Knative bot deployment is not implemented. Deploy the Knative service externally.')
+    );
   }
 }

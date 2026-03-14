@@ -1,11 +1,12 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
-import type { WithId } from '@medplum/core';
+import type { BotProjectContext, WithId } from '@medplum/core';
 import {
   allOk,
   badRequest,
   ContentType,
   createReference,
+  getProjectSettingString,
   Hl7Message,
   isOperationOutcome,
   normalizeErrorString,
@@ -128,6 +129,21 @@ export async function isBotEnabled(bot: Bot): Promise<boolean> {
   const systemRepo = getGlobalSystemRepo();
   const project = await systemRepo.readResource<Project>('Project', bot.meta?.project as string);
   return !!project.features?.includes('bots');
+}
+
+export function getBotProjectContext(project: Project): BotProjectContext {
+  return {
+    reference: createReference(project),
+    name: project.name,
+    countryPack: getProjectSettingString(project, 'countryPack'),
+    settings: Object.fromEntries((project.setting ?? []).map((setting) => [setting.name, setting])),
+  };
+}
+
+export async function getBotExecutionProjectContext(runAs: ProjectMembership): Promise<BotProjectContext> {
+  const systemRepo = getGlobalSystemRepo();
+  const project = await systemRepo.readResource<Project>('Project', resolveId(runAs.project) as string);
+  return getBotProjectContext(project);
 }
 
 /**

@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Bot } from '@medplum/fhirtypes';
-import { getJsFileExtension } from './utils';
+import type { Bot, Project } from '@medplum/fhirtypes';
+import { getBotProjectContext, getJsFileExtension } from './utils';
 
 describe('getJsFileExtension', () => {
   test('returns .cjs for CommonJS code with .cjs extension', () => {
@@ -45,5 +45,29 @@ describe('getJsFileExtension', () => {
     const bot = { id: '1' } as Bot;
     const code = 'const foo = 42;';
     expect(getJsFileExtension(bot, code)).toBe('.cjs');
+  });
+});
+
+describe('getBotProjectContext', () => {
+  test('returns country pack metadata and settings map', () => {
+    const project: Project = {
+      resourceType: 'Project',
+      id: '123',
+      name: 'Kenya Project',
+      setting: [
+        { name: 'countryPack', valueString: 'kenya' },
+        { name: 'countryCode', valueString: 'KE' },
+      ],
+    };
+
+    expect(getBotProjectContext(project)).toMatchObject({
+      reference: { reference: 'Project/123' },
+      name: 'Kenya Project',
+      countryPack: 'kenya',
+      settings: {
+        countryPack: { name: 'countryPack', valueString: 'kenya' },
+        countryCode: { name: 'countryCode', valueString: 'KE' },
+      },
+    });
   });
 });

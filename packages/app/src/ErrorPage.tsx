@@ -11,7 +11,7 @@ export function ErrorPage(): JSX.Element {
         <Title order={1}>Unexpected Error</Title>
         <Text>We're sorry, something went wrong.</Text>
         <Text>
-          Please contact <Anchor href="mailto:support@medplum.com">support</Anchor> for assistance.
+          Please contact <Anchor href="mailto:info@afiax.africa">Afiax support</Anchor> for assistance.
         </Text>
       </Stack>
     </Document>

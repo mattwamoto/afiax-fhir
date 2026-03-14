@@ -1,49 +1,50 @@
-# Lab, LIS and Laboratory Networks
+# Lab, Diagnostics, and Laboratory Networks
 
-Support **a wide variety of lab use cases** on a unified service. Medplum implementations been cleared by CLIA/CAP as a primary LIS, enable FHIR API access, and help to quickly develop patient portals and provider portals.
+Afiax uses Medplum as the clinical core for laboratory and diagnostics workflows while integrating analyzers,
+middleware, logistics services, partner portals, and external EHRs around that core.
 
-## Overview and Problem Space
+## Common solution patterns
 
-Diagnostic data is critical to patient care, but due to the human elements like specimen collection and the physician interpretation workflows, lab scenarios require precision and bots. In the lab context, Medplum is used in a number of ways.
+- primary lab workflow platform for diagnostics operations
+- interoperability hub for multi-lab or multi-partner networks
+- structured results API for downstream consumers
+- patient-facing records and test-status experiences
+- provider-facing order and result review portals
 
-- **Primary LIS:** used to power the experience of physicians and lab staff and core to clinical workflow in a CLIA Lab, or multiple CLIA labs
-- **Lab Network:** used to send orders to and receive results from multiple labs, but provide a unified interface to customers and partners
-- **Diagnostic Results API:** used to give API access to partners for use in their own systems
-- **Power a patient portal:** used to give patients access to their records, or let them schedule appointments or phlebotomist visits
-- **Power a provider portal:** used to give referring physicians access, both for results review and to place orders.
+## What Medplum owns in this pattern
 
-Recommended reading to enable these use cases is [custom EHR](../solutions/custom-ehr), [provider portal and API](../solutions/provider-portal) and [integrations](../products/integration).
+Within the Afiax architecture, Medplum should own:
 
-## Features
+- canonical patient, order, specimen, and diagnostic result records
+- workflow resources such as tasks, communications, and documents
+- audit, provenance, and operational traceability
+- internal workflow operations and Bot-driven orchestration
 
-Medplum provides the following features to enable all of the scenarios described in the previous section. To get the data flow to be automated and customized to your workflow the [bots](../products/bots) feature and the [questionnaires](../products/questionnaires) feature does the heavy lifting.
+External systems can still own analyzer control, middleware logic, courier workflows, billing, or local facility
+systems, but Medplum remains the clinical source of truth for the normalized record.
 
-- **Lab panel management:** this is represented in FHIR as a [PlanDefinition](/docs/api/fhir/resources/plandefinition) and you can see a detailed example in our [github repo](https://github.com/medplum/medplum/blob/main/packages/react/src/stories/covid19.ts).
-- **Machine and middleware interfacing:** machines and middleware (e.g. [Data Innovations](https://datainnovations.com/)) run off of HL7 interfaces
-- Traditional LIS interfacing: connect to a legacy LIS to receive results, most have an HL7 interface, connected via [bots](/docs/bots/hl7-into-fhir)
-- **Diagnostic report PDF and FHIR resource:** are used to deliver results, with custom PDF built via [bots](/docs/bots/creating-a-pdf).
+## Core capabilities
 
-## Enabling Common Lab Integrations
+- **diagnostic catalog modeling:** represent panels and assays with FHIR-native definitions and terminology
+- **machine and middleware integration:** connect HL7 and related protocols through the Afiax integration layer
+- **results delivery:** publish structured `DiagnosticReport` data and derived PDFs or attachments
+- **partner access:** expose results and operational status through provider portals or APIs
+- **patient access:** surface records and follow-up workflows in patient-facing applications where appropriate
 
-Labs often require multiple integrations to work well, and are high leverage for bots. Below are some examples of services that are integrated to enable sample processing for clinical lab. These integrations are handled through the [integration engine](../products/integration).
+## External systems commonly involved
 
-- Analyzers (e.g. Roche Cobas Pro)
-- Lab middleware (e.g. [Data Innovations](https://datainnovations.com/))
-- Legacy LIS system (e.g. [Orchard](https://www.orchardsoft.com/resources/interfaces-system-integration/))
-- Logistics services (like for at-home kits, or equipment management, e.g. [Amazon Supply Chain](https://supplychain.amazon.com/))
-- Physician network for report review (e.g. SteadyMD, OpenLoop)
-- EHR integrations
+- analyzers and laboratory instruments
+- middleware and interface engines
+- legacy LIS deployments
+- logistics and sample movement systems
+- referring provider networks
+- EHRs, payer systems, and country-specific reporting endpoints
 
-## Case Studies
+## Related docs
 
-- [At Home Diagnostics - Ro Case Study](/blog/ro-case-study)
-
-## Demos and Reference Material
-
-- [CLIA/CAP Checklist](/docs/compliance/clia-cap)
-- [Defining your Diagnostic Catalog](/docs/careplans/diagnostic-catalog) shows examples of how to administer panels
-- [Defining Reference Ranges](/docs/careplans/reference-ranges) shows how to configure normal, panic and other values for lab
-- [Lab Data Model Examples](https://github.com/medplum/medplum/blob/main/packages/react/src/stories/covid19.ts) on Github
-- Live Example: [Kit.com developer documentation](https://docs.kit.com/docs/overview)
-- [HL7 Bots Tutorial](/docs/bots/hl7-into-fhir) this is the common interface for lab and LIS systems.
-- Lab Data Modeling Tutorial (Coming Soon)
+- [Interoperability and country exchange](/solutions/interoperability)
+- [Interoperability engine](/products/integration)
+- [Afiax Agent](/solutions/agent)
+- [Bots](/products/bots)
+- [Diagnostic catalog](/docs/careplans/diagnostic-catalog)
+- [Reference ranges](/docs/careplans/reference-ranges)

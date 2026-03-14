@@ -38,12 +38,12 @@
 
 ---
 
-### Question 1.3: Are you hosting Medplum yourself, or using Medplum's cloud service?
+### Question 1.3: Are you self-hosting the Afiax Medplum deployment, or using a managed Afiax cloud environment?
 
 **Pick one:**
 
-- [ ] **A) We're self-hosting** (running Medplum on our own servers or cloud account)
-- [ ] **B) We're using Medplum's cloud service** (app.medplum.com)
+- [ ] **A) We're self-hosting** (running the Afiax Medplum deployment in our own environment)
+- [ ] **B) We're using a managed Afiax cloud environment**
 
 **Why this matters:**
 - Complete database separation is only available for self-hosted customers
@@ -419,4 +419,4 @@ Once you've completed this guide:
 ---
 
 *Document Version: 1.0*
-*Generated for use with Medplum multi-tenant access control*
+*Generated for use with Afiax multi-tenant access control*

@@ -8,6 +8,7 @@ import crypto from 'crypto';
 import { MemoryRouter } from 'react-router';
 import { TextEncoder } from 'util';
 import { act, fireEvent, render, screen, waitFor } from '../test-utils/render';
+import { getAppName } from '../utils/app';
 import type { SignInFormProps } from './SignInForm';
 import { SignInForm } from './SignInForm';
 
@@ -213,7 +214,7 @@ async function setup(args?: SignInFormProps): Promise<void> {
       <MemoryRouter>
         <MedplumProvider medplum={medplum}>
           <SignInForm {...props}>
-            <Title>Sign in to Medplum</Title>
+            <Title>Sign in to {getAppName()}</Title>
           </SignInForm>
         </MedplumProvider>
       </MemoryRouter>
@@ -234,8 +235,8 @@ describe('SignInForm', () => {
 
   test('Renders', async () => {
     await setup();
-    const input = screen.getByText('Sign in to Medplum');
-    expect(input.innerHTML).toBe('Sign in to Medplum');
+    const input = screen.getByText(`Sign in to ${getAppName()}`);
+    expect(input.innerHTML).toBe(`Sign in to ${getAppName()}`);
   });
 
   test('Submit success', async () => {

@@ -1,1 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><path d="M84 56c-3-15-15-24-23-28l5-10c8 2 14 8 20 14 0-12 1-16 5-21 8-9 13-9 41-9 0 7 1 18-3 24-7 9-16 7-41 8 5 8 7 14 8 22 36-24 74-7 74 39 0 42-40 83-80 83s-80-41-80-83c0-46 38-63 74-39Zm-3 43H65c-4 0-7 3-7 7v4c0 4 3 7 7 7h16v16c0 4 3 7 7 7h4c4 0 7-3 7-7v-16h16c4 0 7-3 7-7v-4c0-4-3-7-7-7H99V83c0-4-3-7-7-7h-4c-4 0-7 3-7 7z" fill="#9c36b5"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 112">
+  <g transform="translate(8 4)">
+    <circle cx="52" cy="52" r="49" fill="#5d6671" stroke="#d9dfe6" stroke-width="3" />
+    <circle cx="52" cy="52" r="36.5" fill="#1da7dd" />
+    <path
+      d="M20 63V37h14c3.7 0 6.7-3 6.7-6.7V17h21v18c0 3.7 3 6.7 6.7 6.7h16v21H69c-3.7 0-6.7 3-6.7 6.7V87h-21V70c0-3.7-3-6.7-6.7-6.7Z"
+      fill="none"
+      stroke="#ffffff"
+      stroke-linejoin="round"
+      stroke-width="5.6"
+    />
+    <path
+      d="M92 47v20H76c-3.7 0-6.7 3-6.7 6.7V91h-21V74c0-3.7-3-6.7-6.7-6.7H25V47h16c3.7 0 6.7-3 6.7-6.7V24h21v16.3c0 3.7 3 6.7 6.7 6.7Z"
+      fill="none"
+      stroke="#ef2334"
+      stroke-linejoin="round"
+      stroke-width="5.6"
+    />
+  </g>
+  <text x="128" y="48" fill="#57616b" font-family="Arial, sans-serif" font-size="35" font-weight="700" letter-spacing="1.6">
+    AFIAX
+  </text>
+  <text x="128" y="74" fill="#57616b" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="1.4">
+    CONNECTED
+  </text>
+  <text x="128" y="96" fill="#1da7dd" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="1.4">
+    HEALTHCARE
+  </text>
+</svg>

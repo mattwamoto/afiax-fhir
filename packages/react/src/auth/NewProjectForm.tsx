@@ -58,10 +58,10 @@ export function NewProjectForm(props: NewProjectFormProps): JSX.Element {
       <Stack gap="xs" mt="md">
         <SubmitButton fullWidth>Create Project</SubmitButton>
         <Text c="dimmed" size="xs" pt="lg" ta="center">
-          By clicking "Create Project" you agree to the Medplum{' '}
-          <Anchor href="https://www.medplum.com/privacy">Privacy&nbsp;Policy</Anchor>
+          By clicking "Create Project" you agree to the Afiax Connected Healthcare{' '}
+          <Anchor href="https://www.afiax.africa/privacy">Privacy&nbsp;Policy</Anchor>
           {' and '}
-          <Anchor href="https://www.medplum.com/terms">Terms&nbsp;of&nbsp;Service</Anchor>.
+          <Anchor href="https://www.afiax.africa/terms">Terms&nbsp;of&nbsp;Service</Anchor>.
         </Text>
       </Stack>
     </Form>

@@ -6,7 +6,6 @@ import { JSX } from 'react';
 import { Card } from '../components/Card';
 import { CardContainer } from '../components/CardContainer';
 import { Container } from '../components/Container';
-import { ProfileCard } from '../components/ProfileCard';
 import { Feature, FeatureGrid } from '../components/landing/FeatureGrid';
 import { Section } from '../components/landing/Section';
 import { SectionHeader } from '../components/landing/SectionHeader';
@@ -17,23 +16,45 @@ export default function AboutPage(): JSX.Element {
     <Layout title="About us">
       <Container>
         <div style={{ textAlign: 'center', minHeight: '400px', padding: '120px 20px' }}>
-          <h1 className={styles.heroTitle}>About Medplum</h1>
+          <h1 className={styles.heroTitle}>About Afiax Connected Healthcare</h1>
           <p className={styles.heroText}>
-            Our vision is to accelerate the development of new healthcare products and services
+            Afiax is building pan-African digital health infrastructure on top of a FHIR-native clinical core.
             <br />
-            by clearing a path for every developer who wants to build in the healthcare ecosystem.
+            The platform uses Medplum as a foundation, then adds enterprise architecture, country packs, and delivery
+            patterns for real-world health systems.
           </p>
         </div>
         <Section>
           <CardContainer>
             <Card>
-              <h3>So that's what we built.</h3>
+              <h3>What Afiax is building</h3>
               <p>
-                We believe that a clean, secure, and compliant data infrastructure layer will elevate the entire field
-                of healthcare innovation and make it possible for the top technical talent to focus on what's next. We
-                believe that interoperability is vital to the future of healthcare technology. And we believe that
-                starting with a future-ready foundation will propel every healthcare innovator closer to better
-                clinical, operational, and financial outcomes.
+                Afiax is not just a country implementation. It is a broader platform strategy that combines a canonical
+                clinical core, country-specific overlays, and tenant-level operational configuration. Kenya is the
+                first reference pack, not the definition of the whole platform.
+              </p>
+            </Card>
+          </CardContainer>
+          <CardContainer>
+            <Card>
+              <h3>Clinical core</h3>
+              <p>
+                Medplum remains the system of record for canonical FHIR resources, access control, audit, provenance,
+                subscriptions, Bots, and controlled workflows.
+              </p>
+            </Card>
+            <Card>
+              <h3>Country packs</h3>
+              <p>
+                Country packs carry profiles, terminology, mappings, regulatory rules, and connector contracts without
+                hard-coding country logic into the shared platform.
+              </p>
+            </Card>
+            <Card>
+              <h3>Connected platform</h3>
+              <p>
+                Afiax is designed to interoperate with registries, payers, ERP platforms, commerce systems, mobile
+                apps, and partner services while preserving a normalized clinical source of truth.
               </p>
             </Card>
           </CardContainer>
@@ -43,169 +64,54 @@ export default function AboutPage(): JSX.Element {
         </SectionHeader>
         <Section>
           <FeatureGrid columns={2}>
-            <Feature title="Act. Deliberately and purposefully." icon={<IconPlayerPlay />}>
-              We move decisively but with intention, seeking to understand the nature of actions before we take them and
-              going slow enough to move forward with speed.
+            <Feature title="Build deliberately" icon={<IconPlayerPlay />}>
+              Afiax is intended for regulated healthcare operations, so we prefer explicit boundaries, phased delivery,
+              and traceable decisions over fast but fragile complexity.
             </Feature>
-            <Feature title="Practice uncompromising consistency." icon={<IconSettings />}>
-              We're reliably steadfast, exhibiting resolute determination and relentless follow-through. We aspire to be
-              taken for granted.
+            <Feature title="Keep the core consistent" icon={<IconSettings />}>
+              The shared platform should stay country-neutral wherever possible. Country packs and tenant overlays
+              should extend the core, not fragment it.
             </Feature>
-            <Feature title="Convene a catalytic force." icon={<IconStar />}>
-              We believe collaborative innovation will unlock capabilities, advancements, and ideas that will ultimately
-              transform healthcare, so we continually strive to elevate and unify the entire field of players.
+            <Feature title="Design for ecosystems" icon={<IconStar />}>
+              Ministries, provider networks, labs, payers, pharmacies, and digital services all need to collaborate on
+              the same healthcare fabric. Afiax is built for that shared operating environment.
             </Feature>
-            <Feature title="Pursue technical excellence." icon={<IconCode />}>
-              We are fueled by solving hard problems, both technical and human, and are deeply devoted to pushing the
-              boundaries of our craft.
+            <Feature title="Use engineering as leverage" icon={<IconCode />}>
+              We use open standards, disciplined APIs, automation, and documentation to make complex health system
+              delivery reproducible across countries and implementations.
             </Feature>
           </FeatureGrid>
         </Section>
         <SectionHeader>
-          <h2>Built by and for engineers</h2>
+          <h2>Operating model</h2>
           <p>
-            Our team is deeply committed to open source technology and innovating on behalf of the entire healthcare
-            ecosystem.
+            Afiax uses a layered model so the platform can grow country by country without forcing a rewrite of the
+            clinical core.
           </p>
         </SectionHeader>
         <Section>
           <CardContainer>
-            <ProfileCard
-              name="Reshma Khilnani"
-              title="CEO"
-              imgUrl="/img/people/reshma.webp"
-              linkedInUrl="https://www.linkedin.com/in/reshmakhilnani/"
-              githubUrl="https://github.com/reshmakh"
-            />
-            <ProfileCard
-              name="Cody Ebberson"
-              title="CTO"
-              imgUrl="/img/people/cody.webp"
-              linkedInUrl="https://www.linkedin.com/in/codyebberson/"
-              githubUrl="https://github.com/codyebberson"
-            />
-            <ProfileCard
-              name="Rahul Agarwal"
-              title="COO"
-              imgUrl="/img/people/rahul.webp"
-              linkedInUrl="https://www.linkedin.com/in/rahul-agarwal-330a979/"
-              githubUrl="https://github.com/rahul1"
-            />
-          </CardContainer>
-          <CardContainer>
-            <ProfileCard
-              name="Matt Willer"
-              title="Founding Engineer"
-              imgUrl="/img/people/mattwiller.webp"
-              linkedInUrl="https://www.linkedin.com/in/matt-willer-0b779463/"
-              githubUrl="https://github.com/mattwiller"
-            />
-            <ProfileCard
-              name="Derrick Farris"
-              title="Founding Engineer"
-              imgUrl="/img/people/derrickfarris.webp"
-              linkedInUrl="https://www.linkedin.com/in/derrickfarris/"
-              githubUrl="https://github.com/ThatOneBro"
-            />
-            <ProfileCard
-              name="Matt Long"
-              title="Founding Engineer"
-              imgUrl="/img/people/mattlong.webp"
-              linkedInUrl="https://www.linkedin.com/in/mateolargo/"
-              githubUrl="https://github.com/mattlong"
-            />
-          </CardContainer>
-          <CardContainer>
-            <ProfileCard
-              name="Ian Plunkett"
-              title="Forward Deployed Engineer"
-              imgUrl="/img/people/ianplunkett.webp"
-              linkedInUrl="https://www.linkedin.com/in/ianplunkett/"
-              githubUrl="https://github.com/ianplunkett"
-            />
-            <ProfileCard
-              name="David Yanez"
-              title="Senior Software Engineer"
-              imgUrl="/img/people/david.webp"
-              linkedInUrl="https://www.linkedin.com/in/jorge-david-yanez-a427b459/"
-              githubUrl="https://github.com/techdavidy"
-            />
-            <ProfileCard
-              name="Finn Bergquist"
-              title="Forward Deployed Engineer"
-              imgUrl="/img/people/finnbergquist.webp"
-              linkedInUrl="https://www.linkedin.com/in/finn-bergquist/"
-              githubUrl="https://github.com/finnbergquist"
-            />
-          </CardContainer>
-          <CardContainer>
-            <ProfileCard
-              name="Maddy Li"
-              title="Forward Deployed Engineer"
-              imgUrl="/img/people/maddyli.webp"
-              linkedInUrl="https://www.linkedin.com/in/maddy-li/"
-              githubUrl="https://github.com/maddyli"
-            />
-            <ProfileCard
-              name="Kevin Shaw"
-              title="Product Designer"
-              imgUrl="/img/people/kevinwadeshaw.webp"
-              linkedInUrl="https://www.linkedin.com/in/kevinwadeshaw/"
-              githubUrl="https://github.com/kevinwadeshaw"
-            />
-            <ProfileCard
-              name="Karl Pietrzak"
-              title="Senior Software Engineer"
-              imgUrl="/img/people/karlpietrzak.webp"
-              linkedInUrl="https://www.linkedin.com/in/karl-p-30525a5"
-              githubUrl="https://github.com/The-Alchemist"
-            />
-          </CardContainer>
-          <CardContainer>
-            <ProfileCard
-              name="Darren Eam"
-              title="Forward Deployed Engineer"
-              imgUrl="/img/people/darreneam.webp"
-              linkedInUrl="https://www.linkedin.com/in/darren-eam/"
-              githubUrl="https://github.com/deam65"
-            />
-            <ProfileCard
-              name="Noah Silas"
-              title="Staff Software Engineer"
-              imgUrl="/img/people/noahsilas.webp"
-              linkedInUrl="https://www.linkedin.com/in/noahsilas"
-              githubUrl="https://github.com/noahsilas"
-            />
-            <ProfileCard
-              name="Everett Williams"
-              title="Deployment Strategist"
-              imgUrl="/img/people/everettwilliams.webp"
-              linkedInUrl="https://www.linkedin.com/in/everetttwilliams/"
-              githubUrl="https://github.com/everett-williams"
-            />
-          </CardContainer>
-          <CardContainer>
-            <ProfileCard
-              name="Aditya Suri"
-              title="Forward Deployed Engineer"
-              imgUrl="/img/people/aditya-suri.webp"
-              linkedInUrl="https://www.linkedin.com/in/adityasuri1/"
-              githubUrl="https://github.com/Ljeytl"
-            />
-            <ProfileCard
-              name="Alex Lin"
-              title="Forward Deployed Engineer"
-              imgUrl="/img/people/alexlin.webp"
-              linkedInUrl="https://www.linkedin.com/in/alexanderxlin/"
-              githubUrl="https://github.com/alexanderxlin"
-            />
-            <ProfileCard
-              name="Oleg Rocklin"
-              title="Integration Engineer"
-              imgUrl="/img/people/oleg.webp"
-              linkedInUrl="https://www.linkedin.com/in/olegrocklin/"
-              githubUrl="https://github.com/oleg-mp"
-            />
+            <Card>
+              <h3>Pan-African core</h3>
+              <p>
+                Shared FHIR semantics, shared security primitives, and shared platform patterns create the base that
+                every country pack and solution can inherit.
+              </p>
+            </Card>
+            <Card>
+              <h3>Country packs</h3>
+              <p>
+                Kenya is the first reference implementation. Additional markets should plug into the same model through
+                profiles, mappings, terminology, and connector packages.
+              </p>
+            </Card>
+            <Card>
+              <h3>Tenant overlays</h3>
+              <p>
+                Networks, hospitals, insurers, and digital providers should be able to configure workflows, access,
+                and integrations without forking the platform.
+              </p>
+            </Card>
           </CardContainer>
         </Section>
       </Container>

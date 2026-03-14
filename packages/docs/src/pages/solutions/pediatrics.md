@@ -1,26 +1,32 @@
 # Pediatrics
 
-Pediatrics implementations have unique characteristics that can make traditional EHRs challenging to use. Traditional EHRs have many assumptions built into them that assume an adult patient, which can make an existing interface confusing for practitioners, making visual customizations important.
+Pediatric care models often need more flexible family access, communication-heavy workflows, and stronger operational
+coordination than adult-first systems assume. Afiax can support pediatric delivery patterns on the same Medplum core
+without forcing pediatric teams into generic workflow assumptions.
 
-There are also three common workflow challenges are prominent in pediatrics.
+## Common pediatric requirements
 
-- Caregivers, commonly parents, need access to patient records, sometimes multiple patient records in case of siblings
-- Patient messaging and inquiries are common in pediatrics, and in some cases message based interactions are billable
-- Administrative tasking, for example records requests or complex referrals, are common in pediatrics
+- caregiver access to one or more children
+- messaging and asynchronous follow-up
+- referral coordination and record requests
+- task-heavy administrative operations
+- scheduling across pediatricians, specialists, and support teams
 
-## Caregiver Access
+## Platform capabilities
 
-Parental and caregiver access is supported through Medplum [access controls](/docs/access/access-policies), and supports multiple caregivers having access to multiple siblings or children. Read our guide on [modeling family relationships](/docs/fhir-datastore/family-relationships) for information on how to enable this feature. A [explainer video](https://youtu.be/IDhsWiIxK3o) on the mechanics of the access controls is also available.
+- **caregiver and family access:** use access-control and relationship patterns to support guardians and siblings
+- **communications:** support patient-parent-provider messaging and asynchronous encounter workflows
+- **tasks and coordination:** route front-desk, referral, and clinician work through task-based workflow
+- **records and continuity:** preserve a longitudinal child record while supporting referrals and partner access
 
-## Messaging
+## Why this matters
 
-Patient-provider messaging is a common feature of pediatric applications. Organizing, annotating, documenting and billing for [asynchronous encounters](/docs/communications/async-encounters) is a common implementation pattern.
+Pediatric workflows are a strong example of why Afiax should remain configurable at the workflow and access-policy
+layer while keeping Medplum as the canonical record layer.
 
-## Tasks
+## Related docs
 
-[Tasking](/docs/careplans/tasks) for front desk, operations teams and clinicians are common in Medplum pediatrics implementations, and are often high return on investment due to time saved by clinicians.
-
-## Case Studies
-
-- [Develo Pediatric EHR](/blog/develo-case-study)
-- [24/7 Pediatrician Access](/blog/summer-case-study) - Summer Health Case Study
+- [Family relationships](/docs/fhir-datastore/family-relationships)
+- [Asynchronous encounters](/docs/communications/async-encounters)
+- [Tasks](/docs/careplans/tasks)
+- [Access control](/docs/access/access-policies)

@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
-import type { BotResponseStream, WithId } from '@medplum/core';
+import type { BotProjectContext, BotResponseStream, WithId } from '@medplum/core';
 import type {
   Agent,
   Bot,
@@ -38,6 +38,7 @@ export interface BotExecutionRequest {
 
 export interface BotExecutionContext extends BotExecutionRequest {
   readonly accessToken: string;
+  readonly project: BotProjectContext;
   readonly secrets: Record<string, ProjectSetting>;
 }
 

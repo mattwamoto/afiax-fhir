@@ -2,21 +2,17 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { WithId } from '@medplum/core';
 import type { Bot, ProjectMembership } from '@medplum/fhirtypes';
-import express from 'express';
 import fetch from 'node-fetch';
 import { randomUUID } from 'node:crypto';
-import { initApp, shutdownApp } from '../../app';
 import { loadTestConfig } from '../../config/loader';
 import type { MedplumServerConfig } from '../../config/types';
-import { initTestAuth } from '../../test.setup';
 import { executeFissionBot } from './execute';
 
 jest.mock('node-fetch');
 
 describe('Execute Fission bots', () => {
-  const app = express();
   let config: MedplumServerConfig;
-  let accessToken: string;
+  const accessToken = 'access-token';
 
   beforeAll(async () => {
     config = await loadTestConfig();
@@ -27,12 +23,6 @@ describe('Execute Fission bots', () => {
       routerHost: 'localhost',
       routerPort: 31314,
     };
-    await initApp(app, config);
-    accessToken = await initTestAuth();
-  });
-
-  afterAll(async () => {
-    await shutdownApp();
   });
 
   beforeEach(() => {
@@ -64,6 +54,11 @@ describe('Execute Fission bots', () => {
         bot,
         runAs: {} as WithId<ProjectMembership>,
         accessToken,
+        project: {
+          reference: { reference: 'Project/123' },
+          countryPack: 'kenya',
+          settings: {},
+        },
         input: 'test input',
         contentType: 'text/plain',
         secrets: {},
@@ -102,6 +97,11 @@ describe('Execute Fission bots', () => {
         bot,
         runAs: {} as WithId<ProjectMembership>,
         accessToken,
+        project: {
+          reference: { reference: 'Project/123' },
+          countryPack: 'kenya',
+          settings: {},
+        },
         input: 'test input',
         contentType: 'text/plain',
         secrets: {},

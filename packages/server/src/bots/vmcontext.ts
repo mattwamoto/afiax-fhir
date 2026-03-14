@@ -64,6 +64,7 @@ export async function runInVmContext(request: BotExecutionContext): Promise<BotE
       bot: createReference(bot),
       baseUrl: config.vmContextBaseUrl ?? config.baseUrl,
       accessToken: request.accessToken,
+      project: request.project,
       requester: request.requester,
       input: input instanceof Hl7Message ? input.toString() : input,
       contentType,
@@ -89,7 +90,7 @@ export async function runInVmContext(request: BotExecutionContext): Promise<BotE
   // End user code
 
   (async () => {
-    const { bot, baseUrl, accessToken, requester, contentType, secrets, traceId, headers, defaultHeaders, responseStream } = event;
+    const { bot, baseUrl, accessToken, project, requester, contentType, secrets, traceId, headers, defaultHeaders, responseStream } = event;
     const medplum = new MedplumClient({
       baseUrl,
       defaultHeaders,
@@ -106,7 +107,7 @@ export async function runInVmContext(request: BotExecutionContext): Promise<BotE
       if (contentType === ContentType.HL7_V2 && input) {
         input = Hl7Message.parse(input);
       }
-      let result = await exports.handler(medplum, { bot, requester, input, contentType, secrets, traceId, headers, responseStream });
+      let result = await exports.handler(medplum, { bot, project, requester, input, contentType, secrets, traceId, headers, responseStream });
       if (contentType === ContentType.HL7_V2 && result) {
         result = result.toString();
       }

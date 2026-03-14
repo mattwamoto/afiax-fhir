@@ -1,44 +1,44 @@
-# Custom EHR
+# Custom Clinical Applications
 
-Medplum is a platform on which to build acompliant, custom electronic health record system.  Providers need an ergonomic and automatied software suite to smooth workflow, productivity and protocol compliance. Medplum provides the infrasturcture, integrations and compliance that reduce the time to build a custom solution by up to 80%.
+Afiax provides the platform foundation for custom provider-facing applications, including full EHR experiences,
+specialty clinical workspaces, referral consoles, and operational dashboards.
 
-## Starter Application
+## Why organizations build on Afiax
 
-The Medplum custom EHR sample base application is called `medplum-provider`. You can view the [source code](https://github.com/medplum/medplum-provider).
+Healthcare organizations often need workflows that off-the-shelf systems do not support well. Afiax allows teams to
+build applications around their own model of care while keeping data, audit, and interoperability on one shared
+platform.
 
-The `medplum-provider` applications is intended as a sample, and the experience is truly up to the developer to determine. The application provides out of the box authentication, navigation and includes our [react component library](/docs/react).
+## Typical application patterns
 
-## Customizable Pages
+- custom EHR and provider workspaces
+- specialty-clinic workflows
+- referral and care-coordination consoles
+- county or network operations dashboards
+- clinical program management applications
 
-The pages are customizable, and can be a great place to communicate the most important tasks to practitioners. On the home page dashboards, worklists, task lists and upcoming appointments are popular.
+## Core building blocks
 
-## Notes and Charting
+- canonical FHIR resources for charting and records
+- [questionnaires](/products/questionnaires) for structured capture
+- [care plans](/products/careplans) and [tasks](/docs/careplans/tasks) for coordination
+- [communications](/products/communications) for patient and provider collaboration
+- [scheduling](/products/scheduling) for access and visit management
+- [interoperability](/products/integration) for labs, payers, registries, and partner systems
 
-Physician notes are represented in FHIR by the [Encounter](/docs/api/fhir/resources/encounter) object. Common implementations involve using custom [questionnaires](../products/questionnaires) to populate the Encounter object via [bot](/docs/bots/bot-for-questionnaire-response), or creating the object via the API.
+## Governance and extensibility
 
-Common use cases include advanced [task](/docs/careplans/tasks) tooling and [scheduling](../products/scheduling).
+All applications built on Afiax inherit:
 
-## Medications
+- access control and tenant isolation
+- audit and provenance
+- Bot-based automation
+- partner-facing API capability
+- country-pack localization without rewriting the app itself
 
-Manage patient [medications](/docs/medications) and refills, and create a pharmacy service that fits the needs of your patient population through custom [integrations](../products/integration).
+## Related docs
 
-## API Access
-
-All applications built on Medplum will inherit FHIR API access, which can be given to partners as needed. Control what data partners can see with [access controls](/docs/access/access-policies).
-
-## Certification and Scope
-
-There is a wide range of functionality that could be included in an EHR. Organizations building a custom EHR often want to go deep in one area, while maintaining a base of functionality that's common in EHRs. It can be useful to read the [ONC certification](/docs/compliance/onc) guide to learn what features are commonly found in an EHR.
-
-In general, HIPAA compliance is a must for EHRs, SOC2 Type 2 audit is recommended, and ONC Certification is not required, except in some scenarios.
-
-## Case Studies
-
-- [Develo Pediatric EHR](/blog/develo-case-study)
-- [Text Pediatricians in 15 Minutes - Summer Health Case Study](/blog/summer-case-study)
-- [Value Based Care and Elderly Populations - Ensage Case Study](/blog/ensage-case-study)
-
-## Demos and Resources
-
-- [Compliance](/docs/compliance) portal with guides and resources.
-- [CMS Definition of Electronic Health Record](https://www.cms.gov/Medicare/E-Health/EHealthRecords)
+- [Products](/products)
+- [Provider portal](/solutions/provider-portal)
+- [Patient portal](/solutions/patient-portal)
+- [Access control](/docs/access)

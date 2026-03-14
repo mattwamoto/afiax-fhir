@@ -23,7 +23,7 @@ export function AppsPage(): JSX.Element | null {
       <Document>
         <Title>Apps</Title>
         <p>
-          No apps found. Contact your administrator or <a href="mailto:support@medplum.com">Medplum Support</a> to add
+          No apps found. Contact your administrator or <a href="mailto:info@afiax.africa">Afiax support</a> to add
           automation here.
         </p>
       </Document>

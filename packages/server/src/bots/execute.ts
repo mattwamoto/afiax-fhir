@@ -3,10 +3,11 @@
 import { runInLambda } from '../cloud/aws/execute';
 import { runInLambdaStreaming } from '../cloud/aws/executestreaming';
 import { executeFissionBot } from '../cloud/fission/execute';
+import { executeKnativeBot } from '../cloud/knative/execute';
 import { recordHistogramValue } from '../otel/otel';
 import { AuditEventOutcome, createBotAuditEvent } from '../util/auditevent';
 import type { BotExecutionContext, BotExecutionRequest, BotExecutionResult } from './types';
-import { getBotAccessToken, getBotSecrets, isBotEnabled, writeBotInputToStorage } from './utils';
+import { getBotAccessToken, getBotExecutionProjectContext, getBotSecrets, isBotEnabled, writeBotInputToStorage } from './utils';
 import { runInVmContext } from './vmcontext';
 
 /**
@@ -26,10 +27,17 @@ export async function executeBot(request: BotExecutionRequest): Promise<BotExecu
   if (await isBotEnabled(bot)) {
     await writeBotInputToStorage(request);
 
+    const [accessToken, project, secrets] = await Promise.all([
+      getBotAccessToken(runAs),
+      getBotExecutionProjectContext(runAs),
+      getBotSecrets(bot, runAs),
+    ]);
+
     const context: BotExecutionContext = {
       ...request,
-      accessToken: await getBotAccessToken(runAs),
-      secrets: await getBotSecrets(bot, runAs),
+      accessToken,
+      project,
+      secrets,
     };
 
     if (bot.runtimeVersion === 'awslambda') {
@@ -44,6 +52,8 @@ export async function executeBot(request: BotExecutionRequest): Promise<BotExecu
       result = await runInVmContext(context);
     } else if (bot.runtimeVersion === 'fission') {
       result = await executeFissionBot(context);
+    } else if (bot.runtimeVersion === 'knative') {
+      result = await executeKnativeBot(context);
     } else {
       result = { success: false, logResult: 'Unsupported bot runtime' };
     }

@@ -5,20 +5,20 @@ slug: /contact
 
 # Contact Us
 
-## Need Support?
+## General Inquiries
 
-If you have any questions or need assistance, please email [support@medplum.com](mailto:support@medplum.com).
+For platform questions, architecture discussions, or partnership inquiries, email [info@afiax.africa](mailto:info@afiax.africa).
 
-## Sales Inquiries
+## Website
 
-For questions about pricing, please email [hello@medplum.com](mailto:hello@medplum.com) or [schedule a demo](https://cal.com/medplum/15).
+Visit [www.afiax.africa](https://www.afiax.africa) for the broader Afiax platform story.
 
-## Discord Community
+## Documentation and Platform Access
 
-Join our [Discord community](https://discord.gg/medplum) to connect with other users and get help from the Medplum team.
+For the admin application, use [app.afiax.africa](https://app.afiax.africa).
 
 ## Report Vulnerabilities
 
 Found a potential issue? Please help us by reporting it so we can fix it quickly.
 
-Contact us at security@medplum.com
+Contact us at [info@afiax.africa](mailto:info@afiax.africa) with the subject line `Security`.

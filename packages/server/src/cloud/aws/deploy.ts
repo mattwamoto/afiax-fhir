@@ -76,7 +76,7 @@ function createPdf(docDefinition, tableLayouts, fonts) {
 
 const WRAPPER_CODE =
   `
-  const { bot, baseUrl, accessToken, requester, contentType, secrets, traceId, headers } = event;
+  const { bot, baseUrl, accessToken, project, requester, contentType, secrets, traceId, headers } = event;
   const medplum = new MedplumClient({
     baseUrl,
     fetch: function(url, options = {}) {
@@ -93,7 +93,7 @@ const WRAPPER_CODE =
     if (contentType === ContentType.HL7_V2 && input) {
       input = Hl7Message.parse(input);
     }
-    let result = await userCode.handler(medplum, { bot, requester, input, contentType, secrets, traceId, headers });
+    let result = await userCode.handler(medplum, { bot, project, requester, input, contentType, secrets, traceId, headers });
     if (contentType === ContentType.HL7_V2 && result) {
       result = result.toString();
     }

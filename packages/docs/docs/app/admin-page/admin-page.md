@@ -1,6 +1,6 @@
 # The Admin Page
 
-The [Admin Page](https://app.medplum.com/admin/project) of the Medplum App allows admin users to view and edit details of their project that normal users do not have access to.
+The [Admin Page](https://app.afiax.africa/admin/project) of the Afiax Admin App allows admin users to view and edit details of their project that normal users do not have access to.
 
 At the top of the page, there is an array of tabs as shown below. In this guide, we will briefly go over the content of each tab as well as any functionality they provide.
 
@@ -24,11 +24,19 @@ The Clients tab displays all of the [`ClientApplication`](/docs/api/fhir/medplum
 
 ## Bots
 
-The Bots tab dispalys all of the [`Bots`](/docs/api/fhir/medplum/bot) that are a part of your project and allows you to create new ones. For more details on [`Bots`](/docs/api/fhir/medplum/bot) see the [Bot Basics docs](/docs/bots/bot-basics).
+The Bots tab displays all of the [`Bots`](/docs/api/fhir/medplum/bot) that are a part of your project and allows you to create new ones. For more details on [`Bots`](/docs/api/fhir/medplum/bot), see the [Bot Basics docs](/docs/bots/bot-basics).
 
 ## Secrets
 
 The Secrets tab displays all of your project secrets as well as allowing you to create new ones. Secrets are used to store sensitive information and as access controls. For example, API keys, [`Bot`](/docs/api/fhir/medplum/bot) secrets, and reCAPTCHA secrets would all appear here. For more details see the [Project Secrets docs](/docs/access/projects#project-secrets).
+
+For Afiax country-pack workflows, this is also where project admins should store regulator-facing integration
+credentials. For the current Kenya AfyaLink facility verification path, the project secret names are:
+
+- `kenyaAfyaLinkBaseUrl`
+- `kenyaAfyaLinkConsumerKey`
+- `kenyaAfyaLinkUsername`
+- `kenyaAfyaLinkPassword`
 
 ## Sites
 

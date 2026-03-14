@@ -44,6 +44,11 @@ describe('ProjectPage', () => {
     expect(screen.getByText('Invite New User')).toBeInTheDocument();
   });
 
+  test('Settings page', async () => {
+    await setup('/admin/settings');
+    expect(await screen.findByText('Project Settings')).toBeInTheDocument();
+  });
+
   test('Users page', async () => {
     await setup('/admin/users');
     expect(await screen.findByText('Invite New User')).toBeInTheDocument();

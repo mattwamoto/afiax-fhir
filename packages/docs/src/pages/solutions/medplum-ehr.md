@@ -1,23 +1,39 @@
-# Medplum EHR
+# Afiax EHR Foundation
 
-A streamlined EHR that's easy to implement and supports core workflows. Chart efficiently, place orders and schedule with ease.  Medplum EHR features the following features.
+Afiax can power a streamlined provider application for charting, scheduling, orders, communication, and operational
+coordination. The point is not a fixed off-the-shelf screen set, but a reusable clinical foundation that can be
+adapted to different provider models and markets.
 
-## Notes and Charting
+## Core workflow areas
 
-Collect core information including demographics, allergies, history and medical conditions in an intuitive interface.  Complete notes quickly and efficiently.
+- charting and encounter management
+- scheduling and access coordination
+- orders, diagnostics, and medications
+- task-based operational workflow
+- communications and care coordination
+- billing and payer-facing workflow where needed
 
-## Scheduling
+## Platform foundation
 
-Schedule patient visits effectively across visit types, locations and timezones.
+These experiences sit on top of the same Afiax capabilities described elsewhere in the docs:
 
-## Orders
+- [custom clinical applications](/solutions/custom-ehr)
+- [scheduling](/products/scheduling)
+- [communications](/products/communications)
+- [care plans](/products/careplans)
+- [revenue cycle and payer operations](/products/billing)
 
-Order diagnostics and place prescriptions in an intuitive, industry standard interface.  Track orders electronically and connect to networks without faxing or paper based workflows.
+## Governance and security
 
-## Billing and Revenue Cycle
+Afiax provider experiences inherit:
 
-Manage and bill insurance for patient visits and procedures.  View claim status and history and track claims through the aging process.
+- access control and tenant boundaries
+- audit and provenance
+- Bot-driven automation
+- country-pack localization for market-specific workflows
 
-## Certification and Compliance
+## Related docs
 
-Medplum has received [ONC certification](/docs/compliance/onc), is [SOC 2 Type II Certified](/docs/compliance/soc2) and is [HIPAA compliant](/docs/compliance/hipaa).
+- [Products](/products)
+- [Solution patterns](/solutions)
+- [Architecture](/docs/architecture)

@@ -5,6 +5,7 @@ import { MedplumProvider } from '@medplum/react-hooks';
 import { MemoryRouter } from 'react-router';
 import { Logo } from '../Logo/Logo';
 import { act, fireEvent, render, screen } from '../test-utils/render';
+import { getAppName } from '../utils/app';
 import { AppShell } from './AppShell';
 
 const medplum = new MockClient();
@@ -75,14 +76,14 @@ describe('AppShell v1', () => {
 
     // Click on the logo to open the menu
     await act(async () => {
-      fireEvent.click(screen.getByTitle('Medplum Logo'));
+      fireEvent.click(screen.getByTitle(`${getAppName()} Logo`));
     });
 
     expect(screen.getByText('Menu 1')).toBeInTheDocument();
 
     // Click on the logo to close the menu
     await act(async () => {
-      fireEvent.click(screen.getByTitle('Medplum Logo'));
+      fireEvent.click(screen.getByTitle(`${getAppName()} Logo`));
     });
 
     expect(screen.queryByText('Menu 1')).not.toBeInTheDocument();
@@ -93,7 +94,7 @@ describe('AppShell v1', () => {
 
     // Click on the logo to open the menu
     await act(async () => {
-      fireEvent.click(screen.getByTitle('Medplum Logo'));
+      fireEvent.click(screen.getByTitle(`${getAppName()} Logo`));
     });
 
     const input = screen.getByPlaceholderText('Resource Type');
@@ -149,7 +150,7 @@ describe('AppShell v2', () => {
     await setup('v2');
     expect(screen.getByText('Your application here')).toBeInTheDocument();
 
-    const logoButton = screen.getByRole('button', { name: 'Medplum Logo' });
+    const logoButton = screen.getByRole('button', { name: `${getAppName()} Logo` });
     const menuTitle = screen.getByText('Menu 1');
 
     expect(logoButton).toHaveAttribute('aria-expanded', 'false');
@@ -203,7 +204,7 @@ describe('AppShell v2', () => {
     await setup('v2');
 
     await act(async () => {
-      fireEvent.click(screen.getByTitle('Medplum Logo'));
+      fireEvent.click(screen.getByTitle(`${getAppName()} Logo`));
     });
 
     const searchButton = screen.getByText('Search');

@@ -3,33 +3,42 @@ sidebar_label: Communications
 sidebar_position: 4
 ---
 
-# Communications and Messaging
+# Communications and Care Coordination
 
-Communications platform that supports clinical workflows patient messaging a care team, communications regarding a care plan or appointment, sending messages to other EHRs, sending compliant emails, SMS notifications and video conferencing.
+Afiax communications are designed for healthcare delivery, not generic chat alone. Messaging, reminders, referrals,
+attachments, and partner notifications should all link back to canonical clinical workflow.
 
 ![Communications Art](../products/img/communications.png)
 
-## Features
+## Common Afiax uses
 
-The Medplum communications and messaging implementation is a very standards compliant implementation of the [FHIR Communication](/docs/api/fhir/resources/communication). It has the following features.
+- patient-to-provider messaging
+- care-team coordination
+- referral follow-up and partner notifications
+- appointment reminders and outreach
+- delivery of documents, attachments, and structured updates
+- support for virtual-care and asynchronous encounter models
 
-- **Communication Records**: create a communication on [app.medplum.com](https://app.medplum.com/Communication) or via API. It has a rich data model and support linking to various actors and other FHIR resources. For example, a Communication can be from a patient and be about an Appointment.
-- **SMS and Email**: Trigger SMS or emails via the Medplum [bots](/docs/bots) framework. Customize messages and messaging logic to your needs.
-- **Documents, images, video and attachments**: great support for images, video and attachments. Try for yourself on [Foo Medical Messaging](https://foomedical.com/messages).
-- **Direct Message to EHR**: Send direct messages to EHR Direct Message inboxes.
-- **Video and Voice**: Synchronize data from common video and voice applications via [bots](/docs/bots) framework.
+## Platform capabilities
 
-## FHIR Resources
+- **FHIR-native communication records:** represent communication state, participants, subjects, and related clinical context
+- **multi-channel delivery:** trigger email, SMS, or partner notifications through Bots and external connectors
+- **workflow linkage:** attach communications to appointments, encounters, tasks, care plans, and referrals
+- **attachments and media:** exchange documents, forms, and supporting files as part of clinical workflows
+- **auditable history:** preserve communication state and related workflow trail over time
 
-| Resource             | App Link                                                 | Create New                                                     | API Documentation                                    |
-| -------------------- | -------------------------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------- |
-| Communication        | [View All](https://app.medplum.com/Communication)        | [Create New](https://app.medplum.com/Communication/new)        | [API](/docs/api/fhir/resources/communication)        |
-| CommunicationRequest | [View All](https://app.medplum.com/CommunicationRequest) | [Create New](https://app.medplum.com/CommunicationRequest/new) | [API](/docs/api/fhir/resources/communicationrequest) |
-| Attachment           | FHIR Datatype                                            | Create via API                                                 | [Reference](/docs/api/fhir/datatypes/attachment)     |
-| Media                | [View All](https://app.medplum.com/Media)                | [Create New](https://app.medplum.com/Media/new)                | [API](/docs/api/fhir/resources/media)                |
+## Why this matters
 
-## Demos and Reference Material
+Communications are often where clinical coordination succeeds or fails. Afiax uses the same platform primitives for:
 
-- [Foo Medical Messaging](https://foomedical.com/messaging) sample patient portal with messaging and attachments.
-- [Provider Demo](https://provider.medplum.com/) sample simple EHR with provider messaging inbox.
-- [Sample Code from Foo Medical](https://github.com/medplum/foomedical/blob/main/src/pages/messages/Chat.tsx) sample code for searching for messaging.
+- provider collaboration
+- patient engagement
+- distributed referral networks
+- country-specific notification or exchange workflows
+
+## Related docs
+
+- [Messaging and communications docs](/docs/communications)
+- [Asynchronous encounters](/docs/communications/async-encounters)
+- [Bots](/products/bots)
+- [Scheduling](/products/scheduling)

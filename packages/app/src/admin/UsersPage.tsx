@@ -24,12 +24,7 @@ export function UsersPage(): JSX.Element {
           </Button>
         }
         toolbarRight={
-          <Anchor
-            href="https://www.medplum.com/docs/user-management"
-            target="_blank"
-            rel="noopener noreferrer"
-            size="sm"
-          >
+          <Anchor href="/docs/user-management" target="_blank" rel="noopener noreferrer" size="sm">
             Learn more about roles and user management
           </Anchor>
         }

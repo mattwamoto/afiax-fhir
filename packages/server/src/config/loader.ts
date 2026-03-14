@@ -213,6 +213,10 @@ function loadEnvConfig(): MedplumServerConfig {
       key = key.substring('FISSION_'.length);
       currConfig = config.fission ??= {};
       section = 'fission';
+    } else if (key.startsWith('KNATIVE_')) {
+      key = key.substring('KNATIVE_'.length);
+      currConfig = config.knative ??= {};
+      section = 'knative';
     } else if (key.startsWith('WORKERS_')) {
       key = key.substring('WORKERS_'.length);
       currConfig = config.workers ??= {};

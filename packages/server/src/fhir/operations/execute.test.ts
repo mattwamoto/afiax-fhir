@@ -137,7 +137,13 @@ exports.handler = async function (medplum, event) {
   ],
 ] as [string, string][];
 
-type BotName = 'echoBot' | 'systemEchoBot' | 'booleanBot' | 'binaryBot' | 'streamingBot' | 'streamingErrorBot';
+type BotName =
+  | 'echoBot'
+  | 'systemEchoBot'
+  | 'booleanBot'
+  | 'binaryBot'
+  | 'streamingBot'
+  | 'streamingErrorBot';
 const botDefinitions: { name: BotName; system: boolean; code: [string, string]; streaming?: boolean }[] = [
   { name: 'systemEchoBot', system: true, code: botCodes[0] },
   { name: 'echoBot', system: false, code: botCodes[0] },
@@ -161,6 +167,10 @@ describe('Execute', () => {
 
     const testSetup = await createTestProject({
       project: {
+        setting: [
+          { name: 'countryPack', valueString: 'kenya' },
+          { name: 'countryCode', valueString: 'KE' },
+        ],
         systemSecret: [
           { name: 'secret1', valueString: 'proj1systemValue1' },
           { name: 'secret2', valueString: 'proj1systemValue2' },
@@ -459,6 +469,7 @@ describe('Execute', () => {
             return {
               patient: getReferenceString({ resourceType: 'Patient', id: '123' }),
               bot: getReferenceString(event.bot),
+              project: event.project,
               defaultHeaders: medplum.getDefaultHeaders(),
             }
           };
@@ -477,6 +488,15 @@ describe('Execute', () => {
     expect(res6.body).toMatchObject({
       patient: 'Patient/123',
       bot: 'Bot/' + bot.id,
+      project: {
+        reference: { reference: 'Project/' + project1.id },
+        name: project1.name,
+        countryPack: 'kenya',
+        settings: {
+          countryPack: { name: 'countryPack', valueString: 'kenya' },
+          countryCode: { name: 'countryCode', valueString: 'KE' },
+        },
+      },
       defaultHeaders: {
         Cookie: '__medplum-test-cookie=123',
       },

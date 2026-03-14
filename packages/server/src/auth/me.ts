@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
 import type { ProfileResource, WithId } from '@medplum/core';
-import { getReferenceString, Operator } from '@medplum/core';
+import { getProjectSettingString, getReferenceString, Operator } from '@medplum/core';
 import type {
   Login,
   Project,
@@ -90,6 +90,7 @@ export async function meHandler(req: Request, res: Response): Promise<void> {
       id: project.id,
       name: project.name,
       description: project.description,
+      setting: project.setting,
       strictMode: project.strictMode,
       superAdmin: project.superAdmin,
     },
@@ -129,6 +130,7 @@ export async function getUserConfiguration(
 
 export function getUserConfigurationMenu(project: Project, membership: ProjectMembership): UserConfigurationMenu[] {
   const favorites = ['Patient', 'Practitioner', 'Organization', 'ServiceRequest', 'DiagnosticReport', 'Questionnaire'];
+  const countryPack = getProjectSettingString(project, 'countryPack');
 
   const result = [
     {
@@ -139,6 +141,7 @@ export function getUserConfigurationMenu(project: Project, membership: ProjectMe
 
   const link = [
     { name: 'Project', target: '/admin/project' },
+    ...(countryPack ? [{ name: 'Country Pack Settings', target: '/admin/settings' }] : []),
     { name: 'AccessPolicy', target: '/AccessPolicy' },
     { name: 'Subscriptions', target: '/Subscription' },
     { name: 'Batch', target: '/batch' },

@@ -17,9 +17,9 @@ import {
 } from '@tabler/icons-react';
 import Layout from '@theme/Layout';
 import { JSX } from 'react';
+import { Card } from '../components/Card';
 import { CardContainer } from '../components/CardContainer';
 import { Container } from '../components/Container';
-import { ProfileCard } from '../components/ProfileCard';
 import { Feature, FeatureGrid } from '../components/landing/FeatureGrid';
 import { Jumbotron } from '../components/landing/Jumbotron';
 import { Section } from '../components/landing/Section';
@@ -27,24 +27,24 @@ import styles from './about.module.css';
 
 export default function EnterprisePage(): JSX.Element {
   return (
-    <Layout title="Medplum Enterprise">
+    <Layout title="Afiax Enterprise">
       <Container>
         <Jumbotron>
           <div className={styles.heroContent}>
-            <h1 className={styles.heroTitle}>Build healthcare applications for enterprise</h1>
+            <h1 className={styles.heroTitle}>Enterprise digital health infrastructure</h1>
             <p className={styles.heroText}>
-              Medplum is a platform with powerful primitives and pre-built integrations that scales to meet the needs of
-              your organization.
+              Afiax uses Medplum as the clinical core, then adds governance, country-pack delivery, and integration
+              architecture for ministries, provider networks, payers, labs, pharmacies, and digital health programs.
             </p>
-            <Link href="https://cal.com/medplum/demo" className={styles.getStartedButton}>
-              <div>Book a demo</div>
+            <Link href="/contact" className={styles.getStartedButton}>
+              <div>Contact Afiax</div>
               <img src="/img/btn-arrow.svg" alt="Go arrow" width="32" height="32" />
             </Link>
           </div>
           <div className={styles.heroImage}>
             <img
               src="/img/hero/hero-custom-apps-and-portals-square.webp"
-              alt="Medplum Enterprise"
+              alt="Afiax enterprise platform"
               width="450"
               height="450"
             />
@@ -52,198 +52,129 @@ export default function EnterprisePage(): JSX.Element {
         </Jumbotron>
         <Section>
           <FeatureGrid columns={3}>
-            <Feature title="Security" icon={<IconLock />}>
-              Monitor data access and authentication in real time using a CISO Suite that's integrated with common
-              observability tools like Datadog and Sumo Logic.
+            <Feature title="Sovereign deployment" icon={<IconLock />}>
+              Support country-specific hosting, controlled environments, and enterprise-grade isolation without changing
+              the core clinical model.
             </Feature>
-            <Feature title="Identity and Access" icon={<IconCloudLock />}>
-              Fine grained access controls enable 50 state workflows, partnerships or multiple physician groups to
-              collaborate on the same platform using SSO.
+            <Feature title="Identity and access" icon={<IconCloudLock />}>
+              Apply multi-tenant controls, role-aware access, and partner collaboration patterns across ministries,
+              counties, facilities, and implementing organizations.
             </Feature>
-            <Feature title="Compliance" icon={<IconChecklist />}>
-              Certify CMS, attest ONC Compliance, enable CMS 9115, get CLIA/CAP certification, SOC 2, HITRUST, certify
-              HIPAA and more.
+            <Feature title="Country-pack governance" icon={<IconChecklist />}>
+              Keep country-specific identifiers, terminology, regulatory mappings, and exchange contracts out of the
+              shared platform layer.
             </Feature>
-            <Feature title="Lab and Imaging" icon={<IconFlask />}>
-              Send orders and receive results from lab and imaging providers. Use vendors with the best service and
-              prices.
+            <Feature title="Diagnostics and imaging" icon={<IconFlask />}>
+              Coordinate orders, results, attachments, and operational handoffs while keeping the normalized record in
+              Medplum.
             </Feature>
-            <Feature title="HIE" icon={<IconExchange />}>
-              Request records from and write records to Health Information Exchanges like CareQuality and Commonwell.
+            <Feature title="National exchange" icon={<IconExchange />}>
+              Publish to registries, payer systems, national repositories, and partner networks through auditable,
+              retry-safe integration flows.
             </Feature>
-            <Feature title="Value Based Care" icon={<IconClipboardData />}>
-              Report HEDIS, CMS Measures, MIPS and more. Compute RAF scores for your patients.
+            <Feature title="Care orchestration" icon={<IconClipboardData />}>
+              Use Tasks, Communications, Subscriptions, and Bots to coordinate care events, referrals, approvals, and
+              follow-up workflows.
             </Feature>
-            <Feature title="Workforce" icon={<IconUsers />}>
-              Manage and store credentials for practitioners. Track productivity, turnaround times and billables for
-              your team and partners.
+            <Feature title="Workforce and credentialing" icon={<IconUsers />}>
+              Manage practitioners, practitioner roles, organization structure, and verification workflows across large
+              delivery networks.
             </Feature>
-            <Feature title="Data Analytics" icon={<IconCube />}>
-              Synchronize data to popular tools like Snowflake, Datadog, Redshift or any Open Telemetry (oTel) platform.
+            <Feature title="Operational analytics" icon={<IconCube />}>
+              Feed external analytics stacks while preserving the clinical source of truth and reconciliation trail in
+              the Afiax platform.
             </Feature>
-            <Feature title="Payors" icon={<IconReceipt2 />}>
-              Robust reporting for insurance coverage by payor and patient.
+            <Feature title="Coverage and revenue" icon={<IconReceipt2 />}>
+              Model eligibility, coverage, claims-adjacent events, and reconciliation patterns without collapsing
+              finance logic into the clinical record.
             </Feature>
-            <Feature title="EMPI" icon={<IconCircleCheck />}>
-              Reports, monitoring and deduplication workflows for your Enterprise Master Patient Index (EMPI).
+            <Feature title="Enterprise identity resolution" icon={<IconCircleCheck />}>
+              Build patient matching, duplicate review, and canonical identifier strategies across facilities and
+              partner channels.
             </Feature>
-            <Feature title="Service Menu" icon={<IconCategory2 />}>
-              Manage, version and oversee your healthcare service menu. Allow partners to send referrals
-              programmaticaly.
+            <Feature title="Service catalog and referrals" icon={<IconCategory2 />}>
+              Standardize service menus, referral intake, and network routing across health programs, specialist groups,
+              and distributed facilities.
             </Feature>
-            <Feature title="Claims Dashboard" icon={<IconDashboard />}>
-              View, monitor and troubleshoot claims in real time. Track and report on claims by payor and patient.
+            <Feature title="Audit and control" icon={<IconDashboard />}>
+              Keep correlation IDs, audit events, provenance, and reconciliation tooling in the platform so every
+              external exchange can be traced.
             </Feature>
           </FeatureGrid>
         </Section>
         <Jumbotron>
           <div className={styles.heroContent}>
-            <h1 className={styles.heroTitle}>Security Dashboard</h1>
+            <h1 className={styles.heroTitle}>Governed platform architecture</h1>
             <p className={styles.heroText}>
-              Medplum provides the Chief Information Security Officer (CISO) a centrailzed view of an organization's
-              cybersecurity posture. The dashboard includes key metrics such as threat alerts, compliance status, and
-              access levels, enabling quick decision-making.
+              Afiax should keep Medplum focused on canonical records, permissions, automation, and auditability. ERP,
+              mobile, commerce, AI, and national service integrations should remain external peers that connect through
+              disciplined contracts.
             </p>
           </div>
           <div className={styles.heroImage}>
-            <img src="/img/blog/ciso-dashboard.jpg" alt="Medplum robot coding" width="488" height="384" />
+            <img src="/img/blog/ciso-dashboard.jpg" alt="Governed healthcare operations" width="488" height="384" />
           </div>
         </Jumbotron>
         <Jumbotron>
           <div className={styles.heroImage}>
-            <img src="/img/infrastructure-jumbotron.svg" alt="Medplum robot coding" width="488" height="384" />
+            <img src="/img/infrastructure-jumbotron.svg" alt="Afiax infrastructure model" width="488" height="384" />
           </div>
           <div className={styles.heroContent}>
-            <h1 className={styles.heroTitle}>Enterprise Identity Management</h1>
+            <h1 className={styles.heroTitle}>A phased delivery model</h1>
             <p className={styles.heroText}>
-              Connect multiplie identity prociders and provision identities programmatically across your health record
-              system. Use SCM administration for robust and compliant identity administration.
+              Start with the shared canonical core, add one country pack with production-grade connectors, and expand
+              into tenant-specific workflows only after the clinical and regulatory spine is stable.
             </p>
           </div>
         </Jumbotron>
         <Section>
           <CardContainer>
-            <ProfileCard
-              name="Okta"
-              title="Identity, security"
-              imgUrl="/img/blog/okta-logo.png"
-              webUrl="/docs/auth/domain-level-identity-providers"
-            />
-            <ProfileCard
-              name="Azure SSO"
-              title="Identity, security"
-              imgUrl="/img/blog/azure-logo.png"
-              webUrl="/docs/integration#first-party-integrations"
-            />
-            <ProfileCard
-              name="Google SSO"
-              title="Identity, security"
-              imgUrl="/img/blog/google-logo.jpeg"
-              webUrl="/docs/auth/google-auth"
-            />
-          </CardContainer>
-        </Section>
-        <Jumbotron>
-          <div className={styles.heroImage}>
-            <img src="/img/infrastructure-jumbotron.svg" alt="Medplum robot coding" width="488" height="384" />
-          </div>
-          <div className={styles.heroContent}>
-            <h1 className={styles.heroTitle}>Enterprise Observability</h1>
-            <p className={styles.heroText}>
-              Gain deep insights into systems performance and health. Enables proactive issue detection, efficient
-              troubleshooting, and improved system reliability.
-            </p>
-          </div>
-        </Jumbotron>
-        <Section>
-          <CardContainer>
-            <ProfileCard
-              name="Datadog"
-              title="Observability, site reliability, analytics"
-              imgUrl="/img/blog/datadog-logo.jpeg"
-              webUrl="/docs/self-hosting/datadog"
-            />
-            <ProfileCard
-              name="Splunk"
-              title="Site reliability, analytics"
-              imgUrl="/img/blog/splunk-logo.jpg"
-              webUrl="/docs/integration#first-party-integrations"
-            />
-            <ProfileCard
-              name="Sumo Logic"
-              title="Security, analytics"
-              imgUrl="/img/blog/sumologic-logo.jpg"
-              webUrl="/docs/integration#first-party-integrations"
-            />
-          </CardContainer>
-          <Jumbotron>
-            <div className={styles.heroImage}>
-              <img src="/img/infrastructure-jumbotron.svg" alt="Medplum robot coding" width="488" height="384" />
-            </div>
-            <div className={styles.heroContent}>
-              <h1 className={styles.heroTitle}>Enterprise Integrations</h1>
-              <p className={styles.heroText}>
-                Enable reliable, compliant and auditable connectivity to service providers and partners.
+            <Card>
+              <h3>Architecture</h3>
+              <p>
+                Read the platform architecture, operating model, and canonical data strategy that sit above the
+                Medplum foundation.
               </p>
-            </div>
-          </Jumbotron>
-          <CardContainer>
-            <ProfileCard
-              name="Labcorp"
-              title="Diagnostics, integrations, workflow"
-              imgUrl="/img/blog/labcorp-logo.png"
-              webUrl="/docs/integration#first-party-integrations"
-            />
-            <ProfileCard
-              name="Quest Diagnostics"
-              title="Diagnostics, integrations, workflow"
-              imgUrl="/img/blog/quest-logo.jpeg"
-              webUrl="/docs/integration#first-party-integrations"
-            />
-            <ProfileCard
-              name="Health Gorilla"
-              title="Lab, integrations, workflow"
-              imgUrl="/img/blog/health-gorilla-logo.png"
-              webUrl="/docs/integration/health-gorilla"
-              youtubeUrl="https://youtu.be/m0AWpEOh1es"
-            />
-          </CardContainer>
-          <CardContainer>
-            <ProfileCard
-              name="Epic Systems"
-              title="Legacy EHR, workflow"
-              imgUrl="/img/blog/epic-logo.png"
-              webUrl="/docs/integration#first-party-integrations"
-              youtubeUrl="https://youtu.be/E8VD9rgadG0"
-            />
-            <ProfileCard
-              name="Candid Health"
-              title="Billing, workflow"
-              imgUrl="/img/blog/candid-health-logo.jpeg"
-              webUrl="/docs/integration#first-party-integrations"
-            />
-            <ProfileCard
-              name="Open AI"
-              title="AI, workflow"
-              imgUrl="/img/blog/open-ai-logo.png"
-              webUrl="/docs/integration#first-party-integrations"
-            />
+              <p>
+                <Link href="/docs/architecture">Open architecture docs</Link>
+              </p>
+            </Card>
+            <Card>
+              <h3>Country packs</h3>
+              <p>
+                Keep country-specific implementation logic under a dedicated packaging model so Kenya and future markets
+                do not distort the shared platform.
+              </p>
+              <p>
+                <Link href="/docs/country-packs">Browse country packs</Link>
+              </p>
+            </Card>
+            <Card>
+              <h3>Integration boundaries</h3>
+              <p>
+                Use a clear ownership model for Medplum, external systems, and normalization back into the clinical
+                core.
+              </p>
+              <p>
+                <Link href="/docs/architecture/integration-boundaries">Review boundaries</Link>
+              </p>
+            </Card>
           </CardContainer>
         </Section>
         <Jumbotron>
           <div className={styles.heroContent}>
-            <h1 className={styles.heroTitle}>Onboarding Workshop</h1>
+            <h1 className={styles.heroTitle}>Implementation approach</h1>
             <p className={styles.heroText}>
-              Medplum Enterprise includes a two week workshop with team training, integrations planning, documentation
-              and setup. The materials are customized to the specific needs of your implementation.
+              The right sequence is usually canonical core first, one country pack second, production connectors third,
+              and broader digital services after the clinical and operational backbone is working.
             </p>
-            <Link href="https://cal.com/medplum/demo" className={styles.getStartedButton}>
-              <div>Book Now</div>
+            <Link href="/docs/country-packs/kenya" className={styles.getStartedButton}>
+              <div>See Kenya Pack</div>
               <img src="/img/btn-arrow.svg" alt="Go arrow" width="32" height="32" />
             </Link>
           </div>
           <div className={styles.heroImage}>
-            <img src="/img/blog/workshop.svg" alt="Medplum robot coding" width="488" height="384" />
+            <img src="/img/blog/workshop.svg" alt="Afiax implementation workshop" width="488" height="384" />
           </div>
         </Jumbotron>
       </Container>
