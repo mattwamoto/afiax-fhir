@@ -94,6 +94,10 @@ Use the rest of the architecture docs by question:
   [Enterprise platform](./enterprise-platform)
 - if you need the split between reimbursement, payments, and enterprise finance:
   [Afiax financial architecture](./financial-architecture)
+- if you need the Afiax Pay payment and wallet boundary:
+  [Afiax FHIR and Afiax Pay boundary](./afiax-pay-boundary)
+- if you need the embedded-insurance partner boundary:
+  [Lami embedded insurance boundary](./lami-embedded-insurance-boundary)
 - if you need to know what stays in or out of Afiax FHIR:
   [Afiax FHIR integration boundaries](./integration-boundaries)
 - if you need the Afiax Billing, pharmacy, and workforce boundary:

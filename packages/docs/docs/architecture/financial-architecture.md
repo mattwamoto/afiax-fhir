@@ -144,6 +144,8 @@ This financial architecture offers:
 ## Related docs
 
 - [Enterprise platform](./enterprise-platform)
+- [Afiax FHIR and Afiax Pay boundary](./afiax-pay-boundary)
+- [Lami embedded insurance boundary](./lami-embedded-insurance-boundary)
 - [Afiax FHIR and Afiax Billing boundary](./afiax-billing-boundary)
 - [Afiax FHIR and Afiax Billing contract](./afiax-billing-contract)
 - [Kenya billing and settlement](../country-packs/kenya-billing-and-settlement)

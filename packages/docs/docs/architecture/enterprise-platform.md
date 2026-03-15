@@ -111,6 +111,8 @@ For current implementation work, the important point is:
 
 - [Architecture overview](./index)
 - [Afiax financial architecture](./financial-architecture)
+- [Afiax FHIR and Afiax Pay boundary](./afiax-pay-boundary)
+- [Lami embedded insurance boundary](./lami-embedded-insurance-boundary)
 - [Afiax FHIR integration boundaries](./integration-boundaries)
 - [Afiax FHIR and Afiax Billing boundary](./afiax-billing-boundary)
 - [Afiax FHIR and Afiax Billing contract](./afiax-billing-contract)

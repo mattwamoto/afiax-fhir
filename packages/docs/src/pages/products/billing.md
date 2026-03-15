@@ -103,6 +103,8 @@ surfaces while Afiax Billing implementation code and ERPNext customization remai
 
 - [Billing docs](/docs/billing)
 - [Afiax financial architecture](/docs/architecture/financial-architecture)
+- [Afiax FHIR and Afiax Pay boundary](/docs/architecture/afiax-pay-boundary)
+- [Lami embedded insurance boundary](/docs/architecture/lami-embedded-insurance-boundary)
 - [Canonical FHIR model](/docs/architecture/canonical-model)
 - [Afiax FHIR and Afiax Billing boundary](/docs/architecture/afiax-billing-boundary)
 - [Afiax FHIR and Afiax Billing contract](/docs/architecture/afiax-billing-contract)
