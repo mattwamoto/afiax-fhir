@@ -4,69 +4,109 @@ sidebar_position: 2
 
 # Enterprise Platform
 
-Afiax Connected Healthcare is not only an interoperability project. It is a broader digital health platform intended
-to support healthcare providers, health programs, payers, and partners across Africa.
+This page describes the broader platform shape around the Medplum core.
 
-## Platform capability areas
+It is intentionally wider than the Medplum repo, but it should still be read from an implementation point of view:
 
-Afiax is being shaped around five major capability areas:
+- what belongs in this repo
+- what belongs in adjacent services
+- what should be built first
+- what can wait until the core and Kenya reference path are stable
 
-1. **Clinical core**  
-   Medplum-derived FHIR services, access policies, subscriptions, custom operations, and auditable workflow automation.
-2. **Interoperability and exchange**  
-   National registries, payer connections, exchange publishing, HL7/FHIR integration, and country-pack adapters.
-3. **Digital care services**  
-   Provider applications, patient experiences, telemedicine, and remote-care workflows built on the same data layer.
-4. **Analytics and AI**  
-   Reporting, dashboards, predictive services, and decision support using normalized clinical and operational data.
-5. **Developer and partner platform**  
-   APIs, Bots, mapping services, and packaging contracts that allow Afiax teams and partners to extend the platform.
+## Platform capability map
+
+The broader Afiax platform breaks down into five capability areas:
+
+1. `Clinical core`
+   Medplum-based FHIR services, access control, auditability, bots, subscriptions, and internal operations.
+2. `Country interoperability`
+   Registry checks, payer connectivity, terminology, eligibility, exchange publishing, and country-pack adapters.
+3. `Digital products`
+   Provider tools, patient experiences, telemedicine, and admin workflows built on the shared data model.
+4. `Analytics and decision support`
+   Reporting, dashboards, AI services, and operational insight on normalized data.
+5. `Developer and partner platform`
+   Extension contracts, integration services, partner APIs, and reusable country-pack patterns.
 
 ## High-level architecture
 
 | Layer | Scope |
 | --- | --- |
 | Experience layer | provider app, patient app, admin console, partner APIs |
-| Clinical platform layer | Medplum server, FHIR resources, access policies, Bots, subscriptions, custom FHIR operations |
-| Shared domain services | identity orchestration, scheduling, notifications, billing core, document management |
-| Country packs | national registries, eligibility, payer adapters, terminology, exchange connectors, compliance artifacts |
-| Integration layer | Medplum Agent, HL7/ASTM/DICOM adapters, external payer and public-health connectors |
+| Clinical platform layer | Medplum server, FHIR resources, access policies, bots, subscriptions, custom operations |
+| Shared domain services | identity orchestration, scheduling, notifications, document handling, workflow support |
+| Country packs | registries, payer adapters, terminology, exchange connectors, compliance artifacts |
+| Integration services | gateways, Medplum Agent, HL7/FHIR adapters, Knative executors, partner connectors |
 | Data layer | PostgreSQL, object storage, audit logs, backups, reconciliation data |
 
-## Delivery models
+## What this repo should cover
 
-The platform is intended to support multiple commercial and operational models:
+This Medplum fork should focus on:
 
-- **Shared SaaS** for customers that can use shared infrastructure with tenant isolation
-- **Dedicated SaaS** for customers that require isolated runtime boundaries
-- **Managed PaaS** for customers running Afiax inside their own cloud or sovereign environment
-- **Infrastructure-oriented services** for data storage, compute, and security controls aligned with regulated health workloads
+- canonical resources and shared semantics
+- country-pack contracts and dispatch
+- pack-aware admin UX
+- generic operations and workflow evidence
+- Medplum-side connector boundaries
+- docs that define how adjacent systems integrate with the core
 
-This aligns with the broader Afiax business model of combining SaaS, PaaS, and infrastructure-oriented service
-patterns depending on customer maturity and market needs.
+This repo should not become the home for every adjacent service.
 
-## Why this matters for the docs
+Keep these outside the Medplum repo:
 
-The documentation should communicate that:
+- mobile gateways
+- Knative connector services
+- ERP or commerce systems
+- heavy analytics pipelines
+- standalone AI services
+- country-specific transport services that only proxy remote APIs
 
-- the core platform is pan-African in ambition
-- Kenya is a localization path, not the entire product strategy
-- country packs exist to protect the broader platform from national lock-in
-- analytics, telemedicine, partner APIs, and digital-service layers sit alongside interoperability, not beneath it
+## Delivery model assumptions
 
-## Current implementation sequence
+The platform is designed to support more than one runtime model:
 
-Afiax should still build the platform in stages:
+- `Shared SaaS`
+  - shared infrastructure with project isolation
+- `Dedicated SaaS`
+  - isolated runtime boundaries for specific customers
+- `Managed PaaS`
+  - Afiax-operated deployments in customer-owned or sovereign environments
+- `Sovereign deployment`
+  - in-country storage and execution for regulated workloads
 
-1. Lock the core architecture and canonical FHIR model.
-2. Prove the country-pack SDK with Kenya.
-3. Stabilize exchange, eligibility, and auditability.
-4. Expand digital services such as telemedicine, analytics, and partner-facing capabilities on the same platform.
-5. Add additional country packs without rewriting the core.
+Those deployment models matter, but they should not drive early product complexity inside the repo.
+
+## Recommended build sequence
+
+Build the enterprise platform in this order:
+
+1. lock the core model and integration boundaries
+2. prove the country-pack contract with Kenya
+3. stabilize verification, eligibility, audit, and reconciliation
+4. add adjacent integration services where the core needs them
+5. expand into provider, patient, analytics, and partner-facing products
+6. add more country packs without changing core semantics
+
+## Practical interpretation
+
+For current implementation work, the important point is:
+
+- Kenya is the first reference pack
+- Medplum remains the clinical core
+- external services can exist around it
+- the broader platform should grow by adding layers around the core, not by stuffing every concern into the Medplum repo
+
+## What not to do
+
+- do not treat Kenya as the shape of the whole platform
+- do not collapse gateway or connector logic into Medplum core
+- do not let analytics or AI requirements distort the canonical model early
+- do not add broad enterprise modules before verification and exchange workflows are stable
 
 ## Related docs
 
 - [Architecture overview](./index)
+- [Medplum integration boundaries](./integration-boundaries)
 - [Canonical FHIR model](./canonical-model)
 - [Country packs](../country-packs)
 - [Afiax website](https://www.afiax.africa)
