@@ -173,5 +173,6 @@ Recommended shape:
 - [Enterprise platform](./enterprise-platform)
 - [Integration boundaries](./integration-boundaries)
 - [Afiax FHIR and Afiax Billing contract](./afiax-billing-contract)
+- [Afiax FHIR and Afiax Billing object mapping](./afiax-billing-object-mapping)
 - [Canonical FHIR model](./canonical-model)
 - [Revenue cycle and payer operations](/products/billing)

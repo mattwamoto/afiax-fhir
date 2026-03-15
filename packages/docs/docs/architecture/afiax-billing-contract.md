@@ -159,6 +159,7 @@ ownership.
 ## Related docs
 
 - [Afiax FHIR and Afiax Billing boundary](./afiax-billing-boundary)
+- [Afiax FHIR and Afiax Billing object mapping](./afiax-billing-object-mapping)
 - [Canonical FHIR model](./canonical-model)
 - [Integration boundaries](./integration-boundaries)
 - [Billing](/docs/billing)
