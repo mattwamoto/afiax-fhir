@@ -11,6 +11,7 @@ import { initApp, shutdownApp } from '../app';
 import type { RegisterResponse } from '../auth/register';
 import { registerNew } from '../auth/register';
 import { loadTestConfig } from '../config/loader';
+import { KenyaAfyaLinkSecretNames } from '../country-pack/kenya/afyalink';
 import { getGlobalSystemRepo } from '../fhir/repo';
 import { addTestUser, setupPwnedPasswordMock, setupRecaptchaMock, withTestContext } from '../test.setup';
 import { inviteUser } from './invite';
@@ -624,6 +625,54 @@ describe('Project Admin routes', () => {
     expect(res3.status).toBe(200);
     expect(res3.body.project.site).toHaveLength(1);
     expect(res3.body.project.site[0].name).toStrictEqual('test_site');
+  });
+
+  test('Test Kenya AfyaLink connection', async () => {
+    const { project, accessToken } = await withTestContext(() =>
+      registerNew({
+        firstName: 'John',
+        lastName: 'Adams',
+        projectName: 'Kenya AfyaLink Project',
+        email: `john${randomUUID()}@example.com`,
+        password: 'password!@#',
+      })
+    );
+
+    const settingsRes = await request(app)
+      .post('/admin/projects/' + project.id + '/settings')
+      .set('Authorization', 'Bearer ' + accessToken)
+      .send([{ name: 'countryPack', valueString: 'kenya' }]);
+    expect(settingsRes.status).toBe(200);
+
+    (fetch as unknown as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn(async () => ({ token: 'jwt-token' })),
+    });
+
+    const res = await request(app)
+      .post('/admin/projects/' + project.id + '/kenya/afyalink/test')
+      .set('Authorization', 'Bearer ' + accessToken)
+      .send([
+        { name: KenyaAfyaLinkSecretNames.baseUrl, valueString: 'https://afyalink.example.com' },
+        { name: KenyaAfyaLinkSecretNames.consumerKey, valueString: 'consumer-key' },
+        { name: KenyaAfyaLinkSecretNames.username, valueString: 'username' },
+        { name: KenyaAfyaLinkSecretNames.password, valueString: 'password' },
+      ]);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      ok: true,
+      baseUrl: 'https://afyalink.example.com',
+    });
+    expect(fetch).toHaveBeenCalledWith(
+      'https://afyalink.example.com/v1/hie-auth?key=consumer-key',
+      expect.objectContaining({
+        method: 'GET',
+        headers: expect.objectContaining({
+          Authorization: `Basic ${Buffer.from('username:password').toString('base64')}`,
+        }),
+      })
+    );
   });
 
   test('Set password access denied', async () => {

@@ -4,6 +4,187 @@
 import type { Project, ProjectSetting } from '@medplum/fhirtypes';
 
 export type ProjectSettingsSource = Pick<Project, 'setting'> | ProjectSetting[] | undefined;
+export type CountryPackAvailability = 'active' | 'placeholder';
+export type CountryPackRegion = 'east-africa' | 'comesa';
+export type KenyaAfyaLinkEnvironment = 'uat' | 'production';
+export type KenyaAfyaLinkCredentialMode = 'tenant-managed' | 'afiax-managed';
+
+export interface CountryPackCatalogEntry {
+  readonly id: string;
+  readonly title: string;
+  readonly countryCode: string;
+  readonly availability: CountryPackAvailability;
+  readonly regions: readonly CountryPackRegion[];
+}
+
+const countryPackCatalog: readonly CountryPackCatalogEntry[] = [
+  {
+    id: 'kenya',
+    title: 'Kenya',
+    countryCode: 'KE',
+    availability: 'active',
+    regions: ['east-africa', 'comesa'],
+  },
+  {
+    id: 'burundi',
+    title: 'Burundi',
+    countryCode: 'BI',
+    availability: 'placeholder',
+    regions: ['east-africa', 'comesa'],
+  },
+  {
+    id: 'comoros',
+    title: 'Comoros',
+    countryCode: 'KM',
+    availability: 'placeholder',
+    regions: ['comesa'],
+  },
+  {
+    id: 'democratic-republic-of-the-congo',
+    title: 'Democratic Republic of the Congo',
+    countryCode: 'CD',
+    availability: 'placeholder',
+    regions: ['east-africa', 'comesa'],
+  },
+  {
+    id: 'djibouti',
+    title: 'Djibouti',
+    countryCode: 'DJ',
+    availability: 'placeholder',
+    regions: ['comesa'],
+  },
+  {
+    id: 'egypt',
+    title: 'Egypt',
+    countryCode: 'EG',
+    availability: 'placeholder',
+    regions: ['comesa'],
+  },
+  {
+    id: 'eritrea',
+    title: 'Eritrea',
+    countryCode: 'ER',
+    availability: 'placeholder',
+    regions: ['comesa'],
+  },
+  {
+    id: 'eswatini',
+    title: 'Eswatini',
+    countryCode: 'SZ',
+    availability: 'placeholder',
+    regions: ['comesa'],
+  },
+  {
+    id: 'ethiopia',
+    title: 'Ethiopia',
+    countryCode: 'ET',
+    availability: 'placeholder',
+    regions: ['comesa'],
+  },
+  {
+    id: 'libya',
+    title: 'Libya',
+    countryCode: 'LY',
+    availability: 'placeholder',
+    regions: ['comesa'],
+  },
+  {
+    id: 'madagascar',
+    title: 'Madagascar',
+    countryCode: 'MG',
+    availability: 'placeholder',
+    regions: ['comesa'],
+  },
+  {
+    id: 'malawi',
+    title: 'Malawi',
+    countryCode: 'MW',
+    availability: 'placeholder',
+    regions: ['comesa'],
+  },
+  {
+    id: 'mauritius',
+    title: 'Mauritius',
+    countryCode: 'MU',
+    availability: 'placeholder',
+    regions: ['comesa'],
+  },
+  {
+    id: 'rwanda',
+    title: 'Rwanda',
+    countryCode: 'RW',
+    availability: 'placeholder',
+    regions: ['east-africa', 'comesa'],
+  },
+  {
+    id: 'seychelles',
+    title: 'Seychelles',
+    countryCode: 'SC',
+    availability: 'placeholder',
+    regions: ['comesa'],
+  },
+  {
+    id: 'somalia',
+    title: 'Somalia',
+    countryCode: 'SO',
+    availability: 'placeholder',
+    regions: ['east-africa', 'comesa'],
+  },
+  {
+    id: 'south-sudan',
+    title: 'South Sudan',
+    countryCode: 'SS',
+    availability: 'placeholder',
+    regions: ['east-africa'],
+  },
+  {
+    id: 'sudan',
+    title: 'Sudan',
+    countryCode: 'SD',
+    availability: 'placeholder',
+    regions: ['comesa'],
+  },
+  {
+    id: 'tanzania',
+    title: 'Tanzania',
+    countryCode: 'TZ',
+    availability: 'placeholder',
+    regions: ['east-africa'],
+  },
+  {
+    id: 'tunisia',
+    title: 'Tunisia',
+    countryCode: 'TN',
+    availability: 'placeholder',
+    regions: ['comesa'],
+  },
+  {
+    id: 'uganda',
+    title: 'Uganda',
+    countryCode: 'UG',
+    availability: 'placeholder',
+    regions: ['east-africa', 'comesa'],
+  },
+  {
+    id: 'zambia',
+    title: 'Zambia',
+    countryCode: 'ZM',
+    availability: 'placeholder',
+    regions: ['comesa'],
+  },
+  {
+    id: 'zimbabwe',
+    title: 'Zimbabwe',
+    countryCode: 'ZW',
+    availability: 'placeholder',
+    regions: ['comesa'],
+  },
+];
+
+export const KenyaProjectSettingNames = {
+  afyaLinkEnvironment: 'kenyaAfyaLinkEnvironment',
+  afyaLinkCredentialMode: 'kenyaAfyaLinkCredentialMode',
+} as const;
 
 function getProjectSettings(source: ProjectSettingsSource): ProjectSetting[] | undefined {
   return Array.isArray(source) ? source : source?.setting;
@@ -19,4 +200,28 @@ export function getProjectSettingBoolean(source: ProjectSettingsSource, name: st
 
 export function getProjectSettingString(source: ProjectSettingsSource, name: string): string | undefined {
   return getProjectSetting(source, name)?.valueString;
+}
+
+export function getCountryPackCatalog(): readonly CountryPackCatalogEntry[] {
+  return countryPackCatalog;
+}
+
+export function getCountryPackCatalogEntry(id: string | undefined): CountryPackCatalogEntry | undefined {
+  return id ? countryPackCatalog.find((entry) => entry.id === id) : undefined;
+}
+
+export function formatCountryPackLabel(entry: CountryPackCatalogEntry): string {
+  return entry.availability === 'active' ? entry.title : `${entry.title} (Placeholder)`;
+}
+
+export function getKenyaAfyaLinkEnvironment(source: ProjectSettingsSource): KenyaAfyaLinkEnvironment {
+  return getProjectSettingString(source, KenyaProjectSettingNames.afyaLinkEnvironment) === 'production'
+    ? 'production'
+    : 'uat';
+}
+
+export function getKenyaAfyaLinkCredentialMode(source: ProjectSettingsSource): KenyaAfyaLinkCredentialMode {
+  return getProjectSettingString(source, KenyaProjectSettingNames.afyaLinkCredentialMode) === 'afiax-managed'
+    ? 'afiax-managed'
+    : 'tenant-managed';
 }

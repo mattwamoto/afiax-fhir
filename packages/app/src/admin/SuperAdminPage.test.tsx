@@ -12,6 +12,7 @@ import { AppRoutes } from '../AppRoutes';
 import { act, fireEvent, render, screen } from '../test-utils/render';
 
 describe('SuperAdminPage', () => {
+  let getSpy: jest.SpyInstance;
   let postSpy: jest.SpyInstance;
   let medplum: MockClient;
 
@@ -32,6 +33,7 @@ describe('SuperAdminPage', () => {
     medplum = new MockClient();
     jest.useFakeTimers();
     jest.spyOn(medplum, 'isSuperAdmin').mockImplementation(() => true);
+    getSpy = jest.spyOn(medplum, 'get');
     postSpy = jest.spyOn(medplum, 'post');
   });
 
@@ -72,6 +74,85 @@ describe('SuperAdminPage', () => {
     });
 
     expect(screen.getByText('Done')).toBeInTheDocument();
+  });
+
+  test('Load and save Afiax-managed Kenya credentials', async () => {
+    medplum.router.add('GET', 'Project', async () => {
+      return [
+        allOk,
+        {
+          resourceType: 'Bundle',
+          type: 'searchset',
+          entry: [{ resource: { resourceType: 'Project', id: 'project-123', name: 'Afiax Kenya Project' } }],
+        } as any,
+      ];
+    });
+
+    getSpy.mockImplementation(async (path: string) => {
+      if (path === 'admin/super/projects/project-123/kenya/afyalink/systemsecrets') {
+        return {
+          project: {
+            id: 'project-123',
+            name: 'Afiax Kenya Project',
+            systemSecret: [
+              { name: 'kenyaAfyaLinkConsumerKey', valueString: 'existing-consumer-key' },
+              { name: 'kenyaAfyaLinkUsername', valueString: 'existing-username' },
+              { name: 'kenyaAfyaLinkPassword', valueString: 'existing-password' },
+            ],
+          },
+          kenya: {
+            environment: 'uat',
+            credentialMode: 'afiax-managed',
+          },
+        };
+      }
+      return {};
+    });
+
+    setup();
+
+    await act(async () => {
+      fireEvent.change(screen.getByPlaceholderText('Search Kenya project'), { target: { value: 'Afiax' } });
+    });
+
+    await act(async () => {
+      jest.advanceTimersByTime(1000);
+    });
+
+    await act(async () => {
+      fireEvent.keyDown(screen.getByPlaceholderText('Search Kenya project'), { key: 'ArrowDown', code: 'ArrowDown' });
+    });
+
+    await act(async () => {
+      fireEvent.keyDown(screen.getByPlaceholderText('Search Kenya project'), { key: 'Enter', code: 'Enter' });
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Load Project'));
+    });
+
+    expect(await screen.findByText(/Afiax Kenya Project/)).toBeInTheDocument();
+    expect(screen.getByTestId('afiax-managed-project-id')).toHaveValue('project-123');
+    expect(screen.getByTestId('afiax-managed-consumer-key')).toHaveValue('existing-consumer-key');
+
+    await act(async () => {
+      fireEvent.change(screen.getByTestId('afiax-managed-consumer-key'), {
+        target: { value: 'updated-consumer-key' },
+      });
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Save Managed Credentials'));
+    });
+
+    expect(postSpy).toHaveBeenCalledWith(
+      'admin/super/projects/project-123/kenya/afyalink/systemsecrets',
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'kenyaAfyaLinkConsumerKey', valueString: 'updated-consumer-key' }),
+        expect.objectContaining({ name: 'kenyaAfyaLinkUsername', valueString: 'existing-username' }),
+        expect.objectContaining({ name: 'kenyaAfyaLinkPassword', valueString: 'existing-password' }),
+      ])
+    );
   });
 
   test('Reindex resource type', async () => {

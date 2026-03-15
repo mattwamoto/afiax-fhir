@@ -69,18 +69,32 @@ Bots should remain separate for:
 
 The current Kenya reference path in this repo uses:
 
+- project creation dropdown support so new projects can select `Kenya` directly instead of adding `countryPack`
+  manually later
 - `Organization/$verify-facility-authority` as the generic internal operation
 - `Project.setting.countryPack=kenya` to select the Kenya implementation
-- `Project.secret` to hold Kenya AfyaLink credentials
+- `Project.setting.kenyaAfyaLinkEnvironment` for `UAT` vs `Production`
+- `Project.setting.kenyaAfyaLinkCredentialMode` for `Tenant-managed` vs `Afiax-managed`
+- `Project.secret` only for tenant-managed Kenya AfyaLink credentials
 - DHA AfyaLink authentication followed by facility search using `facility_code`
 - normalized output plus a verification `Task` and `AuditEvent`
 
-The current project secret names are:
+The current tenant-managed project secret names are:
 
-- `kenyaAfyaLinkBaseUrl`
 - `kenyaAfyaLinkConsumerKey`
 - `kenyaAfyaLinkUsername`
 - `kenyaAfyaLinkPassword`
+
+The DHA endpoint is no longer typed in the normal tenant UX. It is derived from the selected Kenya environment and
+platform configuration, with advanced override still available outside the curated tenant form when required.
+
+In the admin app, Kenya projects now expose the environment and credential mode on `/admin/settings`, and the
+tenant-managed credential fields on `/admin/secrets`. A dedicated `/admin/country-pack` page now acts as the Kenya
+setup checklist, showing readiness state, credential ownership, and the next actions for project admins. The secrets
+page includes a `Test Connection` action that authenticates against AfyaLink without requiring a save first.
+
+When a Kenya project uses `Afiax-managed` credential mode, the DHA credentials move out of the tenant admin UI and
+into the Super Admin platform-ops workflow, where they are stored in `Project.systemSecret`.
 
 The canonical identifier expected by the current facility verification flow is the MFL code bound to
 `facility-authority-id`.

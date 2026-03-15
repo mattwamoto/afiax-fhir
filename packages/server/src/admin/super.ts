@@ -6,19 +6,23 @@ import {
   allOk,
   badRequest,
   forbidden,
+  getKenyaAfyaLinkCredentialMode,
+  getKenyaAfyaLinkEnvironment,
   getQueryString,
+  getProjectSettingString,
   getResourceTypes,
   OperationOutcomeError,
   parseSearchRequest,
   validateResourceType,
 } from '@medplum/core';
-import type { ResourceType } from '@medplum/fhirtypes';
+import type { Project, ProjectSetting, ResourceType } from '@medplum/fhirtypes';
 import type { Request, Response } from 'express';
 import { Router } from 'express';
 import { body, checkExact, validationResult } from 'express-validator';
 import { assert } from 'node:console';
 import { setPassword } from '../auth/setpassword';
 import { getConfig } from '../config/loader';
+import { getAfyaLinkToken, getKenyaAfyaLinkCredentials, KenyaAfyaLinkSecretNames } from '../country-pack/kenya/afyalink';
 import type { AuthenticatedRequestContext } from '../context';
 import { getAuthenticatedContext } from '../context';
 import { DatabaseMode, getDatabasePool } from '../database';
@@ -54,6 +58,111 @@ export const OVERRIDABLE_TABLE_SETTINGS = {
 
 export const superAdminRouter = Router();
 superAdminRouter.use(authenticateRequest);
+
+const kenyaAfyaLinkManagedSecretNames = new Set<string>(Object.values(KenyaAfyaLinkSecretNames));
+
+function assertKenyaProject(project: Project): void {
+  if (getProjectSettingString(project, 'countryPack') !== 'kenya') {
+    throw new OperationOutcomeError(badRequest('Project is not configured for the Kenya country pack'));
+  }
+}
+
+function getKenyaSystemSecrets(project: Project): ProjectSetting[] {
+  return (project.systemSecret ?? []).filter((entry) => entry.name && kenyaAfyaLinkManagedSecretNames.has(entry.name));
+}
+
+function mergeKenyaSystemSecrets(project: Project, overrides: ProjectSetting[]): ProjectSetting[] {
+  const nextSystemSecrets = (project.systemSecret ?? []).filter(
+    (entry) => !entry.name || !kenyaAfyaLinkManagedSecretNames.has(entry.name)
+  );
+
+  for (const entry of overrides) {
+    if (!entry.name || !kenyaAfyaLinkManagedSecretNames.has(entry.name)) {
+      continue;
+    }
+
+    const value = entry.valueString?.trim();
+    if (!value) {
+      continue;
+    }
+
+    nextSystemSecrets.push({
+      name: entry.name,
+      valueString: entry.valueString,
+    });
+  }
+
+  return nextSystemSecrets;
+}
+
+superAdminRouter.get('/projects/:projectId/kenya/afyalink/systemsecrets', async (req: Request, res: Response) => {
+  const ctx = requireSuperAdmin();
+  const project = await ctx.systemRepo.readResource<Project>('Project', req.params.projectId as string);
+  assertKenyaProject(project);
+
+  res.json({
+    project: {
+      id: project.id,
+      name: project.name,
+      setting: project.setting,
+      systemSecret: getKenyaSystemSecrets(project),
+    },
+    kenya: {
+      environment: getKenyaAfyaLinkEnvironment(project),
+      credentialMode: getKenyaAfyaLinkCredentialMode(project),
+    },
+  });
+});
+
+superAdminRouter.post('/projects/:projectId/kenya/afyalink/systemsecrets', async (req: Request, res: Response) => {
+  const ctx = requireSuperAdmin();
+  const project = await ctx.systemRepo.readResource<Project>('Project', req.params.projectId as string);
+  assertKenyaProject(project);
+
+  const updatedProject = await ctx.systemRepo.updateResource<Project>({
+    ...project,
+    systemSecret: mergeKenyaSystemSecrets(project, (req.body as ProjectSetting[]) ?? []),
+  });
+
+  res.json({
+    project: {
+      id: updatedProject.id,
+      name: updatedProject.name,
+      setting: updatedProject.setting,
+      systemSecret: getKenyaSystemSecrets(updatedProject),
+    },
+    kenya: {
+      environment: getKenyaAfyaLinkEnvironment(updatedProject),
+      credentialMode: getKenyaAfyaLinkCredentialMode(updatedProject),
+    },
+  });
+});
+
+superAdminRouter.post('/projects/:projectId/kenya/afyalink/test', async (req: Request, res: Response) => {
+  const ctx = requireSuperAdmin();
+  const project = await ctx.systemRepo.readResource<Project>('Project', req.params.projectId as string);
+  assertKenyaProject(project);
+
+  try {
+    const testProject: Project = {
+      ...project,
+      setting: [
+        ...(project.setting?.filter((entry) => entry.name !== 'kenyaAfyaLinkCredentialMode') ?? []),
+        { name: 'kenyaAfyaLinkCredentialMode', valueString: 'afiax-managed' },
+      ],
+      systemSecret: mergeKenyaSystemSecrets(project, (req.body as ProjectSetting[]) ?? []),
+    };
+    const credentials = getKenyaAfyaLinkCredentials(testProject);
+    await getAfyaLinkToken(credentials);
+    res.json({
+      ok: true,
+      message: `AfyaLink authentication succeeded for ${credentials.baseUrl}`,
+      baseUrl: credentials.baseUrl,
+    });
+  } catch (err) {
+    sendOutcome(res, badRequest(err instanceof Error ? err.message : 'Failed to test AfyaLink connection'));
+  }
+});
 
 // POST to /admin/super/valuesets
 // to rebuild the terminology tables.

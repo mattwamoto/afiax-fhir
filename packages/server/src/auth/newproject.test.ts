@@ -78,6 +78,46 @@ describe('New project', () => {
     expect(res6.status).toBe(400);
   });
 
+  test('Success with country pack', async () => {
+    const res1 = await request(app)
+      .post('/auth/newuser')
+      .type('json')
+      .send({
+        firstName: 'Wangari',
+        lastName: 'Afiax',
+        email: `wangari${randomUUID()}@example.com`,
+        password: 'password!@#',
+        recaptchaToken: 'xyz',
+        codeChallenge: 'xyz',
+        codeChallengeMethod: 'plain',
+      });
+    expect(res1.status).toBe(200);
+
+    const res2 = await request(app).post('/auth/newproject').type('json').send({
+      login: res1.body.login,
+      projectName: 'Afiax Kenya',
+      countryPack: 'kenya',
+    });
+    expect(res2.status).toBe(200);
+
+    const res3 = await request(app).post('/oauth2/token').type('form').send({
+      grant_type: 'authorization_code',
+      code: res2.body.code,
+      code_verifier: 'xyz',
+    });
+    expect(res3.status).toBe(200);
+
+    const res4 = await request(app)
+      .get('/auth/me')
+      .set('Authorization', 'Bearer ' + res3.body.access_token);
+    expect(res4.status).toBe(200);
+    expect(res4.body.project.setting).toContainEqual({ name: 'countryPack', valueString: 'kenya' });
+    expect(res4.body.config.menu.flatMap((section: { link?: unknown[] }) => section.link ?? [])).toContainEqual({
+      name: 'Country Pack Settings',
+      target: '/admin/settings',
+    });
+  });
+
   test('Default ClientApplication is restricted to project', async () => {
     // User1 registers
     // User1 creates a patient

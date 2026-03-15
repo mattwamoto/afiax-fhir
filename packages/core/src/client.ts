@@ -505,6 +505,7 @@ export interface NewUserRequest {
 export interface NewProjectRequest {
   readonly login: string;
   readonly projectName: string;
+  readonly countryPack?: string;
 }
 
 export interface NewPatientRequest {

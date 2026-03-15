@@ -50,6 +50,11 @@ In practice, this means a pack should define both:
 - non-sensitive project settings such as `countryPack=kenya`
 - secret names for regulator-facing credentials such as registry usernames, passwords, and consumer keys
 
+New Afiax projects can now select a country pack during project creation. Existing projects can also change their
+country pack from the Admin Settings tab using the same curated dropdown. Both flows expose the current East Africa and
+COMESA country-pack entries, with Kenya active and the remaining countries present as placeholders for the broader
+rollout plan.
+
 ## Kenya in context
 
 Kenya is the first reference implementation of the country-pack model. It is important because it proves the SDK and

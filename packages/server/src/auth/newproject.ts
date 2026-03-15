@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
-import { badRequest, createReference } from '@medplum/core';
+import { badRequest, createReference, getCountryPackCatalogEntry } from '@medplum/core';
 import type { Login, ProjectMembership, Reference, User } from '@medplum/fhirtypes';
 import type { Request, Response } from 'express';
 import { body } from 'express-validator';
@@ -10,13 +10,18 @@ import { getGlobalSystemRepo } from '../fhir/repo';
 import { makeValidationMiddleware } from '../util/validator';
 
 export interface NewProjectRequest {
-  readonly loginId: string;
+  readonly login: string;
   readonly projectName: string;
+  readonly countryPack?: string;
 }
 
 export const newProjectValidator = makeValidationMiddleware([
   body('login').isUUID().withMessage('Login ID is required.'),
   body('projectName').isLength({ min: 4, max: 72 }).withMessage('Project name must be between 4 and 72 characters'),
+  body('countryPack')
+    .optional({ values: 'falsy' })
+    .custom((value: string) => !!getCountryPackCatalogEntry(value))
+    .withMessage('Invalid country pack'),
 ]);
 
 /**
@@ -36,8 +41,9 @@ export async function newProjectHandler(req: Request, res: Response): Promise<vo
   }
 
   const projectName = req.body.projectName;
+  const countryPack = req.body.countryPack || undefined;
   const user = await systemRepo.readReference<User>(login.user as Reference<User>);
-  const { membership } = await createProject(projectName, user);
+  const { membership } = await createProject(projectName, user, { countryPack });
 
   // Set the membership on the login
   const updatedLogin = await systemRepo.updateResource<Login>({

@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
-import { Anchor, Flex, Stack, Text, TextInput, Title } from '@mantine/core';
+import { Anchor, Flex, NativeSelect, Stack, Text, TextInput, Title } from '@mantine/core';
 import type { LoginAuthenticationResponse } from '@medplum/core';
-import { normalizeOperationOutcome } from '@medplum/core';
+import { formatCountryPackLabel, getCountryPackCatalog, normalizeOperationOutcome } from '@medplum/core';
 import type { OperationOutcome } from '@medplum/fhirtypes';
 import { useMedplum } from '@medplum/react-hooks';
 import type { JSX } from 'react';
@@ -22,6 +22,13 @@ export function NewProjectForm(props: NewProjectFormProps): JSX.Element {
   const medplum = useMedplum();
   const [outcome, setOutcome] = useState<OperationOutcome | undefined>();
   const issues = getIssuesForExpression(outcome, undefined);
+  const countryPackOptions = [
+    { value: '', label: 'Core / No Country Pack' },
+    ...getCountryPackCatalog().map((entry) => ({
+      value: entry.id,
+      label: formatCountryPackLabel(entry),
+    })),
+  ];
 
   return (
     <Form
@@ -31,6 +38,7 @@ export function NewProjectForm(props: NewProjectFormProps): JSX.Element {
             await medplum.startNewProject({
               login: props.login,
               projectName: formData.projectName,
+              countryPack: formData.countryPack || undefined,
             })
           );
         } catch (err) {
@@ -53,6 +61,13 @@ export function NewProjectForm(props: NewProjectFormProps): JSX.Element {
           required={true}
           autoFocus={true}
           error={getErrorsForInput(outcome, 'projectName')}
+        />
+        <NativeSelect
+          name="countryPack"
+          label="Country Pack"
+          description="Kenya is live now. Other East Africa and COMESA entries are placeholders for upcoming country packs."
+          data={countryPackOptions}
+          defaultValue=""
         />
       </Stack>
       <Stack gap="xs" mt="md">

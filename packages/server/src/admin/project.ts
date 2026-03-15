@@ -1,12 +1,13 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
-import { allOk, badRequest, forbidden, getReferenceString, Operator } from '@medplum/core';
-import type { ProjectMembership, Reference, User } from '@medplum/fhirtypes';
+import { allOk, badRequest, forbidden, getProjectSettingString, getReferenceString, normalizeErrorString, Operator } from '@medplum/core';
+import type { ProjectMembership, ProjectSetting, Reference, User } from '@medplum/fhirtypes';
 import type { Request, Response } from 'express';
 import { Router } from 'express';
 import { body, validationResult } from 'express-validator';
 import { setPassword } from '../auth/setpassword';
 import { getAuthenticatedContext } from '../context';
+import { getAfyaLinkToken, getKenyaAfyaLinkCredentials } from '../country-pack/kenya/afyalink';
 import { invalidRequest, sendOutcome } from '../fhir/outcomes';
 import { authenticateRequest } from '../oauth/middleware';
 import { getUserByEmailInProject } from '../oauth/utils';
@@ -91,6 +92,31 @@ projectAdminRouter.post('/:projectId/secrets', async (req: Request, res: Respons
   });
 
   res.json(result);
+});
+
+projectAdminRouter.post('/:projectId/kenya/afyalink/test', async (req: Request, res: Response) => {
+  const ctx = getAuthenticatedContext();
+
+  if (getProjectSettingString(ctx.project, 'countryPack') !== 'kenya') {
+    sendOutcome(res, badRequest('Kenya country pack is not enabled for this project'));
+    return;
+  }
+
+  try {
+    const project = {
+      ...ctx.project,
+      secret: (req.body as ProjectSetting[]) ?? ctx.project.secret,
+    };
+    const credentials = getKenyaAfyaLinkCredentials(project);
+    await getAfyaLinkToken(credentials);
+    res.json({
+      ok: true,
+      message: `AfyaLink authentication succeeded for ${credentials.baseUrl}`,
+      baseUrl: credentials.baseUrl,
+    });
+  } catch (err) {
+    sendOutcome(res, badRequest(normalizeErrorString(err)));
+  }
 });
 
 projectAdminRouter.post('/:projectId/sites', async (req: Request, res: Response) => {

@@ -49,6 +49,11 @@ describe('ProjectPage', () => {
     expect(await screen.findByText('Project Settings')).toBeInTheDocument();
   });
 
+  test('Country pack page', async () => {
+    await setup('/admin/country-pack');
+    expect(await screen.findByRole('heading', { name: 'Country Pack' })).toBeInTheDocument();
+  });
+
   test('Users page', async () => {
     await setup('/admin/users');
     expect(await screen.findByText('Invite New User')).toBeInTheDocument();

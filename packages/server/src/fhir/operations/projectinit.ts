@@ -122,7 +122,8 @@ export async function projectInitHandler(req: FhirRequest): Promise<FhirResponse
  */
 export async function createProject(
   projectName: string,
-  admin?: User
+  admin?: User,
+  options?: { countryPack?: string }
 ): Promise<{
   project: WithId<Project>;
   client: WithId<ClientApplication>;
@@ -141,6 +142,7 @@ export async function createProject(
     strictMode: true,
     features: config.defaultProjectFeatures,
     systemSetting: config.defaultProjectSystemSetting,
+    setting: options?.countryPack ? [{ name: 'countryPack', valueString: options.countryPack }] : undefined,
   });
 
   log.info('Project created', {

@@ -4,6 +4,7 @@ import type { JSX } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import { BotsPage } from './admin/BotsPage';
 import { ClientsPage } from './admin/ClientsPage';
+import { CountryPackPage } from './admin/CountryPackPage';
 import { CreateBotPage } from './admin/CreateBotPage';
 import { CreateClientPage } from './admin/CreateClientPage';
 import { DatabaseToolsPage } from './admin/DatabaseToolsPage';
@@ -90,6 +91,7 @@ export function AppRoutes(): JSX.Element {
           <Route path="bots" element={<BotsPage />} />
           <Route path="clients/new" element={<CreateClientPage />} />
           <Route path="clients" element={<ClientsPage />} />
+          <Route path="country-pack" element={<CountryPackPage />} />
           <Route path="details" element={<ProjectDetailsPage />} />
           <Route path="invite" element={<InvitePage />} />
           <Route path="patients" element={<Navigate to="/admin/users" replace />} />

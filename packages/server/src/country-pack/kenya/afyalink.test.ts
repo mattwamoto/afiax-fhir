@@ -16,7 +16,6 @@ describe('Kenya AfyaLink connector', () => {
     resourceType: 'Project',
     id: 'project-1',
     secret: [
-      { name: KenyaAfyaLinkSecretNames.baseUrl, valueString: 'https://afyalink.example.com/' },
       { name: KenyaAfyaLinkSecretNames.consumerKey, valueString: 'consumer-key' },
       { name: KenyaAfyaLinkSecretNames.username, valueString: 'username' },
       { name: KenyaAfyaLinkSecretNames.password, valueString: 'password' },
@@ -27,12 +26,31 @@ describe('Kenya AfyaLink connector', () => {
     (fetch as unknown as jest.Mock).mockClear();
   });
 
-  test('loads credentials from project secrets', () => {
+  test('loads tenant-managed credentials with default UAT base URL', () => {
     expect(getKenyaAfyaLinkCredentials(project)).toEqual({
-      baseUrl: 'https://afyalink.example.com',
+      baseUrl: 'https://uat.dha.go.ke',
       consumerKey: 'consumer-key',
       username: 'username',
       password: 'password',
+    });
+  });
+
+  test('loads Afiax-managed credentials from system secrets only', () => {
+    expect(
+      getKenyaAfyaLinkCredentials({
+        ...project,
+        setting: [{ name: 'kenyaAfyaLinkCredentialMode', valueString: 'afiax-managed' }],
+        systemSecret: [
+          { name: KenyaAfyaLinkSecretNames.consumerKey, valueString: 'platform-consumer-key' },
+          { name: KenyaAfyaLinkSecretNames.username, valueString: 'platform-username' },
+          { name: KenyaAfyaLinkSecretNames.password, valueString: 'platform-password' },
+        ],
+      })
+    ).toEqual({
+      baseUrl: 'https://uat.dha.go.ke',
+      consumerKey: 'platform-consumer-key',
+      username: 'platform-username',
+      password: 'platform-password',
     });
   });
 
@@ -46,7 +64,7 @@ describe('Kenya AfyaLink connector', () => {
     await expect(getAfyaLinkToken(credentials)).resolves.toBe('jwt-token');
 
     expect(fetch).toHaveBeenCalledWith(
-      'https://afyalink.example.com/v1/hie-auth?key=consumer-key',
+      'https://uat.dha.go.ke/v1/hie-auth?key=consumer-key',
       expect.objectContaining({
         method: 'GET',
         headers: expect.objectContaining({
@@ -84,7 +102,7 @@ describe('Kenya AfyaLink connector', () => {
     });
 
     expect(fetch).toHaveBeenLastCalledWith(
-      'https://afyalink.example.com/v1/facility-search?facility_code=24749',
+      'https://uat.dha.go.ke/v1/facility-search?facility_code=24749',
       expect.objectContaining({
         method: 'GET',
         headers: expect.objectContaining({

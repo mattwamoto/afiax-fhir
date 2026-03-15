@@ -43,9 +43,46 @@ describe('SettingsPage', () => {
   test('Renders', async () => {
     await setup('/admin/settings');
     expect(await screen.findByText('Project Settings')).toBeInTheDocument();
+    expect(screen.getByLabelText('Country Pack', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText('Kenya')).toBeInTheDocument();
+    expect(screen.getByText('Uganda (Placeholder)')).toBeInTheDocument();
   });
 
-  test('Add and submit', async () => {
+  test('Select country pack and submit', async () => {
+    const postSpy = jest.spyOn(medplum, 'post');
+    await setup('/admin/settings');
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Country Pack', { exact: false }), { target: { value: 'kenya' } });
+    });
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('DHA Environment', { exact: false }), { target: { value: 'uat' } });
+    });
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Credential Mode', { exact: false }), {
+        target: { value: 'afiax-managed' },
+      });
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Save'));
+    });
+
+    expect(await screen.findByText('Saved')).toBeInTheDocument();
+    expect(postSpy).toHaveBeenCalledWith(
+      'admin/projects/123/settings',
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'countryPack', valueString: 'kenya' }),
+        expect.objectContaining({ name: 'kenyaAfyaLinkEnvironment', valueString: 'uat' }),
+        expect.objectContaining({ name: 'kenyaAfyaLinkCredentialMode', valueString: 'afiax-managed' }),
+      ])
+    );
+    postSpy.mockRestore();
+  });
+
+  test('Raw editor still works', async () => {
     await setup('/admin/settings');
     expect(await screen.findByTitle('Add Setting')).toBeInTheDocument();
 
@@ -54,17 +91,17 @@ describe('SettingsPage', () => {
     });
 
     await act(async () => {
-      fireEvent.change(screen.getByTestId('name'), { target: { value: 'countryPack' } });
+      fireEvent.change(screen.getByTestId('name'), { target: { value: 'integrationMode' } });
     });
 
     await act(async () => {
-      fireEvent.change(screen.getByTestId('value[x]'), { target: { value: 'kenya' } });
+      fireEvent.change(screen.getByTestId('value[x]'), { target: { value: 'uat' } });
     });
 
     await act(async () => {
       fireEvent.click(screen.getByText('Save'));
     });
 
-    expect(await screen.findByText('Saved')).toBeInTheDocument();
+    expect((await screen.findAllByText('Saved')).length).toBeGreaterThan(0);
   });
 });

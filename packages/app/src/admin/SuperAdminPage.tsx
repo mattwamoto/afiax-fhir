@@ -35,6 +35,7 @@ import {
 import type { JSX, ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { startAsyncJob } from './SuperAdminStartAsyncJob';
+import { SuperAdminKenyaCredentialsForm } from './SuperAdminKenyaCredentialsForm';
 import { WsSubStatsWidget } from './WsSubStatsWidget';
 
 export function SuperAdminPage(): JSX.Element {
@@ -189,6 +190,8 @@ export function SuperAdminPage(): JSX.Element {
       <Form>
         <Button onClick={rebuildValueSets}>Rebuild ValueSets</Button>
       </Form>
+      <Divider my="lg" />
+      <SuperAdminKenyaCredentialsForm />
       <Divider my="lg" />
       <Title order={2}>Reindex Resources</Title>
       <p>

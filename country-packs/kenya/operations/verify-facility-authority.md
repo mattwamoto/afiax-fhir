@@ -10,14 +10,21 @@ Kenya binding:
 Current Medplum behavior:
 - reads the canonical `Organization`
 - resolves the active project country pack
-- reads Kenya AfyaLink credentials from `Project.secret`
+- reads Kenya DHA environment and credential mode from `Project.setting`
+- reads tenant-managed credentials from `Project.secret` when required
 - obtains a DHA JWT via `GET /v1/hie-auth?key=...`
 - calls `GET /v1/facility-search?facility_code=...`
 - returns normalized status, correlation ID, message, and next state
 - creates a verification `Task` and an `AuditEvent`
 
-Expected project secret names:
-- `kenyaAfyaLinkBaseUrl`
+Expected project settings:
+- `kenyaAfyaLinkEnvironment`
+- `kenyaAfyaLinkCredentialMode`
+
+Expected tenant-managed project secret names:
 - `kenyaAfyaLinkConsumerKey`
 - `kenyaAfyaLinkUsername`
 - `kenyaAfyaLinkPassword`
+
+The DHA endpoint is derived from the selected environment and platform configuration. `kenyaAfyaLinkBaseUrl` remains
+available only as an advanced override path.

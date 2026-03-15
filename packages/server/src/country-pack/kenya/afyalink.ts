@@ -1,6 +1,12 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
-import { getProjectSettingString, normalizeErrorString } from '@medplum/core';
+import {
+  getKenyaAfyaLinkCredentialMode,
+  getKenyaAfyaLinkEnvironment,
+  normalizeErrorString,
+  type KenyaAfyaLinkCredentialMode,
+  type KenyaAfyaLinkEnvironment,
+} from '@medplum/core';
 import type { Project } from '@medplum/fhirtypes';
 import fetch from 'node-fetch';
 
@@ -36,23 +42,68 @@ export interface AfyaLinkFacilitySearchResponse {
 }
 
 function getProjectSecret(project: Project, name: string): string | undefined {
-  return getProjectSettingString(project.secret, name) ?? getProjectSettingString(project.systemSecret, name);
+  return project.secret?.find((entry) => entry.name === name)?.valueString;
 }
 
-function requireProjectSecret(project: Project, name: string): string {
-  const value = getProjectSecret(project, name);
+function getProjectSystemSecret(project: Project, name: string): string | undefined {
+  return project.systemSecret?.find((entry) => entry.name === name)?.valueString;
+}
+
+function getManagedProjectSecret(
+  project: Project,
+  name: string,
+  credentialMode: KenyaAfyaLinkCredentialMode
+): string | undefined {
+  if (credentialMode === 'afiax-managed') {
+    return getProjectSystemSecret(project, name);
+  }
+  return getProjectSecret(project, name) ?? getProjectSystemSecret(project, name);
+}
+
+function requireManagedProjectSecret(
+  project: Project,
+  name: string,
+  credentialMode: KenyaAfyaLinkCredentialMode
+): string {
+  const value = getManagedProjectSecret(project, name, credentialMode);
   if (!value) {
-    throw new Error(`Missing required Kenya AfyaLink secret: ${name}`);
+    throw new Error(
+      credentialMode === 'afiax-managed'
+        ? `Missing required Afiax-managed Kenya AfyaLink secret: ${name}`
+        : `Missing required Kenya AfyaLink secret: ${name}`
+    );
   }
   return value;
 }
 
+function getKenyaAfyaLinkBaseUrl(
+  project: Project,
+  credentialMode: KenyaAfyaLinkCredentialMode,
+  environment: KenyaAfyaLinkEnvironment
+): string {
+  const explicitBaseUrl = getManagedProjectSecret(project, KenyaAfyaLinkSecretNames.baseUrl, credentialMode);
+  if (explicitBaseUrl) {
+    return explicitBaseUrl.replace(/\/+$/, '');
+  }
+
+  if (environment === 'uat') {
+    // DHA's published UAT integration guides use https://uat.dha.go.ke as the shared UAT base.
+    return 'https://uat.dha.go.ke';
+  }
+
+  throw new Error(
+    'Missing required Kenya AfyaLink production base URL. Configure kenyaAfyaLinkBaseUrl as an Afiax-managed system secret or project secret override.'
+  );
+}
+
 export function getKenyaAfyaLinkCredentials(project: Project): KenyaAfyaLinkCredentials {
+  const credentialMode = getKenyaAfyaLinkCredentialMode(project);
+  const environment = getKenyaAfyaLinkEnvironment(project);
   return {
-    baseUrl: requireProjectSecret(project, KenyaAfyaLinkSecretNames.baseUrl).replace(/\/+$/, ''),
-    consumerKey: requireProjectSecret(project, KenyaAfyaLinkSecretNames.consumerKey),
-    username: requireProjectSecret(project, KenyaAfyaLinkSecretNames.username),
-    password: requireProjectSecret(project, KenyaAfyaLinkSecretNames.password),
+    baseUrl: getKenyaAfyaLinkBaseUrl(project, credentialMode, environment),
+    consumerKey: requireManagedProjectSecret(project, KenyaAfyaLinkSecretNames.consumerKey, credentialMode),
+    username: requireManagedProjectSecret(project, KenyaAfyaLinkSecretNames.username, credentialMode),
+    password: requireManagedProjectSecret(project, KenyaAfyaLinkSecretNames.password, credentialMode),
   };
 }
 
