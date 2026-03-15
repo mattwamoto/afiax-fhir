@@ -4,11 +4,11 @@ sidebar_position: 2
 
 # Canonical FHIR Model
 
-The canonical model is the shared data contract for this Medplum-based platform.
+The canonical model is the shared data contract for Afiax FHIR.
 
 Use it to decide what belongs in:
 
-- core Medplum resources
+- core Afiax FHIR resources
 - country packs
 - tenant-specific overlays
 
@@ -142,13 +142,15 @@ Keep these out of the canonical model:
 - country-specific endpoint URLs
 - regulator-specific payload shapes
 - country program names as field names
+- ERPNext invoice, payroll, CRM, training, and inventory object shapes
 - tenant shortcuts that collapse core and country layers
 - UI-specific convenience structures that duplicate the source of truth
 
 ## Guardrails
 
-- Keep Medplum resources as the editable source of truth.
+- Keep Afiax FHIR resources as the editable source of truth.
 - Generate national bundles from canonical resources using mappings and Bots.
+- Derive ERP and finance views from canonical resources rather than editing clinical truth in ERPNext.
 - Store country-specific reconciliation state as extensions or workflow resources.
 - Use `Task`, `AuditEvent`, and `Provenance` to trace external verification and exchange steps.
 - Avoid tenant shortcuts that weaken the core model.

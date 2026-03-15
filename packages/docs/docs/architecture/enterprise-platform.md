@@ -4,9 +4,9 @@ sidebar_position: 2
 
 # Enterprise Platform
 
-This page describes the broader platform shape around the Medplum core.
+This page describes the broader platform shape around Afiax FHIR.
 
-It is intentionally wider than the Medplum repo, but it should still be read from an implementation point of view:
+It is intentionally wider than this repo, but it should still be read from an implementation point of view:
 
 - what belongs in this repo
 - what belongs in adjacent services
@@ -15,17 +15,19 @@ It is intentionally wider than the Medplum repo, but it should still be read fro
 
 ## Platform capability map
 
-The broader Afiax platform breaks down into five capability areas:
+The broader Afiax platform breaks down into six capability areas:
 
 1. `Clinical core`
-   Medplum-based FHIR services, access control, auditability, bots, subscriptions, and internal operations.
+   Afiax FHIR services, access control, auditability, bots, subscriptions, and internal operations.
 2. `Country interoperability`
    Registry checks, payer connectivity, terminology, eligibility, exchange publishing, and country-pack adapters.
 3. `Digital products`
    Provider tools, patient experiences, telemedicine, and admin workflows built on the shared data model.
-4. `Analytics and decision support`
+4. `Enterprise systems`
+   ERP, billing, payments, CRM, HR, training, CPD, and inventory systems that integrate with the clinical core.
+5. `Analytics and decision support`
    Reporting, dashboards, AI services, and operational insight on normalized data.
-5. `Developer and partner platform`
+6. `Developer and partner platform`
    Extension contracts, integration services, partner APIs, and reusable country-pack patterns.
 
 ## High-level architecture
@@ -33,30 +35,31 @@ The broader Afiax platform breaks down into five capability areas:
 | Layer | Scope |
 | --- | --- |
 | Experience layer | provider app, patient app, admin console, partner APIs |
-| Clinical platform layer | Medplum server, FHIR resources, access policies, bots, subscriptions, custom operations |
+| Clinical platform layer | Afiax FHIR server, FHIR resources, access policies, bots, subscriptions, custom operations |
 | Shared domain services | identity orchestration, scheduling, notifications, document handling, workflow support |
 | Country packs | registries, payer adapters, terminology, exchange connectors, compliance artifacts |
-| Integration services | gateways, Medplum Agent, HL7/FHIR adapters, Knative executors, partner connectors |
+| Enterprise systems | ERPNext, billing, payments, CRM, HR, training, pharmacy inventory |
+| Integration services | gateways, Medplum Agent, HL7/FHIR adapters, Knative executors, ERP connectors, partner connectors |
 | Data layer | PostgreSQL, object storage, audit logs, backups, reconciliation data |
 
 ## What this repo should cover
 
-This Medplum fork should focus on:
+This repo should focus on:
 
 - canonical resources and shared semantics
 - country-pack contracts and dispatch
 - pack-aware admin UX
 - generic operations and workflow evidence
-- Medplum-side connector boundaries
+- Afiax FHIR-side connector boundaries
 - docs that define how adjacent systems integrate with the core
 
 This repo should not become the home for every adjacent service.
 
-Keep these outside the Medplum repo:
+Keep these outside this repo:
 
 - mobile gateways
 - Knative connector services
-- ERP or commerce systems
+- ERPNext and other enterprise systems
 - heavy analytics pipelines
 - standalone AI services
 - country-specific transport services that only proxy remote APIs
@@ -92,21 +95,23 @@ Build the enterprise platform in this order:
 For current implementation work, the important point is:
 
 - the current first active pack is Kenya
-- Medplum remains the clinical core
+- Afiax FHIR remains the clinical core
 - external services can exist around it
-- the broader platform should grow by adding layers around the core, not by stuffing every concern into the Medplum repo
+- the broader platform should grow by adding layers around the core, not by stuffing every concern into this repo
+- ERPNext can own finance, pharmacy inventory, CRM, HR, and training without taking over the clinical record
 
 ## What not to do
 
 - do not treat the first active pack as the shape of the whole platform
-- do not collapse gateway or connector logic into Medplum core
+- do not collapse gateway or connector logic into Afiax FHIR core
 - do not let analytics or AI requirements distort the canonical model early
 - do not add broad enterprise modules before verification and exchange workflows are stable
 
 ## Related docs
 
 - [Architecture overview](./index)
-- [Medplum integration boundaries](./integration-boundaries)
+- [Afiax FHIR integration boundaries](./integration-boundaries)
+- [Afiax FHIR and ERPNext boundary](./erpnext-boundary)
 - [Canonical FHIR model](./canonical-model)
 - [Country packs](../country-packs)
 - [Afiax website](https://www.afiax.africa)

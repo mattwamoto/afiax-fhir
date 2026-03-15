@@ -2,25 +2,25 @@
 sidebar_position: 3
 ---
 
-# Medplum Integration Boundaries
+# Afiax FHIR Integration Boundaries
 
-This page defines what Medplum should own and what should stay outside the Medplum repo.
+This page defines what Afiax FHIR should own and what should stay outside this repo.
 
 Use it as a decision guide when adding a feature, bot, connector, or service.
 
 ## Core rule
 
-Medplum is the clinical core and workflow ledger.
+Afiax FHIR is the clinical core and workflow ledger.
 
 If something is part of the editable clinical source of truth or must be auditable as part of a clinical workflow, it
-belongs in Medplum.
+belongs in Afiax FHIR.
 
 If something is a transport, commerce, ERP, mobile, or country-integration implementation detail, it probably belongs
-outside Medplum.
+outside Afiax FHIR.
 
-## What Medplum should own
+## What Afiax FHIR should own
 
-Medplum should own:
+Afiax FHIR should own:
 
 - canonical clinical and operational FHIR resources
 - country-neutral validation and shared resource semantics
@@ -33,16 +33,17 @@ Medplum should own:
 
 In practice:
 
-- Medplum stores the record
-- Medplum decides which pack is active
-- Medplum invokes a generic operation or bot
-- Medplum records the normalized outcome
+- Afiax FHIR stores the record
+- Afiax FHIR decides which pack is active
+- Afiax FHIR invokes a generic operation or bot
+- Afiax FHIR records the normalized outcome
 
-## What should stay outside Medplum
+## What should stay outside Afiax FHIR
 
-Keep these outside the Medplum repo unless there is a very strong reason not to:
+Keep these outside this repo unless there is a very strong reason not to:
 
-- ERP, accounting, CRM, HR, and general business operations
+- ERP, accounting, CRM, HR, training, and general business operations
+- pharmacy inventory and store operations
 - commerce and storefront logic
 - mobile-app presentation state and offline caches
 - device firmware and hardware control
@@ -51,7 +52,7 @@ Keep these outside the Medplum repo unless there is a very strong reason not to:
 - queue workers or execution services that only exist to call external systems
 - partner-specific logistics and operational tools
 
-Medplum should integrate with these systems, not absorb them.
+Afiax FHIR should integrate with these systems, not absorb them.
 
 ## Country-pack boundary
 
@@ -77,20 +78,42 @@ What stays generic:
 
 Recommended request flow:
 
-1. Store or update the canonical resource in Medplum.
+1. Store or update the canonical resource in Afiax FHIR.
 2. Trigger a generic internal operation or bot.
 3. Resolve the active country pack and project config.
 4. Call an external connector or integration service.
 5. Normalize the external result.
-6. Write the normalized outcome back to Medplum.
+6. Write the normalized outcome back to Afiax FHIR.
 7. Persist audit and workflow evidence.
 
-This keeps Medplum as the source of truth for clinical state while allowing external systems to remain systems of
+This keeps Afiax FHIR as the source of truth for clinical state while allowing external systems to remain systems of
 record for their own domains.
+
+## ERPNext boundary
+
+ERPNext is a good fit for:
+
+- invoicing and receivables
+- payment posting and reconciliation
+- CRM
+- HR and payroll
+- training and CPD administration
+- pharmacy inventory and purchasing
+
+Afiax FHIR should still own:
+
+- clinical events that create billable state
+- claim generation and country-pack claim submission
+- patient-linked medication and dispense history where it is part of care
+- normalized audit and reconciliation outcomes
+
+Use the dedicated boundary doc for that split:
+
+- [Afiax FHIR and ERPNext boundary](./erpnext-boundary)
 
 ## Where Knative and gateways fit
 
-For this platform, Knative-style services and mobile gateways fit outside Medplum.
+For this platform, Knative-style services and mobile gateways fit outside Afiax FHIR.
 
 Good uses:
 
@@ -102,17 +125,18 @@ Good uses:
 
 These services should:
 
-- accept Medplum-defined payload contracts
+- accept Afiax FHIR-defined payload contracts
 - avoid becoming the long-term clinical source of truth
-- write outcomes back into Medplum through normalized operations or resource updates
+- write outcomes back into Afiax FHIR through normalized operations or resource updates
 
-Medplum itself should not be rewritten as a Knative app just because surrounding services are.
+Afiax FHIR itself should not be rewritten as a Knative app just because surrounding services are.
 
 ## What not to do
 
 - do not call national APIs directly from browser or mobile UI
 - do not hard-code country-specific identifiers into the core model
 - do not move final clinical state into ERP, commerce, or mobile-local models
+- do not bundle ERPNext implementation code into this Medplum fork
 - do not let exchange payloads become the primary documentation model
 - do not bake country-specific rules into generic UI or platform components
 - do not let a gateway silently become a second source of truth
@@ -123,13 +147,14 @@ Current application of these rules:
 
 - `Organization/$verify-facility-authority` is the generic operation
 - the active country pack resolves local authority and connector logic
-- tenant or Afiax-managed credentials are configured through Medplum admin surfaces
+- tenant or Afiax-managed credentials are configured through Afiax FHIR admin surfaces
 - transport details stay behind the connector layer
-- the verification outcome is written back into Medplum as normalized workflow state
+- the verification outcome is written back into Afiax FHIR as normalized workflow state
 
 ## Related docs
 
 - [Architecture overview](./index)
 - [Enterprise platform](./enterprise-platform)
 - [Canonical FHIR model](./canonical-model)
+- [Afiax FHIR and ERPNext boundary](./erpnext-boundary)
 - [Country packs](../country-packs)

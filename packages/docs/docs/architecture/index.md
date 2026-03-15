@@ -8,7 +8,7 @@ This section is the entry point for the Afiax platform architecture docs.
 
 Read it from the perspective of implementation:
 
-- what Medplum is responsible for
+- what Afiax FHIR is responsible for
 - what country packs are responsible for
 - what should stay in adjacent services
 - how the active country pack fits into the wider platform
@@ -20,7 +20,7 @@ The current first active pack is Kenya, but the architecture is not Kenya-shaped
 Afiax is structured into four layers:
 
 1. `Core platform`
-   Medplum-based canonical resources, access control, workflow evidence, bots, and generic operations.
+   Afiax FHIR canonical resources, access control, workflow evidence, bots, and generic operations.
 2. `Digital product layer`
    Provider tools, patient experiences, admin workflows, analytics, and partner-facing products.
 3. `Country packs`
@@ -45,10 +45,10 @@ The current repo is focused on the clinical core and the first country-pack path
 
 That means:
 
-- Medplum remains the system of record for clinical and operational workflows
+- Afiax FHIR remains the system of record for clinical and operational workflows
 - country-specific logic stays behind country packs
 - settings and secrets are pack-aware in the admin UI
-- adjacent services such as gateways and Knative executors stay outside the Medplum repo
+- adjacent services such as gateways and Knative executors stay outside this repo
 
 ## Why the layering matters
 
@@ -92,8 +92,10 @@ Use the rest of the architecture docs by question:
 
 - if you need the broader platform shape:
   [Enterprise platform](./enterprise-platform)
-- if you need to know what stays in or out of Medplum:
-  [Medplum integration boundaries](./integration-boundaries)
+- if you need to know what stays in or out of Afiax FHIR:
+  [Afiax FHIR integration boundaries](./integration-boundaries)
+- if you need the ERP, billing, pharmacy, and workforce boundary:
+  [Afiax FHIR and ERPNext boundary](./erpnext-boundary)
 - if you need the shared data contract:
   [Canonical FHIR model](./canonical-model)
 - if you need the country-pack model:
