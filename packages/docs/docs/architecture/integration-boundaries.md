@@ -4,67 +4,128 @@ sidebar_position: 3
 
 # Medplum Integration Boundaries
 
-Afiax is using Medplum as the clinical core, not as the owner of every system concern in the broader platform. This
-document defines what should live in Medplum and what should remain in external systems.
+This page defines what Medplum should own and what should stay outside the Medplum repo.
+
+Use it as a decision guide when adding a feature, bot, connector, or service.
+
+## Core rule
+
+Medplum is the clinical core and workflow ledger.
+
+If something is part of the editable clinical source of truth or must be auditable as part of a clinical workflow, it
+belongs in Medplum.
+
+If something is a transport, commerce, ERP, mobile, or country-integration implementation detail, it probably belongs
+outside Medplum.
 
 ## What Medplum should own
 
-Within the Afiax platform, Medplum should own:
+Medplum should own:
 
 - canonical clinical and operational FHIR resources
-- country-neutral profiles and validation rules
-- internal workflow operations and subscriptions
-- Bot-based orchestration that acts on clinical records
+- country-neutral validation and shared resource semantics
+- generic internal operations such as verification, eligibility, and publishing entry points
 - access control, tenant isolation, audit, and provenance
-- normalized representations of exchange outcomes and reconciliation state
-- country-pack mappings, terminology bindings, and connector contracts where they relate directly to clinical exchange
+- normalized workflow state written through `Task`, `AuditEvent`, and related resources
+- country-pack dispatch and country-specific config selection
+- bot execution context and bot invocation contracts
+- the final normalized record of external outcomes when those outcomes affect clinical workflows
 
-In short: if something is part of the regulated clinical source of truth or must be traceable back to a clinical
-workflow, it belongs in Medplum or in Medplum-adjacent country-pack artifacts.
+In practice:
 
-## What external systems should own
+- Medplum stores the record
+- Medplum decides which pack is active
+- Medplum invokes a generic operation or bot
+- Medplum records the normalized outcome
 
-External systems may still be authoritative for their own domains. Examples include:
+## What should stay outside Medplum
 
-- finance, accounting, CRM, HR, and general operations platforms
-- commerce and storefront systems
-- mobile application local caches and presentation-layer state
-- device firmware and local hardware control
-- external AI inference or orchestration services
-- national registries, payer endpoints, and regulator-owned exchange services
-- logistics, courier, and third-party partner tools
+Keep these outside the Medplum repo unless there is a very strong reason not to:
 
-Medplum should integrate with these systems, but should not absorb their full domain models unless those models are
-needed as part of the clinical record.
+- ERP, accounting, CRM, HR, and general business operations
+- commerce and storefront logic
+- mobile-app presentation state and offline caches
+- device firmware and hardware control
+- AI inference services
+- national system transport adapters and gateway processes
+- queue workers or execution services that only exist to call external systems
+- partner-specific logistics and operational tools
 
-## Recommended interaction pattern
+Medplum should integrate with these systems, not absorb them.
 
-The preferred pattern is:
+## Country-pack boundary
 
-1. Store the canonical clinical record in Medplum.
-2. Trigger internal operations or Bots from Medplum events.
-3. Call external systems through connector layers or integration services.
-4. Normalize the outcome back into Medplum using shared platform semantics.
-5. Preserve correlation, audit, provenance, and reconciliation state.
+Country-specific logic belongs in a pack or a pack-adjacent integration service, not in generic core code.
 
-This keeps Medplum as the source of truth for what happened clinically while allowing external systems to remain
-systems of record for their own operational domains.
+That includes:
+
+- national identifier bindings
+- regulator-specific request and response mappings
+- payer-specific claim formats
+- terminology bindings
+- connector auth flows
+- environment-specific country configuration
+
+What stays generic:
+
+- operation names
+- core resources
+- workflow evidence model
+- admin surfaces for settings and secrets
+
+## Runtime pattern
+
+Recommended request flow:
+
+1. Store or update the canonical resource in Medplum.
+2. Trigger a generic internal operation or bot.
+3. Resolve the active country pack and project config.
+4. Call an external connector or integration service.
+5. Normalize the external result.
+6. Write the normalized outcome back to Medplum.
+7. Persist audit and workflow evidence.
+
+This keeps Medplum as the source of truth for clinical state while allowing external systems to remain systems of
+record for their own domains.
+
+## Where Knative and gateways fit
+
+For this platform, Knative-style services and mobile gateways fit outside Medplum.
+
+Good uses:
+
+- bot execution backends
+- country connector services
+- mobile/API gateway services
+- callback handlers for payer or regulator exchanges
+- transformation services that translate between canonical payloads and external payloads
+
+These services should:
+
+- accept Medplum-defined payload contracts
+- avoid becoming the long-term clinical source of truth
+- write outcomes back into Medplum through normalized operations or resource updates
+
+Medplum itself should not be rewritten as a Knative app just because surrounding services are.
 
 ## What not to do
 
-- Do not call national APIs directly from UI applications.
-- Do not hard-code country-specific identifiers into the shared Medplum core.
-- Do not move final clinical state into ERP, commerce, or mobile-local models.
-- Do not let external exchange payloads become the primary documentation model.
-- Do not bake Kenya-specific rules into generic UI or platform components.
+- do not call national APIs directly from browser or mobile UI
+- do not hard-code country-specific identifiers into the core model
+- do not move final clinical state into ERP, commerce, or mobile-local models
+- do not let exchange payloads become the primary documentation model
+- do not bake Kenya-specific rules into generic UI or platform components
+- do not let a gateway silently become a second source of truth
 
-## Kenya-specific note
+## Kenya example
 
-Kenya remains the first reference implementation, but the same boundary rules apply there:
+Current Kenya application of these rules:
 
-- DHA, SHA, HWR, MFL, and related integrations should be packaged behind Kenya-specific mappings, operations, and
-  connectors.
-- The Medplum core should remain reusable for future country packs.
+- `Organization/$verify-facility-authority` is the generic operation
+- the Kenya pack resolves MFL and AfyaLink-specific logic
+- tenant or Afiax-managed credentials are configured through Medplum admin surfaces
+- the actual DHA transport details stay behind the Kenya connector layer
+- the verification outcome is written back into Medplum as normalized workflow state
 
 ## Related docs
 
