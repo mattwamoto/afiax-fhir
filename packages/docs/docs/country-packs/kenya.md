@@ -10,8 +10,8 @@ This page documents the current implementation contract, not the long-term produ
 
 ## Purpose
 
-The Kenya pack exists to prove that Medplum can support country-specific integrations without turning the core into a
-Kenya-only fork.
+The Kenya pack exists to prove that Afiax FHIR can support country-specific integrations without turning the core into
+a Kenya-only fork.
 
 ## Scope
 
@@ -117,7 +117,7 @@ For a Kenya project:
 - no direct DHA calls from browser or mobile UI
 - no Kenya-specific field names in the shared canonical model
 - no production rollout without audit and reconciliation
-- no coupling Kenya pack logic to Medplum core routing or UI components
+- no coupling Kenya pack logic to Afiax FHIR core routing or UI components
 
 ## Recommended next steps
 

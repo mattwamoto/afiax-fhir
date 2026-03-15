@@ -21,8 +21,8 @@ export default function CaseStudiesPage(): JSX.Element {
           <div className={styles.heroContent}>
             <h1 className={styles.heroTitle}>Implementation Patterns</h1>
             <p className={styles.heroText}>
-              Afiax is using Medplum as the clinical core for a broader pan-African platform. These reference patterns
-              describe the kinds of solutions the platform is intended to support.
+              Afiax Enterprise uses Afiax FHIR as the clinical core for a broader pan-African platform. These
+              reference patterns describe the kinds of solutions the platform is intended to support.
             </p>
             <img src="/img/hero/hero-custom-apps-and-portals.webp" alt="Custom Apps and Portals" />
           </div>
@@ -38,7 +38,7 @@ export default function CaseStudiesPage(): JSX.Element {
             </Feature>
             <Feature title="Provider and specialty workflows" icon={<IconHeartRateMonitor />}>
               Provider portals, custom EHR workflows, scheduling, documentation, referrals, and care coordination
-              should be delivered on top of the shared Medplum core.
+              should be delivered on top of the shared Afiax FHIR core.
             </Feature>
             <Feature title="Diagnostics and devices" icon={<IconFlask />}>
               Laboratories, imaging partners, and device ecosystems should integrate through normalized workflows that
@@ -121,8 +121,8 @@ export default function CaseStudiesPage(): JSX.Element {
             <Card>
               <h3>Architecture guardrails</h3>
               <p>
-                The platform should keep clinical state in Medplum and let ERP, mobile, AI, and national systems remain
-                integration peers.
+                The platform should keep clinical state in Afiax FHIR and let ERP, mobile, AI, and national systems
+                remain integration peers.
               </p>
               <p>
                 <Link href="/docs/architecture/integration-boundaries">Review the guardrails</Link>

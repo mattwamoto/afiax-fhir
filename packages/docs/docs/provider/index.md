@@ -2,33 +2,37 @@
 sidebar_position: 1
 ---
 
-# Medplum Provider
+# Afiax Provider
 
-The Medplum Provider is a user-facing web application for clinical users and operations teams. In this section, you can learn about different features of the Provider App and the workflows they enable.
+Afiax Provider is the provider-facing application pattern for clinical users and operations teams. In this section,
+you can learn about the core workflows a provider workspace should support on top of Afiax FHIR.
 
-![Medplum Provider App screenshot](/img/provider/medplum-provider-app-cover-image.webp)
+![Afiax Provider screenshot](/img/provider/medplum-provider-app-cover-image.webp)
 
-Medplum Provider is built on the Medplum Platform and is [open source](https://github.com/medplum/medplum/tree/main/examples/medplum-provider). Depending on your organization’s needs, you can use Medplum Provider as your system of record, as a starting point, or as an implementation reference for your own custom electronic health record system.
+Afiax Provider is built on Afiax FHIR and follows the same provider-workspace pattern as the upstream Medplum Provider
+reference application. Depending on your organization’s needs, you can use it as a system of record, as a starting
+point for a custom provider workspace, or as an implementation reference for a broader electronic health record
+deployment.
 
 ## Registering & Signing In
 
-To use Medplum Provider, you'll need a Medplum account.
+To use Afiax Provider, you'll need access to an Afiax FHIR project.
 
-1. Register a new account and create a new Project on the Medplum App at [app.medplum.com](http://app.medplum.com)
-2. Navigate to Medplum Provider at [provider.medplum.com](http://provider.medplum.com) and sign in with the same credentials
-3. After signing in, review the "[Get Started](http://provider.medplum.com/getstarted)" page to import sample data and more
+1. Register a new account and create a new Project in the Afiax Admin App at [app.afiax.africa](https://app.afiax.africa)
+2. Sign in to your organization’s provider workspace deployment with the same credentials
+3. After signing in, review the local get-started flow to import sample data and more
 
+Occasionally, you may need to use the Afiax Admin App for administrative and other tasks which we note explicitly in
+this documentation.
 
-Occasionally, you may need to use the Medplum App for administrative and other tasks which we note explicitly in this documentation.
+## Using Afiax Provider
 
-## Using Medplum Provider
-
-The following sections outline the primary functionality of the Medplum Provider app.
+The following sections outline the primary functionality of the Afiax Provider workspace.
 
 #### [Adding Practitioners & Data](./provider/getting-started)
 
-- [Adding Practitioners (via Medplum App)](./provider/getting-started#adding-practitioners)
-- [Importing Data (via Medplum App)](./provider/getting-started#importing-data)
+- [Adding Practitioners (via Afiax Admin App)](./provider/getting-started#adding-practitioners)
+- [Importing Data (via Afiax Admin App)](./provider/getting-started#importing-data)
 
 #### [Patient Profile](./provider/patient-profile)
 
@@ -45,7 +49,7 @@ The following sections outline the primary functionality of the Medplum Provider
 
 - [Understanding Visits](./provider/visits#understanding-visits)
 - [Documenting Visits](./provider/visits#documenting-visits)
-- [Setting Up Care Templates (via Medplum App)](./provider/visits#setting-up-care-templates-via-medplum-app)
+- [Setting Up Care Templates (via Afiax Admin App)](./provider/visits#setting-up-care-templates-via-afiax-admin-app)
 
 #### Documentation Coming Soon:
 

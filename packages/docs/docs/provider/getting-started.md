@@ -4,22 +4,23 @@ sidebar_position: 100
 
 # Adding Practitioners & Data
 
-This section covers how to add practitioners and import existing data through the Medplum App ([app.medplum.com](https://app.medplum.com/)).
+This section covers how to add practitioners and import existing data through the Afiax Admin App
+([app.afiax.africa](https://app.afiax.africa/)).
 
 ## Adding Practitioners
 
-Practitioners represent healthcare providers, clinicians, and other staff members who will be using your Medplum project.
+Practitioners represent healthcare providers, clinicians, and other staff members who will be using your Afiax FHIR project.
 
 ### Prerequisites
 
-- Administrative access to the Medplum App
+- Administrative access to the Afiax Admin App
 - Practitioner information including names, credentials, and contact details
 - Valid email addresses for each practitioner (required for system access)
 
 ### How to Add Practitioners
 
 1. **Access the Project Users Page**
-   - Log into the Medplum App with your administrator credentials
+   - Log into the Afiax Admin App with your administrator credentials
    - Select "Project" from the left navigation menu
    - Then, select the "Users" tab
 2. **Add & Invite a New Practitioner**
@@ -32,7 +33,8 @@ Practitioners represent healthcare providers, clinicians, and other staff member
 
 ## Importing Data
 
-The data import feature allows you to transfer existing patient records, medical histories, and other healthcare data from previous systems into Medplum.
+The data import feature allows you to transfer existing patient records, medical histories, and other healthcare data
+from previous systems into Afiax FHIR.
 
 ### Supported Data Types
 

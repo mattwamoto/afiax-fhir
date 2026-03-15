@@ -5,8 +5,8 @@ import type { Config } from '@docusaurus/types';
 import { themes as prismThemes } from 'prism-react-renderer';
 
 const config: Config = {
-  title: 'Afiax Connected Healthcare',
-  tagline: 'Pan-African digital health infrastructure built on a FHIR-native clinical core',
+  title: 'Afiax FHIR',
+  tagline: 'FHIR-native clinical core for Afiax Enterprise',
   url: 'https://www.afiax.africa',
   baseUrl: '/',
   trailingSlash: false,
@@ -79,7 +79,7 @@ const config: Config = {
   themeConfig: {
     navbar: {
       logo: {
-        alt: 'Afiax Connected Healthcare',
+        alt: 'Afiax FHIR',
         src: 'img/logo.svg',
         width: 196,
         height: 44,
@@ -158,6 +158,10 @@ const config: Config = {
               to: '/docs/country-packs/sdk',
             },
             {
+              label: 'Platform foundation',
+              to: '/docs/architecture/platform-foundation',
+            },
+            {
               label: 'Bots',
               to: '/docs/bots',
             },
@@ -189,7 +193,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `© ${new Date().getFullYear()} Afiax Connected Healthcare.`,
+      copyright: `© ${new Date().getFullYear()} Oortcloud Computing. Afiax FHIR is built on Medplum open-source software.`,
     },
     prism: {
       theme: prismThemes.github,

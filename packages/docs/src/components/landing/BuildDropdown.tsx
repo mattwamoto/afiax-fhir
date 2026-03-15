@@ -67,7 +67,7 @@ export function BuildDropdown(): JSX.Element {
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        Build on the Platform
+        Build with Afiax FHIR
         <IconChevronDown size={18} className={styles.chevron} />
       </button>
 
@@ -77,8 +77,8 @@ export function BuildDropdown(): JSX.Element {
             <IconTerminal2 size={16} />
             <span>Start from CLI or GitHub</span>
           </div>
-          <CopyRow value="npm init medplum" />
-          <CopyRow value="git clone https://github.com/medplum/medplum.git" />
+          <CopyRow value="git clone https://github.com/mattwamoto/afiax-fhir.git" />
+          <CopyRow value="cd afiax-fhir/medplum" />
         </div>
 
         <div className={styles.divider} />
@@ -88,7 +88,7 @@ export function BuildDropdown(): JSX.Element {
             <IconBook size={16} />
             <span>View Our Docs</span>
           </div>
-          <p className={styles.itemDescription}>Learn the fundamentals of building with Medplum</p>
+          <p className={styles.itemDescription}>Learn the fundamentals of building on the Afiax FHIR clinical core</p>
         </button>
       </div>
     </div>

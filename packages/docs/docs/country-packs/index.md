@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Country Packs
 
-A country pack is the unit of country-specific behavior in the Afiax Medplum fork.
+A country pack is the unit of country-specific behavior in Afiax FHIR.
 
 Use a country pack when a workflow depends on national registries, payer rules, terminology bindings, or compliance
 requirements that should not leak into the shared core.
@@ -13,7 +13,7 @@ requirements that should not leak into the shared core.
 
 Country packs exist to keep the platform layered:
 
-- core Medplum behavior generic
+- core Afiax FHIR behavior generic
 - the canonical FHIR model country-neutral
 - country integrations behind explicit internal operations
 - tenant customization separate from country behavior
@@ -44,21 +44,21 @@ The current runtime contract in this repo is:
 - `Project.setting.countryPack` selects the pack
 - country-specific non-secret config stays in `Project.setting`
 - country-specific credentials stay in `Project.secret` or `Project.systemSecret`
-- Medplum core dispatches generic operations to the active pack
+- Afiax FHIR dispatches generic operations to the active pack
 - bots and connector code read project context rather than hard-coded country branches
 
-Examples:
+Generic examples:
 
 ```text
-Project.setting.countryPack=kenya
-Project.setting.kenyaAfyaLinkEnvironment=uat
-Project.setting.kenyaAfyaLinkCredentialMode=tenant-managed
+Project.setting.countryPack=<pack-id>
+Project.setting.<packPrefix>Environment=uat
+Project.setting.<packPrefix>CredentialMode=tenant-managed
 ```
 
 ```text
-Project.secret.kenyaAfyaLinkConsumerKey
-Project.secret.kenyaAfyaLinkUsername
-Project.secret.kenyaAfyaLinkPassword
+Project.secret.<packPrefix>ConsumerKey
+Project.secret.<packPrefix>Username
+Project.secret.<packPrefix>Password
 ```
 
 ## Activation in the app
@@ -76,7 +76,7 @@ After a pack is selected:
 - `/admin/country-pack` becomes the setup checklist
 - `/admin/settings` holds non-secret country config
 - `/admin/secrets` holds tenant-managed credentials
-- `/admin/super` holds Afiax-managed Kenya credentials
+- `/admin/super` holds Afiax-managed credentials
 
 ## Lifecycle
 

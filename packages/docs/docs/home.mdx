@@ -6,7 +6,7 @@ sidebar_position: 1
 import { Section } from '@site/src/components/landing/Section.tsx';
 import { Feature, FeatureGrid } from '@site/src/components/landing/FeatureGrid.tsx';
 
-# Welcome to Afiax Connected Healthcare
+# Welcome to Afiax FHIR
 
 <Section>
   <FeatureGrid columns={3}>
@@ -23,7 +23,7 @@ import { Feature, FeatureGrid } from '@site/src/components/landing/FeatureGrid.t
       Learn how national integrations are packaged without turning the core into a country-specific fork.
     </Feature>
     <Feature title="Integration boundaries" linkText="Read more" linkRef="/docs/architecture/integration-boundaries">
-      See what belongs in Medplum, what belongs in country packs, and what belongs in adjacent services.
+      See what belongs in Afiax FHIR, what belongs in country packs, and what belongs in adjacent services.
     </Feature>
     <Feature title="Developer stack" linkText="Read more" linkRef="/docs/self-hosting">
       Run the platform locally, extend it with Bots and operations, and prepare for sovereign deployment.
@@ -31,12 +31,12 @@ import { Feature, FeatureGrid } from '@site/src/components/landing/FeatureGrid.t
   </FeatureGrid>
 </Section>
 
-## What is Afiax?
+## What is Afiax FHIR?
 
-Afiax Connected Healthcare is a **pan-African digital health platform** being built on a Medplum-derived,
-FHIR-native clinical core.
+Afiax FHIR is the **FHIR-native clinical core** used inside Afiax Enterprise, the broader connected-healthcare
+offering under Afiax Connected Healthcare.
 
-Afiax combines:
+Afiax Enterprise combines:
 
 - **Clinical core**: canonical FHIR resources, access control, subscriptions, Bots, operations, and shared domain services
 - **Digital service layers**: provider workflows, patient engagement, telehealth, analytics, remote care, and partner APIs
@@ -65,7 +65,7 @@ Afiax combines:
 ## Core principles
 
 - Country-neutral core, country-specific overlays
-- FHIR-native source of truth in Medplum resources
+- FHIR-native source of truth in canonical resources
 - No direct national API calls from UI applications
 - Sovereign deployment for identifiable clinical data
 - Audit, provenance, and reconciliation before production go-live
@@ -74,6 +74,11 @@ Afiax combines:
 
 The general docs stay pan-African in scope. Country-specific implementation details live under the relevant
 country-pack docs, with Kenya documented as the current first active pack.
+
+## Platform foundation
+
+Afiax FHIR is built on Medplum open-source software and extended with Afiax-specific branding, country-pack support,
+and enterprise integration boundaries. See [Platform foundation](/docs/architecture/platform-foundation).
 
 ## Building blocks
 

@@ -15,10 +15,9 @@ export default function ProductsPage(): JSX.Element {
           <div className={styles.heroContent}>
             <h1>Afiax Platform Capabilities</h1>
             <p className={styles.heroText}>
-              Afiax Connected Healthcare is building a pan-African digital health platform on top of a Medplum-derived,
-              FHIR-native clinical core. The product story is broader than a single app or one country integration: it
-              spans clinical operations, interoperability, digital care services, analytics, developer tooling, and
-              sovereign deployment models.
+              Afiax FHIR is the clinical core inside Afiax Enterprise. The product surface is broader than a single
+              app or one country integration: it spans clinical operations, interoperability, digital care services,
+              analytics, developer tooling, and sovereign deployment models.
             </p>
           </div>
         </Jumbotron>

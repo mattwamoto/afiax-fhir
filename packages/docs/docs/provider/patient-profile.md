@@ -4,7 +4,10 @@ sidebar_position: 200
 
 # Patient Profile
 
-The Patient Profile section in the Medplum Provider app is your central hub for managing all patient-related information. This section covers how to register new patients, edit existing profiles, and maintain the [Patient Summary](https://storybook.medplum.com/?path=/story/medplum-patientsummary--patient) sidebar for quick access to key information.
+The Patient Profile section in Afiax Provider is your central hub for managing all patient-related information. This
+section covers how to register new patients, edit existing profiles, and maintain the
+[Patient Summary](https://storybook.medplum.com/?path=/story/medplum-patientsummary--patient) sidebar for quick access
+to key information.
 
 ## Registering Patients
 
@@ -12,14 +15,14 @@ The onboarding process captures essential demographic, insurance, and medical in
 
 ### Prerequisites
 
-- Provider access to the [Medplum Provider app](https://provider.medplum.com)
+- Provider access to your Afiax Provider deployment
 - Patient insurance information and cards (if applicable)
 - Patient health history and emergency contact details
 
 ### How to Register Patients
 
 1. **Access Patient Registration**
-   - Open the Medplum Provider app and click "[New Patient](https://provider.medplum.com/onboarding)" from the left navigation menu
+   - Open Afiax Provider and click "New Patient" from the left navigation menu
 2. **Enter Patient Information**
    - Demographics
    - Emergency Contact
@@ -38,8 +41,9 @@ The onboarding process captures essential demographic, insurance, and medical in
      - Notice of Privacy Practices
      - Acknowledgement for Advance Directives
 4. **Review and Create**
-   - Review all entered information and then click “Submit” to create this Patient in Medplum
-   - This will auto-generate a Patient Profile, unique ID and Profile Page, which you can access in the Medplum App as well
+   - Review all entered information and then click “Submit” to create this Patient in Afiax FHIR
+   - This will auto-generate a Patient Profile, unique ID, and Profile Page, which you can access in the Afiax Admin
+     App as well
 
 ## Editing Patient Demographics
 
@@ -47,7 +51,7 @@ Occasionally core information about a patient may change and require editing the
 
 ### Prerequisites
 
-- Provider access to the Medplum Provider app
+- Provider access to Afiax Provider
 - Patient insurance information and cards (if applicable)
 - Patient health history and emergency contact details
 

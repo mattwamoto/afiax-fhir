@@ -33,8 +33,9 @@ export default function EnterprisePage(): JSX.Element {
           <div className={styles.heroContent}>
             <h1 className={styles.heroTitle}>Enterprise digital health infrastructure</h1>
             <p className={styles.heroText}>
-              Afiax uses Medplum as the clinical core, then adds governance, country-pack delivery, and integration
-              architecture for ministries, provider networks, payers, labs, pharmacies, and digital health programs.
+              Afiax Enterprise uses Afiax FHIR as the clinical core, then adds governance, country-pack delivery, and
+              integration architecture for ministries, provider networks, payers, labs, pharmacies, and digital health
+              programs.
             </p>
             <Link href="/contact" className={styles.getStartedButton}>
               <div>Contact Afiax</div>
@@ -66,7 +67,7 @@ export default function EnterprisePage(): JSX.Element {
             </Feature>
             <Feature title="Diagnostics and imaging" icon={<IconFlask />}>
               Coordinate orders, results, attachments, and operational handoffs while keeping the normalized record in
-              Medplum.
+              Afiax FHIR.
             </Feature>
             <Feature title="National exchange" icon={<IconExchange />}>
               Publish to registries, payer systems, national repositories, and partner networks through auditable,
@@ -106,9 +107,9 @@ export default function EnterprisePage(): JSX.Element {
           <div className={styles.heroContent}>
             <h1 className={styles.heroTitle}>Governed platform architecture</h1>
             <p className={styles.heroText}>
-              Afiax should keep Medplum focused on canonical records, permissions, automation, and auditability. ERP,
-              mobile, commerce, AI, and national service integrations should remain external peers that connect through
-              disciplined contracts.
+              Afiax should keep Afiax FHIR focused on canonical records, permissions, automation, and auditability.
+              ERP, mobile, commerce, AI, and national service integrations should remain external peers that connect
+              through disciplined contracts.
             </p>
           </div>
           <div className={styles.heroImage}>
@@ -133,7 +134,7 @@ export default function EnterprisePage(): JSX.Element {
               <h3>Architecture</h3>
               <p>
                 Read the platform architecture, operating model, and canonical data strategy that sit above the
-                Medplum foundation.
+                upstream Medplum foundation.
               </p>
               <p>
                 <Link href="/docs/architecture">Open architecture docs</Link>
@@ -152,7 +153,7 @@ export default function EnterprisePage(): JSX.Element {
             <Card>
               <h3>Integration boundaries</h3>
               <p>
-                Use a clear ownership model for Medplum, external systems, and normalization back into the clinical
+                Use a clear ownership model for Afiax FHIR, external systems, and normalization back into the clinical
                 core.
               </p>
               <p>

@@ -18,10 +18,11 @@ export default function AboutPage(): JSX.Element {
         <div style={{ textAlign: 'center', minHeight: '400px', padding: '120px 20px' }}>
           <h1 className={styles.heroTitle}>About Afiax Connected Healthcare</h1>
           <p className={styles.heroText}>
-            Afiax is building pan-African digital health infrastructure on top of a FHIR-native clinical core.
+            Afiax is building pan-African digital health infrastructure on top of Afiax FHIR, a FHIR-native clinical
+            core.
             <br />
-            The platform uses Medplum as a foundation, then adds enterprise architecture, country packs, and delivery
-            patterns for real-world health systems.
+            The platform uses Medplum as an upstream foundation, then adds country packs, enterprise architecture, and
+            delivery patterns for real-world health systems.
           </p>
         </div>
         <Section>
@@ -39,8 +40,8 @@ export default function AboutPage(): JSX.Element {
             <Card>
               <h3>Clinical core</h3>
               <p>
-                Medplum remains the system of record for canonical FHIR resources, access control, audit, provenance,
-                subscriptions, Bots, and controlled workflows.
+                Afiax FHIR remains the system of record for canonical FHIR resources, access control, audit,
+                provenance, subscriptions, Bots, and controlled workflows.
               </p>
             </Card>
             <Card>

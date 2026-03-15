@@ -4,16 +4,19 @@ sidebar_position: 300
 
 # Schedule
 
-Effective schedule management is crucial for optimizing patient care delivery and clinic operations. The Medplum Provider app provides comprehensive scheduling tools to manage appointments, coordinate care, and maintain provider availability. This section covers the essential scheduling functions.
+Effective schedule management is crucial for optimizing patient care delivery and clinic operations. Afiax Provider
+provides comprehensive scheduling tools to manage appointments, coordinate care, and maintain provider availability.
+This section covers the essential scheduling functions.
 
 ## Scheduling a Visit
 
-The appointment scheduling system allows you to book patient visits, manage appointment types, and coordinate care across multiple providers and locations.
+The appointment scheduling system allows you to book patient visits, manage appointment types, and coordinate care
+across multiple providers and locations.
 
 ### How to Schedule a Visit
 
 1. **Navigate to Schedule**
-   - In the Medplum Provider app, navigate to the Schedule page by clicking the “[Schedule](https://provider.medplum.com/schedule)” section in the left navigation menu
+   - In Afiax Provider, navigate to the Schedule page from the left navigation menu
 2. **Select a Timeslot**
    - In the Day or Week view, click and drag within the calendar grid to select a timeslot
      - In Month view, click the day without dragging to select a timeslot
@@ -34,7 +37,7 @@ Provider availability management ensures accurate scheduling and prevents double
 ### How to Set Provider Availability
 
 1. **Navigate to Schedule**
-   - In the Medplum Provider app, navigate to the Schedule page by clicking the “Schedule” section in the left navigation menu
+   - In Afiax Provider, navigate to the Schedule page from the left navigation menu
 2. **Select Availability Details**
    - On the Schedule page, click the “Set Availability” button
    - In the modal, select the appropriate details to customize your availability

@@ -50,8 +50,8 @@ export function LandingPage(): JSX.Element {
             <div className={styles.heroContent}>
               <h1 className={styles.heroTitle}>Build the pan-African healthcare platform without hard-coding one market into the core.</h1>
               <p className={styles.heroText}>
-                Afiax Connected Healthcare is building a pan-African digital health platform on a Medplum-derived,
-                FHIR-native clinical core.
+                Afiax FHIR is the FHIR-native clinical core for Afiax Enterprise, the broader pan-African digital
+                healthcare platform.
                 <br />
                 The platform combines clinical interoperability, digital service layers, and modular country packs so
                 national requirements stay local while the broader platform remains reusable.
@@ -69,7 +69,7 @@ export function LandingPage(): JSX.Element {
               <Card>
                 <h3>Afiax platform scope</h3>
                 <p>
-                  <strong>Core:</strong> Medplum FHIR services, policies, subscriptions, Bots, and internal operations.
+                  <strong>Core:</strong> Afiax FHIR services, policies, subscriptions, Bots, and internal operations.
                 </p>
                 <p>
                   <strong>Digital services:</strong> provider workflows, patient engagement, analytics, telemedicine,
@@ -168,8 +168,8 @@ export function LandingPage(): JSX.Element {
           <div className={`${styles.landingContent} ${styles.ctaBannerInner}`}>
             <h2>Start with the platform architecture, then localize through country packs</h2>
             <p className={styles.ctaBannerDescription}>
-              Use the architecture docs to define the Afiax platform, then open the country-pack section when you are
-              ready to localize Kenya or the next market.
+              Use the architecture docs to define Afiax FHIR and its role in Afiax Enterprise, then open the
+              country-pack section when you are ready to localize Kenya or the next market.
             </p>
             <div className={styles.heroButtons}>
               <Link to="/docs/architecture" className={styles.ctaWhiteButton}>

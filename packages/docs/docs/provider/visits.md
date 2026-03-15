@@ -4,7 +4,9 @@ sidebar_position: 400
 
 # Visits
 
-Visit management is at the heart of clinical documentation and patient care delivery. The Medplum Provider app provides comprehensive tools for documenting patient Visits, streamlining clinical workflows through Care Templates, and customizing documentation to meet specific practice needs. This section covers the essential Visit management functions.
+Visit management is at the heart of clinical documentation and patient care delivery. Afiax Provider provides
+comprehensive tools for documenting patient Visits, streamlining clinical workflows through Care Templates, and
+customizing documentation to meet specific practice needs. This section covers the essential Visit management functions.
 
 ## Understanding Visits
 
@@ -44,16 +46,18 @@ Proper Visit documentation ensures continuity of care, supports clinical decisio
      - **Service type**: the type of service provided at the Visit
      - **Diagnoses**: if applicable, the ability to add key diagnoses for this Visit
 4. **Billing for Your Visit**
-   - On the “Details & Billing” tab, you will also see the individual Charge Items related to the Visit which will need to be configured as part of your Care Template ahead of time (see [“Setting Up Care Templates”](#setting-up-care-templates-via-medplum-app) )
+   - On the “Details & Billing” tab, you will also see the individual Charge Items related to the Visit which will need to be configured as part of your Care Template ahead of time (see [“Setting Up Care Templates”](#setting-up-care-templates-via-afiax-admin-app) )
    - Once billing details are finalized, you can export a claim as a CMS 1500 form to submit for billing.
-   - Alternatively, Medplum offers integrations for both Stedi and Candid Health which allow claims to be sent directly to these services which forward to payors
-     - To learn more about these integrations, please [contact our sales team](mailto:hello@medplum.com)
+   - Afiax Enterprise can also connect billing workflows to partner services such as Stedi and Candid Health where required
+     - To discuss these integrations, contact [info@afiax.africa](mailto:info@afiax.africa)
 
 ---
 
-## Setting Up Care Templates (via Medplum App)
+## Setting Up Care Templates (via Afiax Admin App)
 
-Before setting up your Care Templates, it’s important to understand the separate but connected resources they incorporate. In the Medplum App, Care Templates are represented by the PlanDefinition FHIR resource which can include other, linked resources:
+Before setting up your Care Templates, it’s important to understand the separate but connected resources they
+incorporate. In the Afiax Admin App, Care Templates are represented by the PlanDefinition FHIR resource which can
+include other, linked resources:
 
 - **Task**, with linked **Questionnaire**
   - For adding defined, structured data fields for providers to complete during a Visit
@@ -69,7 +73,8 @@ There are two main approaches for setting up Care Templates. The first is by cre
 
 For this guide, we will take the first approach: creating a Care Template, then creating our Resources, and finally linking the related resources within our Care Template.
 
-Medplum provides a sample Care Template for testing and prototyping. Copy the example below and upload it to the [batch](https://app.medplum.com/batch) tool to create a PlanDefinition you can use for testing.
+Afiax FHIR provides a sample Care Template for testing and prototyping. Copy the example below and upload it to the
+[batch](https://app.afiax.africa/batch) tool to create a PlanDefinition you can use for testing.
 
 <details>
 <summary>Example Care Template Bundle</summary>
@@ -783,11 +788,11 @@ When a `QuestionnaireResponse` is submitted, you can use the [`$extract` operati
 :::
 
 1. **Navigate to the PlanDefinition Resource Page**
-   - In the Medplum App, use the “Resource Type” search in the sidebar to find and then click on “PlanDefinition”
+   - In the Afiax Admin App, use the “Resource Type” search in the sidebar to find and then click on “PlanDefinition”
 2. **Create a New PlanDefinition**
    - On the PlanDefinition table page, click the “New…” button at the top
    - There are many definition types available here, but the essential ones to fill out in this moment are:
-     - Name (the name of your Care Template providers will see when creating a new Visit in the Medplum Provider app)
+     - Name (the name of your Care Template providers will see when creating a new Visit in Afiax Provider)
      - Title (the name that displays on Visits with this Care Template)
      - Status (usually “Active”)
      - Type (usually “Order Set”)
@@ -801,15 +806,16 @@ When a `QuestionnaireResponse` is submitted, you can use the [`$extract` operati
      - If you need to create a Questionnaire or ActivityDefinition, click the link in the field description to navigate to their respective pages (see details on creating [Questionnaires](#how-to-add-questionnaires) and [ActivityDefinitions](#how-to-add-activitydefinitions) below.
    - Click the “Save” button to save your PlanDefinition
 4. **Test & Verify**
-   - Navigate to the Schedules or Visits tab on Patient Profile page in the Medplum Provider app and try creating a new Visit
+   - Navigate to the Schedules or Visits tab on the Patient Profile page in Afiax Provider and try creating a new Visit
    - In the Care Templates selection field you should now see the PlanDefinition that was created
    - Select this Care Template, complete the other required fields, and then click “Create” to create a new Visit
-   - On the “Note & Tasks” tab you should see the Tasks that were added in the Medplum App along with content for any associated Questionnaires and/or ActivityDefinitions.
+   - On the “Note & Tasks” tab you should see the Tasks that were added in the Afiax Admin App along with content for
+     any associated Questionnaires and/or ActivityDefinitions.
 
 ### How to Add Questionnaires
 
 1. **Navigate to the Questionnaire Resource Page**
-   - In the Medplum App, use the “Resource Type” search in the sidebar to find and then click on “Questionnaire”
+   - In the Afiax Admin App, use the “Resource Type” search in the sidebar to find and then click on “Questionnaire”
 2. **Create a New Questionnaire**
    - On the Questionnaire table page, click the “New…” button at the top
    - There are many definition types available here, but the essential ones to fill out in this moment are:
@@ -834,7 +840,7 @@ When a `QuestionnaireResponse` is submitted, you can use the [`$extract` operati
 ### How to Set Up ChargeItems
 
 1. **Navigate to the ChargeItemDefinition Resource Page**
-   - In the Medplum App, use the “Resource Type” search in the sidebar to find and then click on “ChargeItemDefinition”
+   - In the Afiax Admin App, use the “Resource Type” search in the sidebar to find and then click on “ChargeItemDefinition”
 2. **Create a New ChargeItemDefinition**
    - On the ChargeItemDefinition table page, click the “New…” button at the top
    - There are many definition types available here, but the essential ones to fill out are:
@@ -850,7 +856,7 @@ When a `QuestionnaireResponse` is submitted, you can use the [`$extract` operati
 ### How to Add ActivityDefinitions
 
 1. **Navigate to the ActivityDefinition Resource Page**
-   - In the Medplum App, use the “Resource Type” search in the sidebar to find and then click on “ActivityDefinition”
+   - In the Afiax Admin App, use the “Resource Type” search in the sidebar to find and then click on “ActivityDefinition”
 2. **Create a New ActivityDefinition**
    - On the ActivityDefinition table page, click the “New…” button at the top
    - There are many definition types available here, but the essential ones to fill out in this moment are:

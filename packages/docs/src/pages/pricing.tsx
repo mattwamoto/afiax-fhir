@@ -17,9 +17,9 @@ export default function PricingPage(): JSX.Element {
         <div className={styles.pricing}>
           <h1>Pricing and engagement</h1>
           <p style={{ maxWidth: 720, margin: '20px auto' }}>
-            Afiax pricing depends on the shape of the implementation. The platform combines a Medplum-based clinical
-            core, country-pack delivery, integration work, and optional managed operations, so the right commercial
-            model depends on what you are actually deploying.
+            Afiax Enterprise pricing depends on the shape of the implementation. Engagements combine Afiax FHIR, the
+            country-pack layer, integration work, and optional managed operations, so the right commercial model
+            depends on what you are actually deploying.
           </p>
           <p style={{ maxWidth: 720, margin: '20px auto' }}>
             For commercial discussions, contact <Link href="mailto:info@afiax.africa">info@afiax.africa</Link> or
@@ -32,7 +32,7 @@ export default function PricingPage(): JSX.Element {
             <h2>How Afiax is typically scoped</h2>
             <p>
               Most Afiax work is priced as a platform engagement rather than a generic self-service plan. Scope usually
-              starts with the clinical core, then adds the first country pack, production connectors, and tenant- or
+              starts with Afiax FHIR, then adds the first country pack, production connectors, and tenant- or
               program-specific rollout requirements.
             </p>
             <p>
@@ -49,8 +49,8 @@ export default function PricingPage(): JSX.Element {
             <Card>
               <h3>Platform foundation</h3>
               <p>
-                Covers the Medplum-based clinical core, canonical data model, access control, auditability, and
-                administrative tooling needed to stand up the shared platform.
+                Covers Afiax FHIR, the canonical data model, access control, auditability, and administrative tooling
+                needed to stand up the shared platform.
               </p>
             </Card>
             <Card>

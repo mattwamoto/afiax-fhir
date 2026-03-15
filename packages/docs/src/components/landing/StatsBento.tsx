@@ -80,7 +80,7 @@ const stats: StatItem[] = [
     value: '20',
     suffix: 'M+',
     label: 'Active Patient Records',
-    description: 'From startups to enterprises, Medplum facilitates care for over 20 million patients.',
+    description: 'From startups to enterprise programs, Afiax FHIR is positioned to support care at large scale.',
   },
 ];
 

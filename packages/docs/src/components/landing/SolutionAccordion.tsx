@@ -116,8 +116,9 @@ export function SolutionAccordion(): JSX.Element {
       <SectionHeader>
         <h2>Solutions for all scopes and scales</h2>
         <p>
-          Medplum powers a wide range of applications on a single, standards-based platform—giving your team the
-          flexibility to ship and evolve your end-to-end care model.
+          Afiax FHIR supports a wide range of applications on a single, standards-based platform, while Afiax
+          Enterprise connects that core to the rest of your delivery model. The result is a consistent clinical core
+          with enough flexibility to support local workflows and broader service lines.
         </p>
       </SectionHeader>
       <div className={styles.accordion}>

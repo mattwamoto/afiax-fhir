@@ -4,9 +4,11 @@ sidebar_position: 1
 
 # Afiax Admin App
 
-The Afiax Admin App is a user-facing web application available at [https://app.afiax.africa/](https://app.afiax.africa/) for platform administrators, implementation teams, and project operators. The app is the quickest way to administer projects, manage users, inspect resources, and configure automation.
+The Afiax Admin App is the main web console for project administrators, implementation teams, and platform operators.
+Use it to create projects, manage users, inspect resources, configure automation, and activate country-pack setup.
 
-You can use the Afiax Admin App to configure or inspect credentials, Bots, integrations, access controls, and other resources required for a country-pack or tenant rollout.
+You can use the Afiax Admin App to configure or inspect credentials, Bots, integrations, access controls, and other
+resources required for a country-pack or tenant rollout.
 
 ## Getting Started
 
@@ -17,4 +19,6 @@ You can use the Afiax Admin App to configure or inspect credentials, Bots, integ
 
 ## Reference
 
-The Afiax Admin App is part of this [open source repository](https://github.com/mattwamoto/afiax-fhir/tree/main/packages/app). It is built on the [React](/docs/react) component library and the Medplum-based clinical core used throughout the platform.
+The Afiax Admin App is part of this [open source repository](https://github.com/mattwamoto/afiax-fhir/tree/main/packages/app).
+It is built on the [React](/docs/react) component library and the Afiax FHIR clinical core used throughout the
+platform, with Medplum as the upstream base.
