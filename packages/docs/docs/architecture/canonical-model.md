@@ -4,30 +4,55 @@ sidebar_position: 2
 
 # Canonical FHIR Model
 
-The canonical data model is the contract that keeps Afiax reusable across countries, delivery models, and product
-surfaces.
+The canonical model is the shared data contract for this Medplum-based platform.
 
-## Design intent
+Use it to decide what belongs in:
 
-- Keep the clinical source of truth country-neutral.
-- Model national requirements as overlays, not core mutations.
-- Let provider apps, patient apps, analytics services, and interoperability workflows share the same underlying data contract.
-- Preserve clean separation between core, country, and tenant concerns.
+- core Medplum resources
+- country packs
+- tenant-specific overlays
 
-## Profile layering
+The rule is simple: if a field or workflow only exists because of one regulator, payer, or country program, it should
+not define the core model.
 
-Afiax uses a three-layer profile strategy:
+## Design rules
 
-- **Core**: shared pan-African semantics and workflows
-- **Country**: national identifiers, terminology, regulatory bindings, and exchange rules
-- **Tenant**: customer-specific constraints and rollout toggles
+- keep the clinical source of truth country-neutral
+- use shared FHIR resources as the editable system of record
+- bind national requirements as overlays, not core mutations
+- let apps, bots, and external integrations share the same underlying resource model
+- keep core, country, and tenant concerns separate
 
-The core model must not contain Kenya-specific field names such as DHA, SHA, MFL, or HWR, and it should avoid any
-other country authority names for the same reason.
+## Layering model
 
-## Canonical resource domains
+This repo uses three layers:
 
-The initial Afiax platform should center on these shared domains:
+- `Core`
+  - shared clinical and operational semantics
+  - generic internal operations
+  - shared identifier categories
+- `Country`
+  - national identifiers
+  - terminology bindings
+  - payer and regulator rules
+  - exchange mappings
+- `Tenant`
+  - customer-specific constraints
+  - rollout toggles
+  - deployment-specific defaults
+
+Example:
+
+- `Patient.identifier` exists in core
+- `national-client-id` is a core identifier category
+- the meaning of that identifier for DHA is Kenya-pack logic
+- which Kenya workflows a customer enables is tenant config
+
+The core model should not contain names like `DHA`, `SHA`, `MFL`, or `HWR` as first-class field names.
+
+## Core resource set
+
+The current shared model should center on these resources:
 
 - `Patient`
 - `Practitioner`
@@ -43,13 +68,22 @@ The initial Afiax platform should center on these shared domains:
 - `Provenance`
 - `DocumentReference` or `Composition`
 
-Additional domains such as `Claim`, `ClaimResponse`, `Invoice`, and advanced program workflows can be layered in once
-the interoperability and clinical coordination spine is stable.
+These cover the first operational spine:
+
+- identity
+- providers and facilities
+- eligibility
+- encounters
+- communication
+- auditability
+
+Additional domains such as `Claim`, `ClaimResponse`, and `Invoice` should be layered in only after the verification
+and interoperability path is stable.
 
 ## Identifier architecture
 
-The core model should preserve category-level meaning rather than country-specific names. Country packs can then bind
-those categories to local identifiers:
+The core model stores identifier meaning at the category level. Country packs bind those categories to real national
+codes.
 
 | Category | Core meaning | Kenya binding example | Resources |
 | --- | --- | --- | --- |
@@ -59,10 +93,16 @@ those categories to local identifiers:
 | `practitioner-authority-id` | national professional authority identifier | HWR ID | `Practitioner` |
 | `payer-member-id` | payer or beneficiary identifier | SHA member ID | `Coverage` |
 
+Implementation rule:
+
+- code against the category, not the country label
+- map the category to a local code in the country pack
+- do not create new core fields just to expose regulator names
+
 ## Operation model
 
-Applications should call generic internal operations. Country packs provide the country-specific implementations behind
-those contracts.
+Applications and bots should call generic internal operations. Country packs provide the country-specific behavior
+behind those contracts.
 
 | Generic operation | Purpose | Kenya implementation |
 | --- | --- | --- |
@@ -73,19 +113,54 @@ those contracts.
 | `$publish-national-record` | submit a national clinical exchange payload | `Encounter/$publish-shr` |
 | `$submit-national-claim` | submit a country-specific claim bundle | `Claim/$submit-sha` |
 
-Kenya is shown here only as the current reference implementation. Future country packs should plug into the same
-generic operation model.
+The public contract stays generic even when the backend implementation is country-specific.
 
-The current Kenya facility verification path uses the canonical `facility-authority-id` binding, resolves the MFL code
-from the `Organization`, authenticates against DHA AfyaLink, and writes the verification outcome back into Medplum
-using normalized status plus workflow records.
+Current implemented example:
+
+- `Organization/$verify-facility-authority`
+- resolve `facility-authority-id` from `Organization.identifier`
+- Kenya pack maps that to the MFL code
+- connector authenticates with AfyaLink
+- result is normalized and written back through workflow records
+
+## Workflow evidence model
+
+External calls should not only return data. They should also leave a trace in the canonical workflow model.
+
+Use:
+
+- `Task` for workflow state
+- `AuditEvent` for integration audit trail
+- `Provenance` when source or derivation tracking matters
+
+This is the recommended pattern for regulator lookups, eligibility checks, exchange submissions, and claim workflows.
+
+## What belongs outside the core
+
+Keep these out of the canonical model:
+
+- country-specific endpoint URLs
+- regulator-specific payload shapes
+- country program names as field names
+- tenant shortcuts that collapse core and country layers
+- UI-specific convenience structures that duplicate the source of truth
 
 ## Guardrails
 
 - Keep Medplum resources as the editable source of truth.
 - Generate national bundles from canonical resources using mappings and Bots.
 - Store country-specific reconciliation state as extensions or workflow resources.
-- Use workflow resources such as `Task`, `AuditEvent`, and `Provenance` to trace external verification and exchange steps.
+- Use `Task`, `AuditEvent`, and `Provenance` to trace external verification and exchange steps.
 - Avoid tenant shortcuts that weaken the core model.
 - Require every country pack to map from the canonical model instead of redefining it.
 - Keep country-pack contracts documented and versioned so the platform can add markets without changing core semantics.
+
+## Practical test
+
+When adding a new field or workflow, ask:
+
+1. Would this still exist if Kenya were removed?
+2. Would another country likely need the same concept under a different name?
+3. Can this be represented as a shared resource plus a country binding?
+
+If the answer to `1` is no, it probably does not belong in core.
