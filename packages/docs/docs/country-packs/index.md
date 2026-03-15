@@ -4,63 +4,94 @@ sidebar_position: 1
 
 # Country Packs
 
-A country pack is Afiax's packaging model for national interoperability, payer, terminology, and compliance
-requirements.
+A country pack is the unit of country-specific behavior in the Afiax Medplum fork.
 
-## Why country packs exist
+Use a country pack when a workflow depends on national registries, payer rules, terminology bindings, or compliance
+requirements that should not leak into the shared core.
 
-Country packs let Afiax localize the platform without rewriting the core. They are the mechanism that keeps:
+## Design goal
 
+Country packs exist to keep the platform layered:
+
+- core Medplum behavior generic
 - the canonical FHIR model country-neutral
-- the broader Afiax platform reusable across markets
-- regulator and payer integrations isolated behind internal contracts
-- tenant and customer customizations from leaking into platform fundamentals
+- country integrations behind explicit internal operations
+- tenant customization separate from country behavior
 
-## What belongs in a country pack
+## What belongs in a pack
 
-Each country pack is responsible for:
+A country pack owns:
 
-- national FHIR profiles and bindings
-- country terminology and value sets
-- connectors to registries, exchanges, and payer services
-- mappings from canonical resources into national payloads
-- Bots and operations for localized workflows
-- compliance notes, runbooks, and evidence artifacts
-- secrets and credential conventions for national integrations
+- national profile bindings
+- terminology and value sets
+- registry, exchange, and payer connectors
+- mappings from canonical resources to national payloads
+- localized bots and operations
+- country-specific secret names and config conventions
+- runbooks and compliance notes
 
-## What does not belong in a country pack
+## What does not belong in a pack
 
-- changes to Medplum core behavior that should remain generic
-- direct UI-to-national API calls
-- hard-coded national identifier names inside the shared canonical model
-- tenant-specific shortcuts that should instead live in tenant overlays
+- direct UI calls to national APIs
+- hard-coded country field names in the canonical core
+- tenant-specific shortcuts that should live in tenant overlays
+- generic infrastructure behavior that should stay reusable across all packs
+
+## Core contract
+
+The current runtime contract in this repo is:
+
+- `Project.setting.countryPack` selects the pack
+- country-specific non-secret config stays in `Project.setting`
+- country-specific credentials stay in `Project.secret` or `Project.systemSecret`
+- Medplum core dispatches generic operations to the active pack
+- bots and connector code read project context rather than hard-coded country branches
+
+Examples:
+
+```text
+Project.setting.countryPack=kenya
+Project.setting.kenyaAfyaLinkEnvironment=uat
+Project.setting.kenyaAfyaLinkCredentialMode=tenant-managed
+```
+
+```text
+Project.secret.kenyaAfyaLinkConsumerKey
+Project.secret.kenyaAfyaLinkUsername
+Project.secret.kenyaAfyaLinkPassword
+```
+
+## Activation in the app
+
+Projects can now select a country pack in two places:
+
+- during project creation
+- later in `/admin/settings`
+
+The dropdown currently includes East Africa and COMESA entries. `Kenya` is active. The remaining entries are
+placeholders only.
+
+After a pack is selected:
+
+- `/admin/country-pack` becomes the setup checklist
+- `/admin/settings` holds non-secret country config
+- `/admin/secrets` holds tenant-managed credentials
+- `/admin/super` holds Afiax-managed Kenya credentials
 
 ## Lifecycle
 
-Every country pack should move through the same lifecycle:
+1. Bind national requirements to the canonical model.
+2. Define settings and secret names.
+3. Implement connectors, bots, and internal operations.
+4. Validate against UAT with fixtures.
+5. Add audit, reconciliation, and operational evidence.
 
-1. Design the national scope and regulatory touchpoints.
-2. Bind the country requirements to the canonical model.
-3. Implement connectors, mappings, operations, and Bots.
-4. Validate against sandbox or UAT endpoints with fixtures.
-5. Operationalize with audit, reconciliation, monitoring, and compliance evidence.
+## Current reference pack
 
-In practice, this means a pack should define both:
+Kenya is the first real pack in this repo. It is the reference implementation for the pattern, not the definition of
+the whole platform.
 
-- non-sensitive project settings such as `countryPack=kenya`
-- secret names for regulator-facing credentials such as registry usernames, passwords, and consumer keys
-
-New Afiax projects can now select a country pack during project creation. Existing projects can also change their
-country pack from the Admin Settings tab using the same curated dropdown. Both flows expose the current East Africa and
-COMESA country-pack entries, with Kenya active and the remaining countries present as placeholders for the broader
-rollout plan.
-
-## Kenya in context
-
-Kenya is the first reference implementation of the country-pack model. It is important because it proves the SDK and
-localization pattern, not because it defines the whole Afiax platform.
-
-## Next documents
+## Related docs
 
 - [Country pack SDK](./sdk)
 - [Kenya reference pack](./kenya)

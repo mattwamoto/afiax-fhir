@@ -1,13 +1,18 @@
 # Verify Facility Authority
 
-Generic operation: `Organization/$verify-facility-authority`
+Operation: `Organization/$verify-facility-authority`
+
+Purpose:
+- verify a facility against the Kenya pack
+- keep the operation name country-neutral
+- hide AfyaLink-specific details behind the pack implementation
 
 Kenya binding:
 - authority: Master Facility List
 - identifier category: `facility-authority-id`
-- expected canonical identifier binding: MFL code
+- expected identifier value: MFL code
 
-Current Medplum behavior:
+Current implementation:
 - reads the canonical `Organization`
 - resolves the active project country pack
 - reads Kenya DHA environment and credential mode from `Project.setting`
@@ -17,14 +22,22 @@ Current Medplum behavior:
 - returns normalized status, correlation ID, message, and next state
 - creates a verification `Task` and an `AuditEvent`
 
-Expected project settings:
+Required project settings:
 - `kenyaAfyaLinkEnvironment`
 - `kenyaAfyaLinkCredentialMode`
 
-Expected tenant-managed project secret names:
+Required tenant-managed secret names:
 - `kenyaAfyaLinkConsumerKey`
 - `kenyaAfyaLinkUsername`
 - `kenyaAfyaLinkPassword`
 
-The DHA endpoint is derived from the selected environment and platform configuration. `kenyaAfyaLinkBaseUrl` remains
-available only as an advanced override path.
+Response contract:
+- normalized status
+- correlation ID
+- human-readable message
+- next state
+
+Notes:
+- the DHA endpoint is derived from environment and platform config
+- `kenyaAfyaLinkBaseUrl` is only an override path
+- tenant UI should not call AfyaLink directly
