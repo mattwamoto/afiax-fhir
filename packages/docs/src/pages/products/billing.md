@@ -1,7 +1,10 @@
-# Revenue Cycle and Payer Operations
+# Afiax Billing and Revenue Operations
 
-Afiax treats billing as part of a broader payer and reimbursement capability set. Coverage, eligibility, claims,
-reconciliation, and payment workflows should all map back to the same canonical clinical and operational record.
+Afiax Billing is the ERPNext-based billing and finance surface inside Afiax Enterprise.
+
+Afiax FHIR still treats billing as part of a broader payer and reimbursement capability set. Coverage, eligibility,
+claims, reconciliation, and payment workflows should all map back to the same canonical clinical and operational
+record.
 
 ## Role in the platform
 
@@ -13,6 +16,16 @@ Revenue cycle workflows should:
 - localize payer and claims logic through country packs where required
 - separate clinical reimbursement state from ERP receivable and ledger workflows
 
+## Afiax Enterprise workflow
+
+The intended workflow is:
+
+1. care is documented in Afiax FHIR
+2. payer context, coverage, and billable events are captured in canonical FHIR resources
+3. country packs run eligibility checks and national claim submission where required
+4. Afiax Billing receives receivable, invoicing, payment, and finance workflows
+5. payment and settlement outcomes that matter to care are written back into Afiax FHIR as normalized workflow state
+
 ## Core capabilities
 
 - **coverage representation:** maintain payer, beneficiary, member identifier, status, and effective periods
@@ -21,9 +34,9 @@ Revenue cycle workflows should:
 - **reconciliation:** preserve submission state, acknowledgements, rejections, and correlation IDs
 - **tenant controls:** enable different payers, billing rules, and rollout flags per organization and environment
 
-## ERPNext boundary
+## Afiax Billing boundary
 
-Afiax FHIR and ERPNext should not own the same billing state.
+Afiax FHIR and Afiax Billing should not own the same billing state.
 
 Afiax FHIR should own:
 
@@ -32,7 +45,7 @@ Afiax FHIR should own:
 - country-pack eligibility and claim submission
 - claim status that needs to remain part of the care and reimbursement record
 
-ERPNext should own:
+Afiax Billing should own:
 
 - invoices and receivables
 - payment posting
@@ -40,11 +53,14 @@ ERPNext should own:
 - financial reconciliation
 - finance reporting
 
+Afiax Billing can also share its ERPNext runtime with adjacent enterprise functions such as pharmacy inventory, CRM,
+HR, and training, but those concerns should still stay outside the Afiax FHIR clinical core.
+
 Recommended pattern:
 
 1. derive billable state in Afiax FHIR
 2. submit national claims from Afiax FHIR when a country pack requires it
-3. send approved or billable outcomes to ERPNext through an integration service
+3. send approved or billable outcomes to Afiax Billing through an integration service
 4. write payment or settlement outcomes that matter to care back into Afiax FHIR as normalized workflow state
 
 ## Country-pack context
@@ -58,6 +74,14 @@ The core revenue-cycle model should remain country-neutral. Country packs are re
 - regulator or payer compliance notes
 
 Kenya is the first reference pack for this pattern, but payer logic should remain portable to future markets.
+
+## Developer note
+
+In this repo, treat Afiax Billing as an external enterprise system.
+
+- document the contracts here
+- keep Afiax FHIR authoritative for clinical and claim state
+- keep Afiax Billing implementation code and ERPNext customization outside this Medplum fork
 
 ## Related resources
 
@@ -74,6 +98,6 @@ Kenya is the first reference pack for this pattern, but payer logic should remai
 
 - [Billing docs](/docs/billing)
 - [Canonical FHIR model](/docs/architecture/canonical-model)
-- [Afiax FHIR and ERPNext boundary](/docs/architecture/erpnext-boundary)
+- [Afiax FHIR and Afiax Billing boundary](/docs/architecture/erpnext-boundary)
 - [Country packs](/docs/country-packs)
 - [Kenya reference pack](/docs/country-packs/kenya)

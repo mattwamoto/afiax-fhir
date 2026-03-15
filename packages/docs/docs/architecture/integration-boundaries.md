@@ -89,9 +89,9 @@ Recommended request flow:
 This keeps Afiax FHIR as the source of truth for clinical state while allowing external systems to remain systems of
 record for their own domains.
 
-## ERPNext boundary
+## Afiax Billing boundary
 
-ERPNext is a good fit for:
+Afiax Billing is a good fit for:
 
 - invoicing and receivables
 - payment posting and reconciliation
@@ -109,7 +109,7 @@ Afiax FHIR should still own:
 
 Use the dedicated boundary doc for that split:
 
-- [Afiax FHIR and ERPNext boundary](./erpnext-boundary)
+- [Afiax FHIR and Afiax Billing boundary](./erpnext-boundary)
 
 ## Where Knative and gateways fit
 
@@ -136,7 +136,7 @@ Afiax FHIR itself should not be rewritten as a Knative app just because surround
 - do not call national APIs directly from browser or mobile UI
 - do not hard-code country-specific identifiers into the core model
 - do not move final clinical state into ERP, commerce, or mobile-local models
-- do not bundle ERPNext implementation code into this Medplum fork
+- do not bundle Afiax Billing implementation code into this Medplum fork
 - do not let exchange payloads become the primary documentation model
 - do not bake country-specific rules into generic UI or platform components
 - do not let a gateway silently become a second source of truth
@@ -156,5 +156,5 @@ Current application of these rules:
 - [Architecture overview](./index)
 - [Enterprise platform](./enterprise-platform)
 - [Canonical FHIR model](./canonical-model)
-- [Afiax FHIR and ERPNext boundary](./erpnext-boundary)
+- [Afiax FHIR and Afiax Billing boundary](./erpnext-boundary)
 - [Country packs](../country-packs)

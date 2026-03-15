@@ -6,6 +6,9 @@ sidebar_position: 4
 
 Medplum supports customizable creation of CMS 1500 for use in billing.
 
+This guide is U.S.-specific reference material inherited from the upstream Medplum docs. It is useful when you need a
+CMS 1500 export pattern, but it is not the default Afiax Billing workflow.
+
 The CMS 1500 form is a standardized form used in the United States to submit healthcare claims to Medicare and other health insurance providers. It is widely used by non-institutional providers and suppliers, such as physicians and outpatient clinics, to bill Medicare Part B and other insurers for services provided to patients. The CMS 1500 requires information about the patient, the medical services provided, and their costs.
 
 

@@ -24,7 +24,7 @@ The broader Afiax platform breaks down into six capability areas:
 3. `Digital products`
    Provider tools, patient experiences, telemedicine, and admin workflows built on the shared data model.
 4. `Enterprise systems`
-   ERP, billing, payments, CRM, HR, training, CPD, and inventory systems that integrate with the clinical core.
+   Afiax Billing, payments, CRM, HR, training, CPD, and inventory systems that integrate with the clinical core.
 5. `Analytics and decision support`
    Reporting, dashboards, AI services, and operational insight on normalized data.
 6. `Developer and partner platform`
@@ -38,7 +38,7 @@ The broader Afiax platform breaks down into six capability areas:
 | Clinical platform layer | Afiax FHIR server, FHIR resources, access policies, bots, subscriptions, custom operations |
 | Shared domain services | identity orchestration, scheduling, notifications, document handling, workflow support |
 | Country packs | registries, payer adapters, terminology, exchange connectors, compliance artifacts |
-| Enterprise systems | ERPNext, billing, payments, CRM, HR, training, pharmacy inventory |
+| Enterprise systems | Afiax Billing, payments, CRM, HR, training, pharmacy inventory |
 | Integration services | gateways, Medplum Agent, HL7/FHIR adapters, Knative executors, ERP connectors, partner connectors |
 | Data layer | PostgreSQL, object storage, audit logs, backups, reconciliation data |
 
@@ -59,7 +59,7 @@ Keep these outside this repo:
 
 - mobile gateways
 - Knative connector services
-- ERPNext and other enterprise systems
+- Afiax Billing and other enterprise systems
 - heavy analytics pipelines
 - standalone AI services
 - country-specific transport services that only proxy remote APIs
@@ -98,7 +98,7 @@ For current implementation work, the important point is:
 - Afiax FHIR remains the clinical core
 - external services can exist around it
 - the broader platform should grow by adding layers around the core, not by stuffing every concern into this repo
-- ERPNext can own finance, pharmacy inventory, CRM, HR, and training without taking over the clinical record
+- Afiax Billing can own finance, pharmacy inventory, CRM, HR, and training without taking over the clinical record
 
 ## What not to do
 
@@ -111,7 +111,7 @@ For current implementation work, the important point is:
 
 - [Architecture overview](./index)
 - [Afiax FHIR integration boundaries](./integration-boundaries)
-- [Afiax FHIR and ERPNext boundary](./erpnext-boundary)
+- [Afiax FHIR and Afiax Billing boundary](./erpnext-boundary)
 - [Canonical FHIR model](./canonical-model)
 - [Country packs](../country-packs)
 - [Afiax website](https://www.afiax.africa)

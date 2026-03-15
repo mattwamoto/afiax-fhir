@@ -6,6 +6,9 @@ sidebar_position: 5
 
 Medplum supports customizable creation of superbills. 
 
+This guide is reference material for superbill generation. It is helpful for out-of-network or cash-pay workflows, but
+it is not the default Afiax Billing workflow under Afiax Enterprise.
+
 A superbill is a detailed form used by healthcare providers that outlines the services provided to a patient. It is typically given to patients after their medical appointments so they can submit it to their insurance companies for reimbursement.  Superbills are important in settings where the provider does not directly bill the insurance company, such as in many out-of-network situations or when services are provided by a provider who operates on a cash-only basis.
 
 Similar to the generation of the [CMS 1500](/docs/billing/creating-cms1500) the Superbill is typically generated when an encounter is finished.  The recommended implementaiton pattern is to create a Superbill as PDF and attaches it to a `Claim` resource.

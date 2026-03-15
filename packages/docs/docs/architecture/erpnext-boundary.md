@@ -2,9 +2,9 @@
 sidebar_position: 4
 ---
 
-# Afiax FHIR and ERPNext Boundary
+# Afiax FHIR and Afiax Billing Boundary
 
-This page defines how Afiax FHIR should integrate with ERPNext.
+This page defines how Afiax FHIR should integrate with Afiax Billing.
 
 Use it when you need to decide whether a billing, pharmacy, CRM, HR, or training feature belongs in this repo or in
 an external enterprise system.
@@ -13,8 +13,10 @@ an external enterprise system.
 
 Afiax FHIR remains the clinical source of truth.
 
-ERPNext remains the enterprise system of record for finance, business operations, workforce administration, and
-learning administration.
+Afiax Billing is the ERPNext-based enterprise billing and operations surface under Afiax Enterprise.
+
+It remains the system of record for finance, business operations, workforce administration, and learning
+administration.
 
 The two systems should integrate through APIs and events. They should not share a database or silently overwrite each
 other's domain state.
@@ -42,7 +44,7 @@ into an ERP.
 - country-pack operations such as eligibility, national claim submission, and regulator-facing exchange
 - `Task`, `AuditEvent`, and `Provenance` for traceability
 
-### ERPNext owns
+### Afiax Billing owns
 
 - customer accounts, receivables, general ledger, and invoicing operations
 - payment collection, payment posting, write-offs, refunds, and finance reporting
@@ -63,7 +65,7 @@ Pharmacy is not one domain. It crosses both systems.
 - prescription intent, prescribing clinician, patient linkage, and encounter linkage
 - allergy, contraindication, and medication history context
 
-### ERPNext pharmacy scope
+### Afiax Billing pharmacy scope
 
 - stock and warehouse balances
 - purchasing and supplier workflows
@@ -74,7 +76,7 @@ Pharmacy is not one domain. It crosses both systems.
 Implementation rule:
 
 - clinical medication state stays in Afiax FHIR
-- inventory and commercial pharmacy state stays in ERPNext
+- inventory and commercial pharmacy state stays in Afiax Billing
 
 ## Billing split
 
@@ -85,7 +87,7 @@ Implementation rule:
 - submit country-specific claims through country packs
 - persist claim status, rejection reason, and reconciliation evidence back into the clinical workflow ledger
 
-### ERPNext billing scope
+### Afiax Billing billing scope
 
 - convert approved or billable events into ERP receivable workflows
 - manage invoices, debtor balances, cash collection, and finance reconciliation
@@ -94,7 +96,7 @@ Implementation rule:
 Implementation rule:
 
 - Afiax FHIR should not become the general ledger
-- ERPNext should not become the editable clinical record
+- Afiax Billing should not become the editable clinical record
 
 ## Kenya-specific rule
 
@@ -104,9 +106,9 @@ That means:
 
 - Afiax FHIR builds and submits the national claim bundle
 - Afiax FHIR stores `Claim` and `ClaimResponse` as the canonical reimbursement record
-- ERPNext receives downstream financial outcomes such as receivable, remittance, collection, and write-off status
+- Afiax Billing receives downstream financial outcomes such as receivable, remittance, collection, and write-off status
 
-Do not move Kenya claim packaging into ERPNext.
+Do not move Kenya claim packaging into Afiax Billing.
 
 ## Integration pattern
 
@@ -115,14 +117,14 @@ Recommended flow:
 1. Care is documented in Afiax FHIR.
 2. Afiax FHIR creates or updates financial workflow resources such as `ChargeItem`, `Account`, `Coverage`, `Claim`,
    or `Invoice`.
-3. An integration service maps the relevant state into ERPNext APIs.
-4. ERPNext performs invoice, payment, CRM, HR, training, or inventory workflows in its own domain.
+3. An integration service maps the relevant state into Afiax Billing APIs.
+4. Afiax Billing performs invoice, payment, CRM, HR, training, or inventory workflows in its own domain.
 5. Results that matter to care or reimbursement are written back to Afiax FHIR as normalized status and workflow
    evidence.
 
 ## Recommended deployment shape
 
-ERPNext should remain outside this repo.
+Afiax Billing should remain outside this repo.
 
 Recommended shape:
 
@@ -131,14 +133,14 @@ Recommended shape:
   - country packs
   - billing and pharmacy integration contracts
 - external integration services
-  - ERPNext adapters
+  - Afiax Billing adapters
   - event handlers
   - reconciliation workers
   - Knative-backed integration endpoints if needed
 
 ## Resource to object mapping
 
-| Concern | Afiax FHIR source | ERPNext target |
+| Concern | Afiax FHIR source | Afiax Billing target |
 | --- | --- | --- |
 | Patient-linked payer context | `Coverage`, `Organization`, `Patient` | customer and payer account references |
 | Billable clinical event | `Encounter`, `ChargeItem`, `Account` | sales invoice draft or billing entry |
@@ -150,19 +152,19 @@ Recommended shape:
 
 ## What not to do
 
-- do not put ERPNext implementation code in this repo
-- do not let ERPNext edit the canonical patient or encounter record
-- do not send browser or mobile apps directly to ERPNext for clinical source-of-truth updates
-- do not move country-pack claim logic into ERPNext custom scripts
-- do not use shared database tables between Afiax FHIR and ERPNext
+- do not put Afiax Billing implementation code in this repo
+- do not let Afiax Billing edit the canonical patient or encounter record
+- do not send browser or mobile apps directly to Afiax Billing for clinical source-of-truth updates
+- do not move country-pack claim logic into Afiax Billing custom scripts
+- do not use shared database tables between Afiax FHIR and Afiax Billing
 - do not let pharmacy inventory status silently overwrite clinical dispense history
 
 ## Build order
 
-1. Define the Afiax FHIR to ERPNext billing contract.
+1. Define the Afiax FHIR to Afiax Billing contract.
 2. Define the pharmacy clinical-versus-inventory split.
 3. Implement outbound billing and pharmacy events from Afiax FHIR.
-4. Implement inbound payment and reconciliation updates from ERPNext.
+4. Implement inbound payment and reconciliation updates from Afiax Billing.
 5. Add CRM, HR, and training sync after billing is stable.
 
 ## Related docs
