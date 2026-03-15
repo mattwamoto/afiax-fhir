@@ -175,5 +175,6 @@ Recommended shape:
 - [Afiax FHIR and Afiax Billing contract](./afiax-billing-contract)
 - [Afiax FHIR and Afiax Billing object mapping](./afiax-billing-object-mapping)
 - [Afiax FHIR and Afiax Billing status model](./afiax-billing-status-model)
+- [Afiax FHIR and Afiax Billing payload spec](./afiax-billing-payload-spec)
 - [Canonical FHIR model](./canonical-model)
 - [Revenue cycle and payer operations](/products/billing)

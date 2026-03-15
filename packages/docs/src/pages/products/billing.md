@@ -96,5 +96,6 @@ surfaces while Afiax Billing implementation code and ERPNext customization remai
 - [Afiax FHIR and Afiax Billing contract](/docs/architecture/afiax-billing-contract)
 - [Afiax FHIR and Afiax Billing object mapping](/docs/architecture/afiax-billing-object-mapping)
 - [Afiax FHIR and Afiax Billing status model](/docs/architecture/afiax-billing-status-model)
+- [Afiax FHIR and Afiax Billing payload spec](/docs/architecture/afiax-billing-payload-spec)
 - [Country packs](/docs/country-packs)
 - [Kenya reference pack](/docs/country-packs/kenya)

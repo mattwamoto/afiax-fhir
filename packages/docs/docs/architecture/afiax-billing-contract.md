@@ -125,24 +125,9 @@ Afiax Billing retains ownership of:
 
 The contract uses a shared envelope and event-specific body.
 
-```json
-{
-  "eventId": "evt_01JX...",
-  "eventType": "billing.invoice.ready",
-  "occurredAt": "2026-03-16T08:30:00Z",
-  "sourceSystem": "afiax-fhir",
-  "targetSystem": "afiax-billing",
-  "projectId": "123",
-  "countryPack": "kenya",
-  "correlationId": "corr_01JX...",
-  "idempotencyKey": "billing.invoice.ready:123:Account/456",
-  "subject": {
-    "resourceType": "Account",
-    "id": "456"
-  },
-  "body": {}
-}
-```
+Use the dedicated payload specification for the full examples and field-level event bodies:
+
+- [Afiax FHIR and Afiax Billing payload spec](./afiax-billing-payload-spec)
 
 ## Reconciliation view
 
@@ -161,6 +146,7 @@ ownership.
 - [Afiax FHIR and Afiax Billing boundary](./afiax-billing-boundary)
 - [Afiax FHIR and Afiax Billing object mapping](./afiax-billing-object-mapping)
 - [Afiax FHIR and Afiax Billing status model](./afiax-billing-status-model)
+- [Afiax FHIR and Afiax Billing payload spec](./afiax-billing-payload-spec)
 - [Canonical FHIR model](./canonical-model)
 - [Integration boundaries](./integration-boundaries)
 - [Billing](/docs/billing)

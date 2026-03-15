@@ -76,4 +76,5 @@ The primary Afiax FHIR resources in this flow are:
 - [Afiax FHIR and Afiax Billing contract](/docs/architecture/afiax-billing-contract)
 - [Afiax FHIR and Afiax Billing object mapping](/docs/architecture/afiax-billing-object-mapping)
 - [Afiax FHIR and Afiax Billing status model](/docs/architecture/afiax-billing-status-model)
+- [Afiax FHIR and Afiax Billing payload spec](/docs/architecture/afiax-billing-payload-spec)
 - [Canonical FHIR model](/docs/architecture/canonical-model)

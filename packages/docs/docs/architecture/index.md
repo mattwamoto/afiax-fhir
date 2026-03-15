@@ -102,6 +102,8 @@ Use the rest of the architecture docs by question:
   [Afiax FHIR and Afiax Billing object mapping](./afiax-billing-object-mapping)
 - if you need the normalized billing, payment, claim, and pharmacy states:
   [Afiax FHIR and Afiax Billing status model](./afiax-billing-status-model)
+- if you need the concrete JSON envelopes and event bodies:
+  [Afiax FHIR and Afiax Billing payload spec](./afiax-billing-payload-spec)
 - if you need the shared data contract:
   [Canonical FHIR model](./canonical-model)
 - if you need the country-pack model:
