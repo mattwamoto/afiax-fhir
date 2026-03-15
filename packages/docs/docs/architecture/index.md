@@ -92,6 +92,8 @@ Use the rest of the architecture docs by question:
 
 - if you need the broader platform shape:
   [Enterprise platform](./enterprise-platform)
+- if you need the split between reimbursement, payments, and enterprise finance:
+  [Afiax financial architecture](./financial-architecture)
 - if you need to know what stays in or out of Afiax FHIR:
   [Afiax FHIR integration boundaries](./integration-boundaries)
 - if you need the Afiax Billing, pharmacy, and workforce boundary:

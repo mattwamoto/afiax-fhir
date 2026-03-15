@@ -28,6 +28,13 @@ Afiax Billing receives the downstream financial workflow:
 - finance reconciliation
 - pharmacy inventory and commercial settlement
 
+Afiax Pay handles country-neutral patient financial interactions around the same care flow:
+
+- co-pay collection
+- patient wallet activity
+- subsidy and refund flows
+- embedded insurance payment orchestration
+
 ## Kenya-specific rule
 
 Kenya SHA claim submission stays in the Kenya pack.
@@ -48,8 +55,9 @@ The Kenya revenue-cycle path follows this sequence:
 2. Kenya eligibility and member checks run through Kenya pack operations.
 3. The Kenya pack assembles and submits the SHA claim from canonical FHIR state.
 4. Claim acknowledgements and adjudication results are recorded in Afiax FHIR.
-5. Afiax Billing receives invoice-ready, remittance, and settlement events through the integration contract.
-6. Payment, remittance, and adjustment outcomes write back into Afiax FHIR as normalized workflow state.
+5. Afiax Pay handles co-pay, wallet, subsidy, and embedded insurance payment flows where applicable.
+6. Afiax Billing receives invoice-ready, remittance, and settlement events through the integration contract.
+7. Payment, remittance, and adjustment outcomes write back into Afiax FHIR as normalized workflow state.
 
 ## Canonical resources in the Kenya flow
 
@@ -95,6 +103,13 @@ Afiax Billing contributes:
 - adjustment and write-off handling
 - finance reconciliation views
 
+Afiax Pay contributes:
+
+- co-pay and patient payment orchestration
+- patient wallet balances and movements
+- premium contribution and refund workflows
+- embedded insurance payment handling
+
 ## Kenya settlement write-back
 
 The Kenya billing path writes the following outcomes back into Afiax FHIR:
@@ -106,6 +121,21 @@ The Kenya billing path writes the following outcomes back into Afiax FHIR:
 - linked correlation and reconciliation references
 
 This write-back keeps the care and reimbursement ledger complete inside Afiax FHIR.
+
+## Embedded insurance in Kenya
+
+Embedded insurance in the Kenya delivery model remains country-neutral at the platform level and attaches to Kenya
+care and reimbursement workflows through the pack.
+
+In this model:
+
+- Afiax FHIR provides clinical and coverage context
+- Afiax Pay orchestrates payment, premium, and wallet flows
+- LAMI partner connectivity provides embedded insurance product and distribution integration
+- Afiax Billing records finance-side settlement and reconciliation
+
+This keeps partner-specific insurance integration outside the canonical clinical core while preserving end-to-end
+workflow visibility.
 
 ## Pharmacy in the Kenya billing flow
 
@@ -131,6 +161,7 @@ The Kenya billing integration offers:
 - [Kenya reference pack](./kenya)
 - [Country packs](./index)
 - [Billing](/docs/billing)
+- [Afiax financial architecture](../architecture/financial-architecture)
 - [Afiax FHIR and Afiax Billing boundary](../architecture/afiax-billing-boundary)
 - [Afiax FHIR and Afiax Billing contract](../architecture/afiax-billing-contract)
 - [Afiax FHIR and Afiax Billing status model](../architecture/afiax-billing-status-model)

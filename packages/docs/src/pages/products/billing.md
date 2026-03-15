@@ -5,12 +5,16 @@ Afiax Billing is the ERPNext-based billing and finance surface inside Afiax Ente
 Afiax FHIR provides the canonical payer, claim, and reimbursement state that powers this workflow. Afiax Billing
 operates the enterprise finance, collection, and reconciliation side of the same flow.
 
+Afiax Enterprise also uses Afiax Pay as the country-neutral payments layer for co-pay, wallet, subsidy, and embedded
+insurance payment flows.
+
 ## Role in the platform
 
 Revenue cycle in Afiax Enterprise offers:
 
 - canonical payer and claim state in Afiax FHIR
 - country-pack eligibility and reimbursement workflows
+- co-pay and patient payment enablement through Afiax Pay
 - enterprise invoice and receivable management in Afiax Billing
 - payment posting and finance reconciliation in Afiax Billing
 - synchronized reimbursement outcomes back into Afiax FHIR
@@ -49,6 +53,13 @@ Afiax Billing owns:
 - debtor balances
 - financial reconciliation
 - finance reporting
+
+Afiax Pay owns:
+
+- patient wallet and co-pay flows
+- premium contribution and refund flows
+- embedded insurance payment orchestration
+- regulated payment transaction handling
 
 Afiax Billing can also share its ERPNext runtime with adjacent enterprise functions such as pharmacy inventory, CRM,
 HR, and training. Those concerns remain outside the Afiax FHIR clinical core.
@@ -91,6 +102,7 @@ surfaces while Afiax Billing implementation code and ERPNext customization remai
 ## Related docs
 
 - [Billing docs](/docs/billing)
+- [Afiax financial architecture](/docs/architecture/financial-architecture)
 - [Canonical FHIR model](/docs/architecture/canonical-model)
 - [Afiax FHIR and Afiax Billing boundary](/docs/architecture/afiax-billing-boundary)
 - [Afiax FHIR and Afiax Billing contract](/docs/architecture/afiax-billing-contract)

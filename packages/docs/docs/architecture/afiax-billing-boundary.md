@@ -9,6 +9,9 @@ This page defines how Afiax FHIR integrates with Afiax Billing.
 Use it when you need to decide whether a billing, pharmacy, CRM, HR, or training feature belongs in this repo or in
 an external enterprise system.
 
+For the broader split between national reimbursement, Afiax Pay, and Afiax Billing, use the financial architecture
+page.
+
 ## Core rule
 
 Afiax FHIR remains the clinical source of truth.
@@ -170,6 +173,7 @@ Recommended shape:
 ## Related docs
 
 - [Architecture overview](./index)
+- [Afiax financial architecture](./financial-architecture)
 - [Enterprise platform](./enterprise-platform)
 - [Integration boundaries](./integration-boundaries)
 - [Afiax FHIR and Afiax Billing contract](./afiax-billing-contract)

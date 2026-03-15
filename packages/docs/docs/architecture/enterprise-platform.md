@@ -24,7 +24,7 @@ The broader Afiax platform breaks down into six capability areas:
 3. `Digital products`
    Provider tools, patient experiences, telemedicine, and admin workflows built on the shared data model.
 4. `Enterprise systems`
-   Afiax Billing, payments, CRM, HR, training, CPD, and inventory systems that integrate with the clinical core.
+   Afiax Pay, Afiax Billing, CRM, HR, training, CPD, and inventory systems that integrate with the clinical core.
 5. `Analytics and decision support`
    Reporting, dashboards, AI services, and operational insight on normalized data.
 6. `Developer and partner platform`
@@ -38,7 +38,7 @@ The broader Afiax platform breaks down into six capability areas:
 | Clinical platform layer | Afiax FHIR server, FHIR resources, access policies, bots, subscriptions, custom operations |
 | Shared domain services | identity orchestration, scheduling, notifications, document handling, workflow support |
 | Country packs | registries, payer adapters, terminology, exchange connectors, compliance artifacts |
-| Enterprise systems | Afiax Billing, payments, CRM, HR, training, pharmacy inventory |
+| Enterprise systems | Afiax Pay, Afiax Billing, CRM, HR, training, pharmacy inventory |
 | Integration services | gateways, Medplum Agent, HL7/FHIR adapters, Knative executors, ERP connectors, partner connectors |
 | Data layer | PostgreSQL, object storage, audit logs, backups, reconciliation data |
 
@@ -110,6 +110,7 @@ For current implementation work, the important point is:
 ## Related docs
 
 - [Architecture overview](./index)
+- [Afiax financial architecture](./financial-architecture)
 - [Afiax FHIR integration boundaries](./integration-boundaries)
 - [Afiax FHIR and Afiax Billing boundary](./afiax-billing-boundary)
 - [Afiax FHIR and Afiax Billing contract](./afiax-billing-contract)
