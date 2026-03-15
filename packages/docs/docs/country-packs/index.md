@@ -95,3 +95,4 @@ the whole platform.
 
 - [Country pack SDK](./sdk)
 - [Kenya reference pack](./kenya)
+- [Kenya billing and settlement](./kenya-billing-and-settlement)

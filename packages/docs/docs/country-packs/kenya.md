@@ -23,6 +23,7 @@ Current and planned Kenya scope:
 - coverage and eligibility services
 - shared health record outpatient publishing
 - SHA claim submission
+- Kenya settlement sync with Afiax Billing
 
 ## Canonical bindings
 
@@ -130,4 +131,5 @@ For a Kenya project:
 
 - [Country packs](./index)
 - [Country pack SDK](./sdk)
+- [Kenya billing and settlement](./kenya-billing-and-settlement)
 - [Canonical FHIR model](../architecture/canonical-model)
