@@ -11,7 +11,7 @@ It is intentionally wider than the Medplum repo, but it should still be read fro
 - what belongs in this repo
 - what belongs in adjacent services
 - what should be built first
-- what can wait until the core and Kenya reference path are stable
+- what can wait until the core and first active country-pack path are stable
 
 ## Platform capability map
 
@@ -81,7 +81,7 @@ Those deployment models matter, but they should not drive early product complexi
 Build the enterprise platform in this order:
 
 1. lock the core model and integration boundaries
-2. prove the country-pack contract with Kenya
+2. prove the country-pack contract with the first active pack
 3. stabilize verification, eligibility, audit, and reconciliation
 4. add adjacent integration services where the core needs them
 5. expand into provider, patient, analytics, and partner-facing products
@@ -91,14 +91,14 @@ Build the enterprise platform in this order:
 
 For current implementation work, the important point is:
 
-- Kenya is the first reference pack
+- the current first active pack is Kenya
 - Medplum remains the clinical core
 - external services can exist around it
 - the broader platform should grow by adding layers around the core, not by stuffing every concern into the Medplum repo
 
 ## What not to do
 
-- do not treat Kenya as the shape of the whole platform
+- do not treat the first active pack as the shape of the whole platform
 - do not collapse gateway or connector logic into Medplum core
 - do not let analytics or AI requirements distort the canonical model early
 - do not add broad enterprise modules before verification and exchange workflows are stable

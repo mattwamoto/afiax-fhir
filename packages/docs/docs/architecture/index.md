@@ -11,9 +11,9 @@ Read it from the perspective of implementation:
 - what Medplum is responsible for
 - what country packs are responsible for
 - what should stay in adjacent services
-- how Kenya fits into the wider platform
+- how the active country pack fits into the wider platform
 
-The platform starts with Kenya, but Kenya is the first reference pack, not the definition of the whole system.
+The current first active pack is Kenya, but the architecture is not Kenya-shaped.
 
 ## Architecture summary
 
@@ -46,20 +46,20 @@ The current repo is focused on the clinical core and the first country-pack path
 That means:
 
 - Medplum remains the system of record for clinical and operational workflows
-- Kenya-specific logic stays behind the Kenya pack
+- country-specific logic stays behind country packs
 - settings and secrets are pack-aware in the admin UI
 - adjacent services such as gateways and Knative executors stay outside the Medplum repo
 
 ## Why the layering matters
 
-The layering is what prevents the platform from drifting into a Kenya-specific fork.
+The layering is what prevents the platform from drifting into a single-country fork.
 
 Examples:
 
-- an MFL code is a Kenya binding for `facility-authority-id`
-- DHA credentials are Kenya config, not core model fields
+- a facility authority code is a country binding for `facility-authority-id`
+- regulator credentials are country config, not core model fields
 - `Organization/$verify-facility-authority` is a generic operation name
-- the Kenya pack supplies the AfyaLink-specific implementation
+- the active pack supplies the regulator-specific implementation
 
 ## Delivery models
 
@@ -72,18 +72,19 @@ The wider platform can support several operating models:
 
 Those are deployment choices around the platform. They should not distort the core model or early repo structure.
 
-## Kenya in context
+## Country-pack rollout
 
-Kenya matters because it proves the country-pack contract.
+The first active pack matters because it proves the country-pack contract.
 
 It should validate:
 
 - pack selection in project setup
-- Kenya-specific settings and secrets
+- pack-specific settings and secrets
 - generic operation dispatch into a country handler
 - normalized workflow evidence for external calls
 
-Success means the next country can be added by implementing another pack, not by rewriting core behavior.
+Today that first active pack is Kenya. Success means the next country can be added by implementing another pack, not by
+rewriting core behavior.
 
 ## Read these next
 

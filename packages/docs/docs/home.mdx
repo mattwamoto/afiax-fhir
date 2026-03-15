@@ -22,8 +22,8 @@ import { Feature, FeatureGrid } from '@site/src/components/landing/FeatureGrid.t
     <Feature title="Country packs" linkText="Read more" linkRef="/docs/country-packs">
       Learn how national integrations are packaged without turning the core into a country-specific fork.
     </Feature>
-    <Feature title="Kenya reference pack" linkText="Read more" linkRef="/docs/country-packs/kenya">
-      Review the first country-pack implementation for registries, eligibility, SHR publishing, and claims.
+    <Feature title="Integration boundaries" linkText="Read more" linkRef="/docs/architecture/integration-boundaries">
+      See what belongs in Medplum, what belongs in country packs, and what belongs in adjacent services.
     </Feature>
     <Feature title="Developer stack" linkText="Read more" linkRef="/docs/self-hosting">
       Run the platform locally, extend it with Bots and operations, and prepare for sovereign deployment.
@@ -34,13 +34,12 @@ import { Feature, FeatureGrid } from '@site/src/components/landing/FeatureGrid.t
 ## What is Afiax?
 
 Afiax Connected Healthcare is a **pan-African digital health platform** being built on a Medplum-derived,
-FHIR-native clinical core. Kenya is the first country implementation, but the platform itself is broader than the Kenya
-pack.
+FHIR-native clinical core.
 
 Afiax combines:
 
 - **Clinical core**: canonical FHIR resources, access control, subscriptions, Bots, operations, and shared domain services
-- **Digital service layers**: provider workflows, patient engagement, telemedicine, analytics, and partner APIs
+- **Digital service layers**: provider workflows, patient engagement, telehealth, analytics, remote care, and partner APIs
 - **Country packs**: national terminology, registries, payer rails, claims, and exchange connectors
 - **Tenant overlays**: customer-specific configuration, workflow toggles, and deployment choices
 - **Delivery models**: SaaS, managed PaaS, and infrastructure patterns aligned to local sovereignty and scale needs
@@ -49,7 +48,8 @@ Afiax combines:
 
 - Cloud-based electronic health record and clinical operations foundation
 - Interoperability and national exchange services built on HL7/FHIR
-- Telemedicine and remote-care enablement
+- Telemedicine, remote-care, and patient engagement services
+- Financial and administrative enablement around the clinical core
 - Analytics and AI-driven decision support
 - Developer and partner platform capabilities via APIs, Bots, and country-pack contracts
 - Shared SaaS, dedicated runtime, and managed deployment options depending on market and customer needs
@@ -59,7 +59,7 @@ Afiax combines:
 1. Start with the [architecture overview](/docs/architecture) for the broad Afiax platform model.
 2. Use the [enterprise platform](/docs/architecture/enterprise-platform) and [canonical FHIR model](/docs/architecture/canonical-model) docs to define the shared core.
 3. Open [country packs](/docs/country-packs) when you are ready to localize the platform for a market.
-4. Use the [Kenya reference pack](/docs/country-packs/kenya) as the first implementation of that model.
+4. Use the active pack docs under [country packs](/docs/country-packs) when you need country-specific implementation details.
 5. Use [Bots](/docs/bots), [FHIR operations](/docs/api/fhir/operations), and the [FHIR datastore](/docs/fhir-datastore) to deliver auditable workflows.
 
 ## Core principles
@@ -70,11 +70,10 @@ Afiax combines:
 - Sovereign deployment for identifiable clinical data
 - Audit, provenance, and reconciliation before production go-live
 
-## Why Kenya appears in the docs
+## Country-pack note
 
-Kenya is documented because it is the **first reference country pack**, not because it defines the whole Afiax
-platform. The shared core, SDK contracts, deployment models, and operating principles are intended to support
-additional African markets without rewriting the platform.
+The general docs stay pan-African in scope. Country-specific implementation details live under the relevant
+country-pack docs, with Kenya documented as the current first active pack.
 
 ## Building blocks
 

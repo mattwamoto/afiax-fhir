@@ -77,9 +77,9 @@ Project.setting.countryPack=<pack-id>
 Example:
 
 ```text
-Project.setting.countryPack=kenya
-Project.setting.kenyaAfyaLinkEnvironment=uat
-Project.setting.kenyaAfyaLinkCredentialMode=tenant-managed
+Project.setting.countryPack=<pack-id>
+Project.setting.<packPrefix>Environment=uat
+Project.setting.<packPrefix>CredentialMode=tenant-managed
 ```
 
 ### Settings contract
@@ -95,8 +95,8 @@ Use `Project.setting` for non-secret configuration only:
 Pack-specific settings should be namespaced by pack, for example:
 
 ```text
-kenyaAfyaLinkEnvironment
-kenyaAfyaLinkCredentialMode
+<packPrefix>Environment
+<packPrefix>CredentialMode
 ```
 
 ### Secrets contract
@@ -106,9 +106,9 @@ Use `Project.secret` for tenant-managed credentials and `Project.systemSecret` f
 Secret names should also be namespaced by pack:
 
 ```text
-kenyaAfyaLinkConsumerKey
-kenyaAfyaLinkUsername
-kenyaAfyaLinkPassword
+<packPrefix>ConsumerKey
+<packPrefix>Username
+<packPrefix>Password
 ```
 
 Do not put credentials in `Project.setting`.
@@ -225,8 +225,8 @@ Do not treat a pack as production-ready until all of these are true:
 
 ## Reference implementation
 
-Kenya is the first live pack in this repo. Use it as the reference when adding the next country, but keep the SDK
-generic.
+Kenya is the first live pack in this repo. Use it as the reference for the extension pattern, but keep the SDK itself
+generic. Concrete Kenya settings and connector names belong in the Kenya docs.
 
 ## Related docs
 

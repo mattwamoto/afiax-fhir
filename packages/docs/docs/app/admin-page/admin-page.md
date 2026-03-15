@@ -33,11 +33,11 @@ Shows project [`Bot`](/docs/api/fhir/medplum/bot) resources and creation flows.
 
 Use `Settings` for non-secret project configuration.
 
-Current country-pack fields:
+Current country-pack-related fields are generic:
 
 - `Country Pack`
-- `DHA Environment`
-- `Credential Mode`
+- environment selection when a pack needs it
+- credential ownership mode when a pack supports tenant-managed or platform-managed access
 
 The advanced editor remains available for additional `Project.setting` values.
 
@@ -45,31 +45,30 @@ The advanced editor remains available for additional `Project.setting` values.
 
 This is the setup checklist page for country-specific workflows.
 
-For Kenya, it shows:
+It shows:
 
 - selected pack
-- DHA environment
-- credential mode
-- tenant-secret completeness
-- next actions
+- pack-specific non-secret config state
+- credential ownership state
+- secret completeness when relevant
+- next actions for setup
+
+Pack-specific behavior belongs in the relevant country-pack docs.
 
 ## Secrets
 
 Use `Secrets` for project-scoped credentials and other sensitive values. See [Project Secrets docs](/docs/access/projects#project-secrets).
 
-For Kenya in `Tenant-managed` mode, this page exposes curated DHA inputs:
-
-- `kenyaAfyaLinkConsumerKey`
-- `kenyaAfyaLinkUsername`
-- `kenyaAfyaLinkPassword`
-
-The page also provides `Test Connection`, which validates the current DHA auth settings before save.
+When a country pack supports curated credential forms, this page can expose pack-specific secret fields and connection
+validation actions.
 
 Config split:
 
 - `Settings` owns non-secret country-pack config
 - `Secrets` owns tenant-managed credentials
-- `Super Admin` owns Afiax-managed Kenya credentials in `Project.systemSecret`
+- `Super Admin` owns Afiax-managed credentials in `Project.systemSecret`
+
+For concrete Kenya settings, secrets, and connection behavior, see the [Kenya reference pack](/docs/country-packs/kenya).
 
 ## Sites
 
