@@ -92,6 +92,6 @@ surfaces while Afiax Billing implementation code and ERPNext customization remai
 
 - [Billing docs](/docs/billing)
 - [Canonical FHIR model](/docs/architecture/canonical-model)
-- [Afiax FHIR and Afiax Billing boundary](/docs/architecture/erpnext-boundary)
+- [Afiax FHIR and Afiax Billing boundary](/docs/architecture/afiax-billing-boundary)
 - [Country packs](/docs/country-packs)
 - [Kenya reference pack](/docs/country-packs/kenya)

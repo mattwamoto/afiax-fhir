@@ -94,8 +94,8 @@ Use the rest of the architecture docs by question:
   [Enterprise platform](./enterprise-platform)
 - if you need to know what stays in or out of Afiax FHIR:
   [Afiax FHIR integration boundaries](./integration-boundaries)
-- if you need the ERP, billing, pharmacy, and workforce boundary:
-  [Afiax FHIR and ERPNext boundary](./erpnext-boundary)
+- if you need the Afiax Billing, pharmacy, and workforce boundary:
+  [Afiax FHIR and Afiax Billing boundary](./afiax-billing-boundary)
 - if you need the shared data contract:
   [Canonical FHIR model](./canonical-model)
 - if you need the country-pack model:

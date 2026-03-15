@@ -48,4 +48,4 @@ workflow, not by a fixed single-country claims form.
 
 - [Billing overview](/docs/billing)
 - [Afiax Billing and Revenue Operations](/products/billing)
-- [Afiax FHIR and Afiax Billing boundary](/docs/architecture/erpnext-boundary)
+- [Afiax FHIR and Afiax Billing boundary](/docs/architecture/afiax-billing-boundary)
