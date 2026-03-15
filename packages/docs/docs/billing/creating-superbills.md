@@ -2,15 +2,44 @@
 sidebar_position: 5
 ---
 
-# Creating Superbills
+# Afiax Billing Statements and Reconciliation
 
-Medplum supports customizable creation of superbills. 
+Afiax Billing statements and reconciliation artifacts give finance and operations teams a stable view of what has been
+charged, collected, settled, or left outstanding.
 
-This guide is reference material for superbill generation. It is helpful for out-of-network or cash-pay workflows, but
-it is not the default Afiax Billing workflow under Afiax Enterprise.
+These records are derived from the canonical billing state in Afiax FHIR and the operational finance state in Afiax
+Billing.
 
-A superbill is a detailed form used by healthcare providers that outlines the services provided to a patient. It is typically given to patients after their medical appointments so they can submit it to their insurance companies for reimbursement.  Superbills are important in settings where the provider does not directly bill the insurance company, such as in many out-of-network situations or when services are provided by a provider who operates on a cash-only basis.
+## Statement and reconciliation capabilities
 
-Similar to the generation of the [CMS 1500](/docs/billing/creating-cms1500) the Superbill is typically generated when an encounter is finished.  The recommended implementaiton pattern is to create a Superbill as PDF and attaches it to a `Claim` resource.
+Afiax Enterprise supports:
 
-Superbills are typically not synchronized to external systems, but are sent to payors via patients or directly as a bill for out of network services.
+- patient-facing billing statements
+- receivable review and outstanding balance tracking
+- payment allocation and settlement review
+- claim-to-cash reconciliation
+- cash-pay and self-pay operational follow-up
+
+## Workflow
+
+1. Afiax FHIR records the care, claim, and reimbursement state.
+2. Afiax Billing records invoice, collection, and settlement activity.
+3. Integration services correlate the clinical and finance records using stable identifiers and workflow references.
+4. Reconciliation status is written back into Afiax FHIR where it affects the reimbursement and care workflow.
+
+## Source records
+
+The statement and reconciliation workflow uses:
+
+- [`Account`](/docs/api/fhir/resources/account)
+- [`ChargeItem`](/docs/api/fhir/resources/chargeitem)
+- [`Claim`](/docs/api/fhir/resources/claim)
+- [`ClaimResponse`](/docs/api/fhir/resources/claimresponse)
+- [`Invoice`](/docs/api/fhir/resources/invoice)
+- [`PaymentReconciliation`](/docs/api/fhir/resources/paymentreconciliation)
+
+## Related docs
+
+- [Billing overview](/docs/billing)
+- [Afiax Billing settlement exports](/docs/billing/creating-cms1500)
+- [Afiax Billing and Revenue Operations](/products/billing)

@@ -4,7 +4,7 @@ sidebar_position: 4
 
 # Afiax FHIR and Afiax Billing Boundary
 
-This page defines how Afiax FHIR should integrate with Afiax Billing.
+This page defines how Afiax FHIR integrates with Afiax Billing.
 
 Use it when you need to decide whether a billing, pharmacy, CRM, HR, or training feature belongs in this repo or in
 an external enterprise system.
@@ -18,8 +18,8 @@ Afiax Billing is the ERPNext-based enterprise billing and operations surface und
 It remains the system of record for finance, business operations, workforce administration, and learning
 administration.
 
-The two systems should integrate through APIs and events. They should not share a database or silently overwrite each
-other's domain state.
+The two systems integrate through APIs and events. They do not share a database or silently overwrite each other's
+domain state.
 
 ## Why the split matters
 
@@ -95,12 +95,12 @@ Implementation rule:
 
 Implementation rule:
 
-- Afiax FHIR should not become the general ledger
-- Afiax Billing should not become the editable clinical record
+- Afiax FHIR does not become the general ledger
+- Afiax Billing does not become the editable clinical record
 
 ## Kenya-specific rule
 
-Kenya SHA claim submission should stay in the Kenya country pack.
+Kenya SHA claim submission remains in the Kenya country pack.
 
 That means:
 
@@ -124,7 +124,7 @@ Recommended flow:
 
 ## Recommended deployment shape
 
-Afiax Billing should remain outside this repo.
+Afiax Billing remains outside this repo.
 
 Recommended shape:
 

@@ -6,7 +6,8 @@ This guide explains how to model your FHIR resources for the Stedi integration t
 
 The Stedi integration allows you to perform insurance eligibility checks by sending a a [CoverageEligibilityRequest](/docs/api/fhir/resources/coverageeligibilityrequest) resource and receiving a [CoverageEligibilityResponse](/docs/api/fhir/resources/coverageeligibilityresponse) resource with the benefits information. This workflow is handled by our **Insurance Eligibility Bot**. Please [contact the Medplum team](mailto:support@medplum.com) to get access to this bot.
 
-For more general information about eligibility checks, please see our [Insurance Eligibility Checks](/docs/billing/insurance-eligibility-checks) guide.
+For more general information about eligibility checks, please see our
+[Eligibility and Benefit Checks](/docs/billing/insurance-eligibility-checks) guide.
 
 ## Creating the Eligibility Check
 

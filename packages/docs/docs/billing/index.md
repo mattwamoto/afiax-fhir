@@ -4,69 +4,70 @@ sidebar_position: 1
 
 # Billing
 
-This section explains how Afiax FHIR supports billing workflows and how those workflows connect to Afiax Billing.
+Afiax Billing is the enterprise billing capability inside Afiax Enterprise.
 
-Afiax Billing is the ERPNext-based billing and finance surface inside Afiax Enterprise. Afiax FHIR remains the
-clinical source of truth.
+It runs on an ERPNext-based operational surface and connects directly to Afiax FHIR, which remains the canonical
+clinical and reimbursement source of truth.
 
-The core workflow is:
+## Billing workflow
 
-1. clinical care and billable events are recorded in Afiax FHIR
-2. payer context is represented in resources such as `Coverage`, `ChargeItem`, `Claim`, and `ClaimResponse`
-3. country packs handle eligibility, claims, and regulator-specific reimbursement flows
-4. Afiax Billing receives invoice, receivable, collection, and finance workflows through integration services
-5. payment and settlement results that matter to care are synchronized back into Afiax FHIR
+The billing workflow in Afiax Enterprise follows a single pattern:
 
-For billing insurance, the [`Coverage`](/docs/api/fhir/resources/coverage) resource is critical for representing a
-patient's payer context. Refer to our [Patient Insurance](/docs/billing/patient-insurance) guide for more information
-on properly storing coverage information.
+1. Afiax FHIR records the care event.
+2. Afiax FHIR stores payer context in resources such as `Coverage`, `ChargeItem`, `Account`, `Claim`, and
+   `ClaimResponse`.
+3. Country packs execute eligibility checks, national reimbursement workflows, and regulator-specific claim submission.
+4. Afiax Billing receives invoice, receivable, payment, reconciliation, and finance workflows through integration
+   services.
+5. Settlement outcomes, claim outcomes, and payment statuses that affect care or reimbursement are synchronized back
+   into Afiax FHIR.
 
-## What this section covers
+## Platform capabilities
 
-This section mixes two kinds of material:
+This billing integration offers:
 
-- Afiax FHIR billing primitives and workflow patterns
-- inherited reference guides for specific billing formats and markets
+- canonical payer and coverage context in Afiax FHIR
+- country-pack eligibility and reimbursement flows
+- invoice and receivable management in Afiax Billing
+- payment posting and reconciliation in Afiax Billing
+- normalized payment and claim outcome sync back into Afiax FHIR
+- pharmacy, CRM, HR, and training adjacency through the same enterprise billing and operations surface
 
-Use the FHIR resources and workflow guidance as the default implementation path. Treat market-specific exports such as
-CMS 1500 and superbills as reference material, not the default Afiax Enterprise billing model.
+## System ownership
 
-## Coding
-
-For resources to be billed appropriately, they often need to be tagged with CPT codes, LOINC, SNOMED, or other
-terminologies. To accomplish this, resources are often tagged with a
-[Codeable Concept](/docs/fhir-basics#standardizing-data-codeable-concepts). Coding will be determined by the service
-provided.
-
-Through automation and integration, more complex scenarios such as determining authorization, checking whether
-insurance is active, or synchronizing to Afiax Billing can be automated via Bots and integration services.
-
-## Workflow boundary
-
-Afiax FHIR should own:
+Afiax FHIR owns:
 
 - billable clinical events
 - payer and coverage context
-- claim and reimbursement workflow state
-- country-pack claim submission where required
+- reimbursement workflow state
+- country-pack claim submission
+- audit and provenance for billing-related clinical workflows
 
-Afiax Billing should own:
+Afiax Billing owns:
 
 - invoices and receivables
-- payment posting and collection
+- collections and payment posting
 - finance reconciliation and reporting
-- adjacent ERP workflows such as pharmacy inventory, CRM, HR, and training when deployed in the same ERPNext runtime
+- enterprise operations around the billing flow
 
-## Reference integrations
+## Billing resources
 
-The upstream [medplum-demo-bots](https://github.com/medplum/medplum-demo-bots) repository still contains useful
-reference billing integrations. Use them as implementation examples, not as the definition of the Afiax Billing
-workflow.
+The primary Afiax FHIR resources in this flow are:
 
-- [Stripe](https://github.com/medplum/medplum/tree/main/examples/medplum-demo-bots/src/stripe-bots) shows one
-  pattern for keeping invoices and payments synchronized between a FHIR workflow and an external payment system.
-- [Candid Health](https://github.com/medplum/medplum/tree/main/examples/medplum-demo-bots/src/candid-health) shows
-  how to prepare an `Encounter` resource and associated metadata for submission.
+- [`Coverage`](/docs/api/fhir/resources/coverage)
+- [`ChargeItem`](/docs/api/fhir/resources/chargeitem)
+- [`Account`](/docs/api/fhir/resources/account)
+- [`Claim`](/docs/api/fhir/resources/claim)
+- [`ClaimResponse`](/docs/api/fhir/resources/claimresponse)
+- [`Invoice`](/docs/api/fhir/resources/invoice)
+- [`PaymentReconciliation`](/docs/api/fhir/resources/paymentreconciliation)
+
+## In this section
+
+- [Payer and coverage context](/docs/billing/patient-insurance)
+- [Eligibility and benefit checks](/docs/billing/insurance-eligibility-checks)
+- [Afiax Billing settlement exports](/docs/billing/creating-cms1500)
+- [Afiax Billing statements and reconciliation](/docs/billing/creating-superbills)
 
 ## Related docs
 
