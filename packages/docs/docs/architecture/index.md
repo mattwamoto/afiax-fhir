@@ -4,67 +4,96 @@ sidebar_position: 1
 
 # Afiax Architecture
 
-Afiax Connected Healthcare is being built as a **pan-African digital health platform** on top of a Medplum-derived
-clinical core.
+This section is the entry point for the Afiax platform architecture docs.
 
-The platform starts in Kenya, but Kenya is treated as the first country-pack implementation rather than the boundary
-of the platform itself.
+Read it from the perspective of implementation:
 
-## Platform shape
+- what Medplum is responsible for
+- what country packs are responsible for
+- what should stay in adjacent services
+- how Kenya fits into the wider platform
 
-Afiax is intentionally structured into four layers:
+The platform starts with Kenya, but Kenya is the first reference pack, not the definition of the whole system.
 
-1. **Pan-African core**  
-   A country-neutral canonical FHIR model, shared domain services, access policies, subscriptions, Bots, and internal
-   operations.
-2. **Digital service layer**  
-   Provider workflows, patient-facing experiences, analytics, telemedicine, partner APIs, and administrative tooling.
-3. **Country packs**  
-   Modular overlays for national registries, payer rails, terminology, compliance, and interoperability workflows.
-4. **Tenant overlays**  
-   Customer-specific configuration, credentials, facility identifiers, workflow toggles, and deployment choices.
+## Architecture summary
 
-## Design principles
+Afiax is structured into four layers:
 
-- Keep the core model country-neutral.
-- Express national requirements in country packs, not core resource mutations.
-- Use canonical Medplum FHIR resources as the source of truth.
-- Generate exchange payloads as derived views from canonical data.
-- Prevent UI applications from calling national APIs directly.
-- Preserve traceability through `AuditEvent`, `Provenance`, normalized statuses, and correlation IDs.
+1. `Core platform`
+   Medplum-based canonical resources, access control, workflow evidence, bots, and generic operations.
+2. `Digital product layer`
+   Provider tools, patient experiences, admin workflows, analytics, and partner-facing products.
+3. `Country packs`
+   National registries, payer rails, terminology, mappings, connector logic, and compliance artifacts.
+4. `Tenant overlays`
+   Customer-specific settings, credentials, rollout choices, and deployment-specific defaults.
 
-## Broader Afiax platform intent
+## Working rules
 
-The Afiax platform is meant to support:
+These rules drive the implementation:
 
-- cloud-based clinical record management
-- interoperability across public and private health ecosystems
-- telemedicine and remote-care workflows
-- analytics and AI-driven decision support
-- developer and partner extensibility through platform APIs and contracts
-- multiple delivery models, from shared SaaS to managed sovereign deployments
+- keep the core model country-neutral
+- use canonical FHIR resources as the editable source of truth
+- express national requirements through country packs
+- keep exchange payloads as derived artifacts, not primary records
+- prevent browser and mobile UI from calling national APIs directly
+- preserve workflow evidence through `Task`, `AuditEvent`, `Provenance`, and normalized statuses
+
+## Current implementation direction
+
+The current repo is focused on the clinical core and the first country-pack path.
+
+That means:
+
+- Medplum remains the system of record for clinical and operational workflows
+- Kenya-specific logic stays behind the Kenya pack
+- settings and secrets are pack-aware in the admin UI
+- adjacent services such as gateways and Knative executors stay outside the Medplum repo
+
+## Why the layering matters
+
+The layering is what prevents the platform from drifting into a Kenya-specific fork.
+
+Examples:
+
+- an MFL code is a Kenya binding for `facility-authority-id`
+- DHA credentials are Kenya config, not core model fields
+- `Organization/$verify-facility-authority` is a generic operation name
+- the Kenya pack supplies the AfyaLink-specific implementation
 
 ## Delivery models
 
-The architecture is designed to support several operating models:
+The wider platform can support several operating models:
 
-- **Shared SaaS** for organizations that can share infrastructure with project-level isolation
-- **Dedicated SaaS** for customers requiring isolated runtime boundaries
-- **Managed PaaS** for customers that want Afiax to operate the platform inside their cloud footprint
-- **Sovereign deployments** where identifiable clinical workflows and storage remain in-country
+- `Shared SaaS`
+- `Dedicated SaaS`
+- `Managed PaaS`
+- `Sovereign deployment`
+
+Those are deployment choices around the platform. They should not distort the core model or early repo structure.
 
 ## Kenya in context
 
-Kenya remains important, but it sits under the country-pack model:
+Kenya matters because it proves the country-pack contract.
 
-- Kenya is the **first reference pack**
-- its registries, payer rails, and exchange rules belong in the Kenya pack
-- the core architecture should remain reusable for future East African and broader African markets
-- expansion should be achieved by adding packs and overlays, not by rewriting the core
+It should validate:
 
-## Next documents
+- pack selection in project setup
+- Kenya-specific settings and secrets
+- generic operation dispatch into a country handler
+- normalized workflow evidence for external calls
 
-- [Enterprise platform](./enterprise-platform)
-- [Medplum integration boundaries](./integration-boundaries)
-- [Canonical FHIR model](./canonical-model)
-- [Country packs](../country-packs)
+Success means the next country can be added by implementing another pack, not by rewriting core behavior.
+
+## Read these next
+
+Use the rest of the architecture docs by question:
+
+- if you need the broader platform shape:
+  [Enterprise platform](./enterprise-platform)
+- if you need to know what stays in or out of Medplum:
+  [Medplum integration boundaries](./integration-boundaries)
+- if you need the shared data contract:
+  [Canonical FHIR model](./canonical-model)
+- if you need the country-pack model:
+  [Country packs](../country-packs)
