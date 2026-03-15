@@ -110,6 +110,7 @@ Afiax FHIR should still own:
 Use the dedicated boundary doc for that split:
 
 - [Afiax FHIR and Afiax Billing boundary](./afiax-billing-boundary)
+- [Afiax FHIR and Afiax Billing contract](./afiax-billing-contract)
 
 ## Where Knative and gateways fit
 
@@ -157,4 +158,5 @@ Current application of these rules:
 - [Enterprise platform](./enterprise-platform)
 - [Canonical FHIR model](./canonical-model)
 - [Afiax FHIR and Afiax Billing boundary](./afiax-billing-boundary)
+- [Afiax FHIR and Afiax Billing contract](./afiax-billing-contract)
 - [Country packs](../country-packs)

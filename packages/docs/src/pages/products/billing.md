@@ -17,7 +17,7 @@ Revenue cycle in Afiax Enterprise offers:
 
 ## Afiax Enterprise workflow
 
-The intended workflow is:
+The workflow follows this path:
 
 1. care is documented in Afiax FHIR
 2. payer context, coverage, and billable events are captured in canonical FHIR resources
@@ -93,5 +93,6 @@ surfaces while Afiax Billing implementation code and ERPNext customization remai
 - [Billing docs](/docs/billing)
 - [Canonical FHIR model](/docs/architecture/canonical-model)
 - [Afiax FHIR and Afiax Billing boundary](/docs/architecture/afiax-billing-boundary)
+- [Afiax FHIR and Afiax Billing contract](/docs/architecture/afiax-billing-contract)
 - [Country packs](/docs/country-packs)
 - [Kenya reference pack](/docs/country-packs/kenya)

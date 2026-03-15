@@ -112,7 +112,7 @@ Do not move Kenya claim packaging into Afiax Billing.
 
 ## Integration pattern
 
-Recommended flow:
+Integration flow:
 
 1. Care is documented in Afiax FHIR.
 2. Afiax FHIR creates or updates financial workflow resources such as `ChargeItem`, `Account`, `Coverage`, `Claim`,
@@ -172,5 +172,6 @@ Recommended shape:
 - [Architecture overview](./index)
 - [Enterprise platform](./enterprise-platform)
 - [Integration boundaries](./integration-boundaries)
+- [Afiax FHIR and Afiax Billing contract](./afiax-billing-contract)
 - [Canonical FHIR model](./canonical-model)
 - [Revenue cycle and payer operations](/products/billing)

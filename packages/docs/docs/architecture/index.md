@@ -96,6 +96,8 @@ Use the rest of the architecture docs by question:
   [Afiax FHIR integration boundaries](./integration-boundaries)
 - if you need the Afiax Billing, pharmacy, and workforce boundary:
   [Afiax FHIR and Afiax Billing boundary](./afiax-billing-boundary)
+- if you need the concrete billing, payment, and pharmacy event contract:
+  [Afiax FHIR and Afiax Billing contract](./afiax-billing-contract)
 - if you need the shared data contract:
   [Canonical FHIR model](./canonical-model)
 - if you need the country-pack model:
