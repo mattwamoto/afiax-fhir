@@ -112,6 +112,7 @@ Use the dedicated boundary doc for that split:
 - [Afiax FHIR and Afiax Billing boundary](./afiax-billing-boundary)
 - [Afiax FHIR and Afiax Billing contract](./afiax-billing-contract)
 - [Afiax FHIR and Afiax Billing object mapping](./afiax-billing-object-mapping)
+- [Afiax FHIR and Afiax Billing status model](./afiax-billing-status-model)
 
 ## Where Knative and gateways fit
 
@@ -161,4 +162,5 @@ Current application of these rules:
 - [Afiax FHIR and Afiax Billing boundary](./afiax-billing-boundary)
 - [Afiax FHIR and Afiax Billing contract](./afiax-billing-contract)
 - [Afiax FHIR and Afiax Billing object mapping](./afiax-billing-object-mapping)
+- [Afiax FHIR and Afiax Billing status model](./afiax-billing-status-model)
 - [Country packs](../country-packs)

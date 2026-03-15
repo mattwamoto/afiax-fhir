@@ -114,6 +114,7 @@ For current implementation work, the important point is:
 - [Afiax FHIR and Afiax Billing boundary](./afiax-billing-boundary)
 - [Afiax FHIR and Afiax Billing contract](./afiax-billing-contract)
 - [Afiax FHIR and Afiax Billing object mapping](./afiax-billing-object-mapping)
+- [Afiax FHIR and Afiax Billing status model](./afiax-billing-status-model)
 - [Canonical FHIR model](./canonical-model)
 - [Country packs](../country-packs)
 - [Afiax website](https://www.afiax.africa)

@@ -124,4 +124,5 @@ This mapping model offers:
 
 - [Afiax FHIR and Afiax Billing boundary](./afiax-billing-boundary)
 - [Afiax FHIR and Afiax Billing contract](./afiax-billing-contract)
+- [Afiax FHIR and Afiax Billing status model](./afiax-billing-status-model)
 - [Billing](/docs/billing)
