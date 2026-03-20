@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { OperationOutcomeError } from '@medplum/core';
 import { getReferenceString } from '@medplum/core';
-import type { Bot, Practitioner, Questionnaire, Subscription, ValueSet } from '@medplum/fhirtypes';
+import type { Bot, Organization, Practitioner, Project, Questionnaire, Subscription, ValueSet } from '@medplum/fhirtypes';
 import { MockClient } from '@medplum/mock';
 import { act, fireEvent, renderAppRoutes, screen, userEvent } from '../test-utils/render';
 
@@ -99,6 +99,45 @@ describe('ResourcePage', () => {
 
     await setup(`/ValueSet/${valueSet.id}`, medplum);
     expect(await screen.findByText('Preview')).toBeInTheDocument();
+  });
+
+  test('Organization verification panel runs Kenya facility verification', async () => {
+    const medplum = new MockClient();
+    const organization = await medplum.createResource<Organization>({
+      resourceType: 'Organization',
+      name: 'Test Kenya Facility',
+      identifier: [{ system: 'https://afiax.africa/kenya/identifier/mfl-code', value: '24749' }],
+    });
+
+    jest.spyOn(medplum, 'getProject').mockReturnValue({
+      resourceType: 'Project',
+      id: 'project-123',
+      setting: [{ name: 'countryPack', valueString: 'kenya' }],
+    } as Project);
+
+    const postSpy = jest.spyOn(medplum, 'post').mockResolvedValue({
+      resourceType: 'Parameters',
+      parameter: [
+        { name: 'status', valueCode: 'verified' },
+        { name: 'message', valueString: 'Facility verified in Kenya HIE' },
+        { name: 'nextState', valueString: 'ready-for-registry-check' },
+        { name: 'correlationId', valueString: 'corr-123' },
+        { name: 'facilityAuthorityIdentifier', valueString: '24749' },
+        { name: 'task', valueReference: { reference: 'Task/task-123' } },
+      ],
+    });
+
+    await setup(`/Organization/${organization.id}`, medplum);
+    expect(await screen.findByText('Verify Facility')).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Verify Facility'));
+    });
+
+    expect(postSpy).toHaveBeenCalledWith(medplum.fhirUrl('Organization', organization.id as string, '$verify-facility-authority'));
+    expect(await screen.findByText('verified')).toBeInTheDocument();
+    expect(screen.getByText('Facility verified in Kenya HIE')).toBeInTheDocument();
+    expect(screen.getByText('Task/task-123')).toBeInTheDocument();
   });
 
   test('Questionnaire bots -- create only (default)', async () => {
