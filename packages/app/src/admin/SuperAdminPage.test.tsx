@@ -112,19 +112,9 @@ describe('SuperAdminPage', () => {
     setup();
 
     await act(async () => {
-      fireEvent.change(screen.getByPlaceholderText('Search Kenya project'), { target: { value: 'Afiax' } });
-    });
-
-    await act(async () => {
-      jest.advanceTimersByTime(1000);
-    });
-
-    await act(async () => {
-      fireEvent.keyDown(screen.getByPlaceholderText('Search Kenya project'), { key: 'ArrowDown', code: 'ArrowDown' });
-    });
-
-    await act(async () => {
-      fireEvent.keyDown(screen.getByPlaceholderText('Search Kenya project'), { key: 'Enter', code: 'Enter' });
+      fireEvent.change(screen.getByTestId('afiax-managed-project-id'), {
+        target: { value: 'project-123' },
+      });
     });
 
     await act(async () => {

@@ -67,7 +67,7 @@ export function SuperAdminKenyaCredentialsForm(): JSX.Element {
       setConsumerKey(getSecretValue(result.project.systemSecret, KenyaAfyaLinkSecretNames.consumerKey));
       setUsername(getSecretValue(result.project.systemSecret, KenyaAfyaLinkSecretNames.username));
       setPassword(getSecretValue(result.project.systemSecret, KenyaAfyaLinkSecretNames.password));
-      showNotification({ color: 'green', message: 'Loaded Kenya managed credentials' });
+      showNotification({ color: 'green', message: 'Loaded Kenya managed HIE credentials' });
     } catch (err) {
       showNotification({ color: 'red', message: normalizeErrorString(err), autoClose: false });
     } finally {
@@ -102,7 +102,7 @@ export function SuperAdminKenyaCredentialsForm(): JSX.Element {
       setProjectName(result.project.name);
       setEnvironment(result.kenya.environment);
       setCredentialMode(result.kenya.credentialMode);
-      showNotification({ color: 'green', message: 'Saved Afiax-managed Kenya credentials' });
+      showNotification({ color: 'green', message: 'Saved Afiax-managed Kenya HIE credentials' });
     } catch (err) {
       showNotification({ color: 'red', message: normalizeErrorString(err), autoClose: false });
     } finally {
@@ -124,7 +124,7 @@ export function SuperAdminKenyaCredentialsForm(): JSX.Element {
       )) as { message?: string };
       showNotification({
         color: 'green',
-        message: result.message ?? 'Afiax-managed Kenya AfyaLink authentication succeeded',
+        message: result.message ?? 'Afiax-managed Kenya HIE authentication succeeded',
       });
     } catch (err) {
       showNotification({ color: 'red', message: normalizeErrorString(err), autoClose: false });
@@ -135,9 +135,9 @@ export function SuperAdminKenyaCredentialsForm(): JSX.Element {
 
   return (
     <Stack>
-      <Title order={2}>Afiax-Managed Kenya DHA Credentials</Title>
+      <Title order={2}>Afiax-Managed Kenya HIE Credentials</Title>
       <Text>
-        Use this super-admin form to manage Kenya DHA credentials in <code>Project.systemSecret</code>. This is the
+        Use this super-admin form to manage Kenya HIE credentials in <code>Project.systemSecret</code>. This is the
         platform-ops path for projects configured to use Afiax-managed credentials.
       </Text>
       <ReferenceInput<Project>
@@ -166,7 +166,7 @@ export function SuperAdminKenyaCredentialsForm(): JSX.Element {
           Load Project
         </Button>
         <Button variant="light" onClick={() => testProjectSecrets().catch(console.log)} loading={testing}>
-          Test Connection
+          Test HIE Connection
         </Button>
         <Button onClick={() => saveProjectSecrets().catch(console.log)} loading={saving}>
           Save Managed Credentials
@@ -189,39 +189,39 @@ export function SuperAdminKenyaCredentialsForm(): JSX.Element {
       )}
       {credentialMode === 'tenant-managed' && (
         <Text size="sm" c="dimmed">
-          This project is currently set to Tenant-managed mode. Saving Afiax-managed credentials here will stage them,
-          but the project will not use them until its Kenya settings are switched to Afiax-managed.
+          This project is currently set to Tenant-managed mode. Saving Afiax-managed HIE credentials here will stage
+          them, but the project will not use them until its Kenya settings are switched to Afiax-managed.
         </Text>
       )}
       <TextInput
-        label="Base URL Override"
-        description="Optional. Leave blank to use the platform-derived DHA endpoint for the selected environment."
+        label="HIE Base URL Override"
+        description="Optional. Leave blank to use the platform-derived Kenya HIE endpoint for the selected environment."
         placeholder="https://production.dha.example"
         value={baseUrlOverride}
         onChange={(event) => setBaseUrlOverride(event.currentTarget.value)}
         data-testid="afiax-managed-base-url"
       />
       <TextInput
-        label="AfyaLink Consumer Key"
+        label="Kenya HIE Consumer Key"
         value={consumerKey}
         onChange={(event) => setConsumerKey(event.currentTarget.value)}
         data-testid="afiax-managed-consumer-key"
       />
       <TextInput
-        label="AfyaLink Username"
+        label="Kenya HIE Username"
         value={username}
         onChange={(event) => setUsername(event.currentTarget.value)}
         data-testid="afiax-managed-username"
       />
       <PasswordInput
-        label="AfyaLink Password"
+        label="Kenya HIE Password"
         value={password}
         onChange={(event) => setPassword(event.currentTarget.value)}
         data-testid="afiax-managed-password"
       />
       <Text size="sm" c="dimmed">
-        Saving updates only the Kenya DHA credentials in <code>Project.systemSecret</code>. Other system secrets for the
-        project are preserved.
+        Saving updates only the Kenya HIE credentials in <code>Project.systemSecret</code>. Other system secrets for
+        the project are preserved.
       </Text>
     </Stack>
   );

@@ -40,8 +40,10 @@ These settings activate Kenya behavior:
 
 ```text
 Project.setting.countryPack=kenya
-Project.setting.kenyaAfyaLinkEnvironment=uat | production
-Project.setting.kenyaAfyaLinkCredentialMode=tenant-managed | afiax-managed
+Project.setting.kenyaHieEnvironment=uat | production
+Project.setting.kenyaHieCredentialMode=tenant-managed | afiax-managed
+Project.setting.kenyaHieAgentId=<agent-id>
+Project.setting.kenyaShaClaimsEnvironment=uat | production
 ```
 
 Tenant-managed Kenya credentials currently use:
@@ -57,6 +59,12 @@ Afiax-managed Kenya credentials use the same names in `Project.systemSecret`.
 The DHA endpoint is derived from environment and platform configuration. Normal tenant setup does not require a typed
 base URL.
 
+The Kenya HIE environment covers auth, facility registry, practitioner registry, eligibility, and client-registry
+operations.
+
+The Kenya SHA claims environment is separate because DHA publishes different endpoint families for claim submission
+surfaces.
+
 ## Current implementation in this repo
 
 Implemented now:
@@ -64,8 +72,8 @@ Implemented now:
 - country-pack selection during project creation
 - country-pack selection in `/admin/settings`
 - project setup checklist in `/admin/country-pack`
-- tenant-managed DHA credentials in `/admin/secrets`
-- Afiax-managed DHA credentials in `/admin/super`
+- tenant-managed HIE credentials in `/admin/secrets`
+- Afiax-managed HIE credentials in `/admin/super`
 - generic `Organization/$verify-facility-authority`
 - Kenya-specific AfyaLink auth and facility search
 - verification `Task` and `AuditEvent` creation
@@ -88,7 +96,7 @@ Only `$verify-facility-authority` has an implemented Kenya connector path today.
 Current path for `Organization/$verify-facility-authority`:
 
 1. Resolve the active project.
-2. Read `countryPack`, DHA environment, and credential mode from `Project.setting`.
+2. Read `countryPack`, Kenya HIE environment, and HIE credential mode from `Project.setting`.
 3. Load credentials from `Project.secret` or `Project.systemSecret`.
 4. Authenticate against AfyaLink.
 5. Call facility search with `facility_code`.
@@ -103,15 +111,17 @@ For a Kenya project:
 
 - `/admin/settings`
   - selects `Kenya`
-  - sets DHA environment
-  - sets credential mode
+  - sets Kenya HIE environment
+  - sets Kenya SHA claims environment
+  - sets HIE credential mode
+  - sets Kenya HIE agent ID
 - `/admin/country-pack`
   - shows setup status and next steps
 - `/admin/secrets`
-  - stores tenant-managed DHA credentials
-  - supports `Test Connection`
+  - stores tenant-managed HIE credentials
+  - supports `Test HIE Connection`
 - `/admin/super`
-  - stores Afiax-managed DHA credentials in `Project.systemSecret`
+  - stores Afiax-managed HIE credentials in `Project.systemSecret`
 
 ## Guardrails
 

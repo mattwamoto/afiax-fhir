@@ -57,12 +57,26 @@ describe('SettingsPage', () => {
     });
 
     await act(async () => {
-      fireEvent.change(screen.getByLabelText('DHA Environment', { exact: false }), { target: { value: 'uat' } });
+      fireEvent.change(screen.getByLabelText('Kenya HIE Environment', { exact: false }), {
+        target: { value: 'uat' },
+      });
     });
 
     await act(async () => {
-      fireEvent.change(screen.getByLabelText('Credential Mode', { exact: false }), {
+      fireEvent.change(screen.getByLabelText('HIE Credential Mode', { exact: false }), {
         target: { value: 'afiax-managed' },
+      });
+    });
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Kenya SHA Claims Environment', { exact: false }), {
+        target: { value: 'production' },
+      });
+    });
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Kenya HIE Agent ID', { exact: false }), {
+        target: { value: 'agent-001' },
       });
     });
 
@@ -75,8 +89,10 @@ describe('SettingsPage', () => {
       'admin/projects/123/settings',
       expect.arrayContaining([
         expect.objectContaining({ name: 'countryPack', valueString: 'kenya' }),
-        expect.objectContaining({ name: 'kenyaAfyaLinkEnvironment', valueString: 'uat' }),
-        expect.objectContaining({ name: 'kenyaAfyaLinkCredentialMode', valueString: 'afiax-managed' }),
+        expect.objectContaining({ name: 'kenyaHieEnvironment', valueString: 'uat' }),
+        expect.objectContaining({ name: 'kenyaHieCredentialMode', valueString: 'afiax-managed' }),
+        expect.objectContaining({ name: 'kenyaShaClaimsEnvironment', valueString: 'production' }),
+        expect.objectContaining({ name: 'kenyaHieAgentId', valueString: 'agent-001' }),
       ])
     );
     postSpy.mockRestore();

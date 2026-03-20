@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
-import { Button, Divider, NativeSelect, Stack, Text, Title } from '@mantine/core';
+import { Button, Divider, NativeSelect, Stack, Text, TextInput, Title } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
 import type { InternalSchemaElement } from '@medplum/core';
 import {
@@ -9,8 +9,10 @@ import {
   getCountryPackCatalog,
   getCountryPackCatalogEntry,
   getElementDefinition,
-  getKenyaAfyaLinkCredentialMode,
-  getKenyaAfyaLinkEnvironment,
+  getKenyaHieAgentId,
+  getKenyaHieCredentialMode,
+  getKenyaHieEnvironment,
+  getKenyaShaClaimsEnvironment,
   getProjectSettingString,
   KenyaProjectSettingNames,
 } from '@medplum/core';
@@ -50,13 +52,17 @@ function handleSettingsChange(
   nextSettings: ProjectSetting[] | undefined,
   setSettings: (settings: ProjectSetting[] | undefined) => void,
   setSelectedCountryPack: (value: string) => void,
-  setSelectedKenyaEnvironment: (value: 'uat' | 'production') => void,
-  setSelectedKenyaCredentialMode: (value: 'tenant-managed' | 'afiax-managed') => void
+  setSelectedKenyaHieEnvironment: (value: 'uat' | 'production') => void,
+  setSelectedKenyaShaClaimsEnvironment: (value: 'uat' | 'production') => void,
+  setSelectedKenyaHieCredentialMode: (value: 'tenant-managed' | 'afiax-managed') => void,
+  setKenyaHieAgentId: (value: string) => void
 ): void {
   setSettings(nextSettings);
   setSelectedCountryPack(getProjectSettingString(nextSettings, 'countryPack') ?? '');
-  setSelectedKenyaEnvironment(getKenyaAfyaLinkEnvironment(nextSettings));
-  setSelectedKenyaCredentialMode(getKenyaAfyaLinkCredentialMode(nextSettings));
+  setSelectedKenyaHieEnvironment(getKenyaHieEnvironment(nextSettings));
+  setSelectedKenyaShaClaimsEnvironment(getKenyaShaClaimsEnvironment(nextSettings));
+  setSelectedKenyaHieCredentialMode(getKenyaHieCredentialMode(nextSettings));
+  setKenyaHieAgentId(getKenyaHieAgentId(nextSettings) ?? '');
 }
 
 export function SettingsPage(): JSX.Element {
@@ -67,10 +73,16 @@ export function SettingsPage(): JSX.Element {
   const [schemaLoaded, setSchemaLoaded] = useState<boolean>(false);
   const [settings, setSettings] = useState<ProjectSetting[] | undefined>();
   const [selectedCountryPack, setSelectedCountryPack] = useState('');
-  const [selectedKenyaEnvironment, setSelectedKenyaEnvironment] = useState<'uat' | 'production'>('uat');
-  const [selectedKenyaCredentialMode, setSelectedKenyaCredentialMode] = useState<'tenant-managed' | 'afiax-managed'>(
+  const [selectedKenyaHieEnvironment, setSelectedKenyaHieEnvironment] = useState<'uat' | 'production'>('uat');
+  const [selectedKenyaShaClaimsEnvironment, setSelectedKenyaShaClaimsEnvironment] = useState<'uat' | 'production'>(
+    'uat'
+  );
+  const [selectedKenyaHieCredentialMode, setSelectedKenyaHieCredentialMode] = useState<
+    'tenant-managed' | 'afiax-managed'
+  >(
     'tenant-managed'
   );
+  const [kenyaHieAgentId, setKenyaHieAgentId] = useState('');
 
   useEffect(() => {
     medplum
@@ -83,8 +95,10 @@ export function SettingsPage(): JSX.Element {
     const nextSettings = deepClone(projectDetails.project.setting || []);
     setSettings(nextSettings);
     setSelectedCountryPack(getProjectSettingString(nextSettings, 'countryPack') ?? '');
-    setSelectedKenyaEnvironment(getKenyaAfyaLinkEnvironment(nextSettings));
-    setSelectedKenyaCredentialMode(getKenyaAfyaLinkCredentialMode(nextSettings));
+    setSelectedKenyaHieEnvironment(getKenyaHieEnvironment(nextSettings));
+    setSelectedKenyaShaClaimsEnvironment(getKenyaShaClaimsEnvironment(nextSettings));
+    setSelectedKenyaHieCredentialMode(getKenyaHieCredentialMode(nextSettings));
+    setKenyaHieAgentId(getKenyaHieAgentId(nextSettings) ?? '');
   }, [loadedSettingsKey]);
 
   if (!schemaLoaded || settings === undefined) {
@@ -110,13 +124,33 @@ export function SettingsPage(): JSX.Element {
         let settingsToSave = setNamedProjectSettingValue(settings, 'countryPack', selectedCountryPack);
         settingsToSave = setNamedProjectSettingValue(
           settingsToSave,
+          KenyaProjectSettingNames.hieEnvironment,
+          selectedCountryPack === 'kenya' ? selectedKenyaHieEnvironment : ''
+        );
+        settingsToSave = setNamedProjectSettingValue(
+          settingsToSave,
+          KenyaProjectSettingNames.hieCredentialMode,
+          selectedCountryPack === 'kenya' ? selectedKenyaHieCredentialMode : ''
+        );
+        settingsToSave = setNamedProjectSettingValue(
+          settingsToSave,
+          KenyaProjectSettingNames.hieAgentId,
+          selectedCountryPack === 'kenya' ? kenyaHieAgentId : ''
+        );
+        settingsToSave = setNamedProjectSettingValue(
+          settingsToSave,
+          KenyaProjectSettingNames.shaClaimsEnvironment,
+          selectedCountryPack === 'kenya' ? selectedKenyaShaClaimsEnvironment : ''
+        );
+        settingsToSave = setNamedProjectSettingValue(
+          settingsToSave,
           KenyaProjectSettingNames.afyaLinkEnvironment,
-          selectedCountryPack === 'kenya' ? selectedKenyaEnvironment : ''
+          ''
         );
         settingsToSave = setNamedProjectSettingValue(
           settingsToSave,
           KenyaProjectSettingNames.afyaLinkCredentialMode,
-          selectedCountryPack === 'kenya' ? selectedKenyaCredentialMode : ''
+          ''
         );
         medplum
           .post(`admin/projects/${projectId}/settings`, settingsToSave)
@@ -159,37 +193,56 @@ export function SettingsPage(): JSX.Element {
         )}
         {selectedCountryPack === 'kenya' && (
           <>
-            <Title order={3}>Kenya DHA Access</Title>
+            <Title order={3}>Kenya DHA and SHA Access</Title>
             <Text size="sm" c="dimmed">
-              DHA environment and credential ownership are non-secret Kenya settings. The endpoint is derived from the
-              selected environment and platform configuration; project users do not need to type it.
+              Kenya registry and HIE services use the HIE environment below. Kenya SHA claim operations use the
+              separate SHA claims environment. Project admins only set the environments and HIE agent ID here.
             </Text>
             <NativeSelect
-              label="DHA Environment"
-              description="Use UAT while validating AfyaLink and switch to Production only after DHA approval."
-              value={selectedKenyaEnvironment}
+              label="Kenya HIE Environment"
+              description="Used for DHA auth, facility registry, practitioner registry, eligibility, and client registry calls."
+              value={selectedKenyaHieEnvironment}
               data={[
                 { value: 'uat', label: 'UAT' },
                 { value: 'production', label: 'Production' },
               ]}
-              onChange={(event) => setSelectedKenyaEnvironment(event.currentTarget.value as 'uat' | 'production')}
+              onChange={(event) => setSelectedKenyaHieEnvironment(event.currentTarget.value as 'uat' | 'production')}
             />
             <NativeSelect
-              label="Credential Mode"
+              label="HIE Credential Mode"
               description="Tenant-managed uses project secrets. Afiax-managed uses platform-level secrets outside the project UI."
-              value={selectedKenyaCredentialMode}
+              value={selectedKenyaHieCredentialMode}
               data={[
                 { value: 'tenant-managed', label: 'Tenant-managed' },
                 { value: 'afiax-managed', label: 'Afiax-managed' },
               ]}
               onChange={(event) =>
-                setSelectedKenyaCredentialMode(event.currentTarget.value as 'tenant-managed' | 'afiax-managed')
+                setSelectedKenyaHieCredentialMode(event.currentTarget.value as 'tenant-managed' | 'afiax-managed')
               }
             />
-            {selectedKenyaCredentialMode === 'afiax-managed' && (
+            <NativeSelect
+              label="Kenya SHA Claims Environment"
+              description="Used by Kenya claim-submission operations. Specific SHA hosts may vary by operation family, but the environment remains project-scoped."
+              value={selectedKenyaShaClaimsEnvironment}
+              data={[
+                { value: 'uat', label: 'UAT' },
+                { value: 'production', label: 'Production' },
+              ]}
+              onChange={(event) =>
+                setSelectedKenyaShaClaimsEnvironment(event.currentTarget.value as 'uat' | 'production')
+              }
+            />
+            <TextInput
+              label="Kenya HIE Agent ID"
+              description="Agent identifier used by DHA client-registry and related HIE operations. This is operational config, not a secret."
+              value={kenyaHieAgentId}
+              onChange={(event) => setKenyaHieAgentId(event.currentTarget.value)}
+              placeholder="Enter DHA HIE agent ID"
+            />
+            {selectedKenyaHieCredentialMode === 'afiax-managed' && (
               <Text size="sm">
-                Afiax-managed mode hides DHA credentials from tenant admins. The Secrets tab will show connection status
-                only and rely on platform-managed secrets.
+                Afiax-managed mode hides HIE credentials from tenant admins. The Secrets tab will show connection
+                status only and rely on platform-managed secrets.
               </Text>
             )}
           </>
@@ -211,8 +264,10 @@ export function SettingsPage(): JSX.Element {
             nextSettings,
             setSettings,
             setSelectedCountryPack,
-            setSelectedKenyaEnvironment,
-            setSelectedKenyaCredentialMode
+            setSelectedKenyaHieEnvironment,
+            setSelectedKenyaShaClaimsEnvironment,
+            setSelectedKenyaHieCredentialMode,
+            setKenyaHieAgentId
           )
         }
         outcome={undefined}

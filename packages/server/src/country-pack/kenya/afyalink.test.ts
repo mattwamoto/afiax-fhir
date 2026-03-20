@@ -39,7 +39,7 @@ describe('Kenya AfyaLink connector', () => {
     expect(
       getKenyaAfyaLinkCredentials({
         ...project,
-        setting: [{ name: 'kenyaAfyaLinkCredentialMode', valueString: 'afiax-managed' }],
+        setting: [{ name: 'kenyaHieCredentialMode', valueString: 'afiax-managed' }],
         systemSecret: [
           { name: KenyaAfyaLinkSecretNames.consumerKey, valueString: 'platform-consumer-key' },
           { name: KenyaAfyaLinkSecretNames.username, valueString: 'platform-username' },

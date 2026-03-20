@@ -8,6 +8,10 @@ import {
   getCountryPackCatalogEntry,
   getKenyaAfyaLinkCredentialMode,
   getKenyaAfyaLinkEnvironment,
+  getKenyaHieAgentId,
+  getKenyaHieCredentialMode,
+  getKenyaHieEnvironment,
+  getKenyaShaClaimsEnvironment,
   getProjectSetting,
   getProjectSettingBoolean,
   getProjectSettingString,
@@ -19,8 +23,10 @@ describe('project settings helpers', () => {
     resourceType: 'Project',
     setting: [
       { name: 'countryPack', valueString: 'kenya' },
-      { name: KenyaProjectSettingNames.afyaLinkEnvironment, valueString: 'production' },
-      { name: KenyaProjectSettingNames.afyaLinkCredentialMode, valueString: 'afiax-managed' },
+      { name: KenyaProjectSettingNames.hieEnvironment, valueString: 'production' },
+      { name: KenyaProjectSettingNames.hieCredentialMode, valueString: 'afiax-managed' },
+      { name: KenyaProjectSettingNames.hieAgentId, valueString: 'agent-001' },
+      { name: KenyaProjectSettingNames.shaClaimsEnvironment, valueString: 'uat' },
       { name: 'preCommitSubscriptionsEnabled', valueBoolean: true },
     ],
   };
@@ -69,10 +75,29 @@ describe('project settings helpers', () => {
     expect(formatCountryPackLabel(uganda!)).toBe('Uganda (Placeholder)');
   });
 
-  test('Kenya AfyaLink helpers', () => {
+  test('Kenya helpers', () => {
+    expect(getKenyaHieEnvironment(project)).toBe('production');
+    expect(getKenyaHieCredentialMode(project)).toBe('afiax-managed');
+    expect(getKenyaHieAgentId(project)).toBe('agent-001');
+    expect(getKenyaShaClaimsEnvironment(project)).toBe('uat');
     expect(getKenyaAfyaLinkEnvironment(project)).toBe('production');
     expect(getKenyaAfyaLinkCredentialMode(project)).toBe('afiax-managed');
-    expect(getKenyaAfyaLinkEnvironment(undefined)).toBe('uat');
-    expect(getKenyaAfyaLinkCredentialMode(undefined)).toBe('tenant-managed');
+    expect(getKenyaHieEnvironment(undefined)).toBe('uat');
+    expect(getKenyaHieCredentialMode(undefined)).toBe('tenant-managed');
+    expect(getKenyaShaClaimsEnvironment(undefined)).toBe('uat');
+  });
+
+  test('Kenya helpers support legacy AfyaLink setting names', () => {
+    const legacyProject: Project = {
+      resourceType: 'Project',
+      setting: [
+        { name: KenyaProjectSettingNames.afyaLinkEnvironment, valueString: 'production' },
+        { name: KenyaProjectSettingNames.afyaLinkCredentialMode, valueString: 'afiax-managed' },
+      ],
+    };
+
+    expect(getKenyaHieEnvironment(legacyProject)).toBe('production');
+    expect(getKenyaHieCredentialMode(legacyProject)).toBe('afiax-managed');
+    expect(getKenyaShaClaimsEnvironment(legacyProject)).toBe('production');
   });
 });

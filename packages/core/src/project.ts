@@ -6,8 +6,12 @@ import type { Project, ProjectSetting } from '@medplum/fhirtypes';
 export type ProjectSettingsSource = Pick<Project, 'setting'> | ProjectSetting[] | undefined;
 export type CountryPackAvailability = 'active' | 'placeholder';
 export type CountryPackRegion = 'east-africa' | 'comesa';
-export type KenyaAfyaLinkEnvironment = 'uat' | 'production';
-export type KenyaAfyaLinkCredentialMode = 'tenant-managed' | 'afiax-managed';
+export type KenyaServiceEnvironment = 'uat' | 'production';
+export type KenyaHieEnvironment = KenyaServiceEnvironment;
+export type KenyaShaClaimsEnvironment = KenyaServiceEnvironment;
+export type KenyaHieCredentialMode = 'tenant-managed' | 'afiax-managed';
+export type KenyaAfyaLinkEnvironment = KenyaHieEnvironment;
+export type KenyaAfyaLinkCredentialMode = KenyaHieCredentialMode;
 
 export interface CountryPackCatalogEntry {
   readonly id: string;
@@ -182,6 +186,10 @@ const countryPackCatalog: readonly CountryPackCatalogEntry[] = [
 ];
 
 export const KenyaProjectSettingNames = {
+  hieEnvironment: 'kenyaHieEnvironment',
+  hieCredentialMode: 'kenyaHieCredentialMode',
+  hieAgentId: 'kenyaHieAgentId',
+  shaClaimsEnvironment: 'kenyaShaClaimsEnvironment',
   afyaLinkEnvironment: 'kenyaAfyaLinkEnvironment',
   afyaLinkCredentialMode: 'kenyaAfyaLinkCredentialMode',
 } as const;
@@ -214,14 +222,42 @@ export function formatCountryPackLabel(entry: CountryPackCatalogEntry): string {
   return entry.availability === 'active' ? entry.title : `${entry.title} (Placeholder)`;
 }
 
-export function getKenyaAfyaLinkEnvironment(source: ProjectSettingsSource): KenyaAfyaLinkEnvironment {
-  return getProjectSettingString(source, KenyaProjectSettingNames.afyaLinkEnvironment) === 'production'
+export function getKenyaHieEnvironment(source: ProjectSettingsSource): KenyaHieEnvironment {
+  const value =
+    getProjectSettingString(source, KenyaProjectSettingNames.hieEnvironment) ??
+    getProjectSettingString(source, KenyaProjectSettingNames.afyaLinkEnvironment);
+  return value === 'production'
     ? 'production'
     : 'uat';
 }
 
-export function getKenyaAfyaLinkCredentialMode(source: ProjectSettingsSource): KenyaAfyaLinkCredentialMode {
-  return getProjectSettingString(source, KenyaProjectSettingNames.afyaLinkCredentialMode) === 'afiax-managed'
+export function getKenyaHieCredentialMode(source: ProjectSettingsSource): KenyaHieCredentialMode {
+  const value =
+    getProjectSettingString(source, KenyaProjectSettingNames.hieCredentialMode) ??
+    getProjectSettingString(source, KenyaProjectSettingNames.afyaLinkCredentialMode);
+  return value === 'afiax-managed'
     ? 'afiax-managed'
     : 'tenant-managed';
+}
+
+export function getKenyaHieAgentId(source: ProjectSettingsSource): string | undefined {
+  return getProjectSettingString(source, KenyaProjectSettingNames.hieAgentId)?.trim() || undefined;
+}
+
+export function getKenyaShaClaimsEnvironment(source: ProjectSettingsSource): KenyaShaClaimsEnvironment {
+  const value =
+    getProjectSettingString(source, KenyaProjectSettingNames.shaClaimsEnvironment) ??
+    getProjectSettingString(source, KenyaProjectSettingNames.hieEnvironment) ??
+    getProjectSettingString(source, KenyaProjectSettingNames.afyaLinkEnvironment);
+  return value === 'production'
+    ? 'production'
+    : 'uat';
+}
+
+export function getKenyaAfyaLinkEnvironment(source: ProjectSettingsSource): KenyaAfyaLinkEnvironment {
+  return getKenyaHieEnvironment(source);
+}
+
+export function getKenyaAfyaLinkCredentialMode(source: ProjectSettingsSource): KenyaAfyaLinkCredentialMode {
+  return getKenyaHieCredentialMode(source);
 }

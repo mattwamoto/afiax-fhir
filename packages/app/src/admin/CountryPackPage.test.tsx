@@ -52,8 +52,9 @@ describe('CountryPackPage', () => {
       name: 'Project 123',
       setting: [
         { name: 'countryPack', valueString: 'kenya' },
-        { name: 'kenyaAfyaLinkEnvironment', valueString: 'uat' },
-        { name: 'kenyaAfyaLinkCredentialMode', valueString: 'tenant-managed' },
+        { name: 'kenyaHieEnvironment', valueString: 'uat' },
+        { name: 'kenyaHieCredentialMode', valueString: 'tenant-managed' },
+        { name: 'kenyaShaClaimsEnvironment', valueString: 'production' },
       ],
       secret: [{ name: 'kenyaAfyaLinkConsumerKey', valueString: 'consumer-key-123' }],
     });
@@ -63,7 +64,8 @@ describe('CountryPackPage', () => {
 
     expect(await screen.findByText(/Kenya is active for this project/)).toBeInTheDocument();
     expect(screen.getByText('Tenant-managed')).toBeInTheDocument();
-    expect(screen.getByText('1 of 3 required DHA credentials configured')).toBeInTheDocument();
-    expect(screen.getByText(/2 Kenya DHA credentials still missing/)).toBeInTheDocument();
+    expect(screen.getByText('Production')).toBeInTheDocument();
+    expect(screen.getByText('1 of 3 required HIE credentials configured')).toBeInTheDocument();
+    expect(screen.getByText(/2 Kenya HIE credentials still missing/)).toBeInTheDocument();
   });
 });

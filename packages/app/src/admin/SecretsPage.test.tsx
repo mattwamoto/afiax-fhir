@@ -60,18 +60,19 @@ describe('SecretsPage', () => {
       name: 'Project 123',
       setting: [
         { name: 'countryPack', valueString: 'kenya' },
-        { name: 'kenyaAfyaLinkEnvironment', valueString: 'uat' },
-        { name: 'kenyaAfyaLinkCredentialMode', valueString: 'tenant-managed' },
+        { name: 'kenyaHieEnvironment', valueString: 'uat' },
+        { name: 'kenyaHieCredentialMode', valueString: 'tenant-managed' },
+        { name: 'kenyaShaClaimsEnvironment', valueString: 'production' },
       ],
     });
     await medplum.get('admin/projects/123', { cache: 'reload' });
 
     await setup('/admin/secrets');
 
-    expect(await screen.findByText('Kenya DHA Access')).toBeInTheDocument();
-    expect(screen.getByLabelText('AfyaLink Consumer Key')).toBeInTheDocument();
-    expect(screen.getByLabelText('AfyaLink Username')).toBeInTheDocument();
-    expect(screen.getByLabelText('AfyaLink Password')).toBeInTheDocument();
+    expect(await screen.findByText('Kenya DHA HIE Access')).toBeInTheDocument();
+    expect(screen.getByLabelText('Kenya HIE Consumer Key')).toBeInTheDocument();
+    expect(screen.getByLabelText('Kenya HIE Username')).toBeInTheDocument();
+    expect(screen.getByLabelText('Kenya HIE Password')).toBeInTheDocument();
     expect(screen.queryByLabelText('AfyaLink Base URL')).toBeNull();
   });
 
@@ -113,8 +114,8 @@ describe('SecretsPage', () => {
       name: 'Project 123',
       setting: [
         { name: 'countryPack', valueString: 'kenya' },
-        { name: 'kenyaAfyaLinkEnvironment', valueString: 'uat' },
-        { name: 'kenyaAfyaLinkCredentialMode', valueString: 'tenant-managed' },
+        { name: 'kenyaHieEnvironment', valueString: 'uat' },
+        { name: 'kenyaHieCredentialMode', valueString: 'tenant-managed' },
       ],
     });
     await medplum.get('admin/projects/123', { cache: 'reload' });
@@ -122,19 +123,19 @@ describe('SecretsPage', () => {
     await setup('/admin/secrets');
 
     await act(async () => {
-      fireEvent.change(screen.getByLabelText('AfyaLink Consumer Key'), {
+      fireEvent.change(screen.getByLabelText('Kenya HIE Consumer Key'), {
         target: { value: 'consumer-key-123' },
       });
     });
 
     await act(async () => {
-      fireEvent.change(screen.getByLabelText('AfyaLink Username'), {
+      fireEvent.change(screen.getByLabelText('Kenya HIE Username'), {
         target: { value: 'portal-user' },
       });
     });
 
     await act(async () => {
-      fireEvent.change(screen.getByLabelText('AfyaLink Password'), {
+      fireEvent.change(screen.getByLabelText('Kenya HIE Password'), {
         target: { value: 'portal-password' },
       });
     });
@@ -173,8 +174,8 @@ describe('SecretsPage', () => {
       name: 'Project 123',
       setting: [
         { name: 'countryPack', valueString: 'kenya' },
-        { name: 'kenyaAfyaLinkEnvironment', valueString: 'uat' },
-        { name: 'kenyaAfyaLinkCredentialMode', valueString: 'tenant-managed' },
+        { name: 'kenyaHieEnvironment', valueString: 'uat' },
+        { name: 'kenyaHieCredentialMode', valueString: 'tenant-managed' },
       ],
     });
     await medplum.get('admin/projects/123', { cache: 'reload' });
@@ -182,25 +183,25 @@ describe('SecretsPage', () => {
     await setup('/admin/secrets');
 
     await act(async () => {
-      fireEvent.change(screen.getByLabelText('AfyaLink Consumer Key'), {
+      fireEvent.change(screen.getByLabelText('Kenya HIE Consumer Key'), {
         target: { value: 'consumer-key-123' },
       });
     });
 
     await act(async () => {
-      fireEvent.change(screen.getByLabelText('AfyaLink Username'), {
+      fireEvent.change(screen.getByLabelText('Kenya HIE Username'), {
         target: { value: 'portal-user' },
       });
     });
 
     await act(async () => {
-      fireEvent.change(screen.getByLabelText('AfyaLink Password'), {
+      fireEvent.change(screen.getByLabelText('Kenya HIE Password'), {
         target: { value: 'portal-password' },
       });
     });
 
     await act(async () => {
-      fireEvent.click(screen.getByText('Test Connection'));
+      fireEvent.click(screen.getByText('Test HIE Connection'));
     });
 
     expect(postSpy).toHaveBeenCalledWith(
@@ -230,19 +231,19 @@ describe('SecretsPage', () => {
       name: 'Project 123',
       setting: [
         { name: 'countryPack', valueString: 'kenya' },
-        { name: 'kenyaAfyaLinkEnvironment', valueString: 'uat' },
-        { name: 'kenyaAfyaLinkCredentialMode', valueString: 'tenant-managed' },
+        { name: 'kenyaHieEnvironment', valueString: 'uat' },
+        { name: 'kenyaHieCredentialMode', valueString: 'tenant-managed' },
       ],
     });
     await medplum.get('admin/projects/123', { cache: 'reload' });
 
     await setup('/admin/secrets');
 
-    await userEvent.type(screen.getByLabelText('AfyaLink Username'), 'portal-user');
-    expect(screen.getByLabelText('AfyaLink Username')).toHaveValue('portal-user');
+    await userEvent.type(screen.getByLabelText('Kenya HIE Username'), 'portal-user');
+    expect(screen.getByLabelText('Kenya HIE Username')).toHaveValue('portal-user');
 
-    await userEvent.type(screen.getByLabelText('AfyaLink Consumer Key'), 'consumer-key-123');
-    expect(screen.getByLabelText('AfyaLink Consumer Key')).toHaveValue('consumer-key-123');
+    await userEvent.type(screen.getByLabelText('Kenya HIE Consumer Key'), 'consumer-key-123');
+    expect(screen.getByLabelText('Kenya HIE Consumer Key')).toHaveValue('consumer-key-123');
   });
 
   test('Afiax-managed mode hides tenant credentials', async () => {
@@ -253,18 +254,18 @@ describe('SecretsPage', () => {
       name: 'Project 123',
       setting: [
         { name: 'countryPack', valueString: 'kenya' },
-        { name: 'kenyaAfyaLinkEnvironment', valueString: 'uat' },
-        { name: 'kenyaAfyaLinkCredentialMode', valueString: 'afiax-managed' },
+        { name: 'kenyaHieEnvironment', valueString: 'uat' },
+        { name: 'kenyaHieCredentialMode', valueString: 'afiax-managed' },
       ],
     });
     await medplum.get('admin/projects/123', { cache: 'reload' });
 
     await setup('/admin/secrets');
 
-    expect(await screen.findByText('Kenya DHA Access')).toBeInTheDocument();
-    expect(screen.queryByLabelText('AfyaLink Consumer Key')).toBeNull();
-    expect(screen.queryByLabelText('AfyaLink Username')).toBeNull();
-    expect(screen.queryByLabelText('AfyaLink Password')).toBeNull();
-    expect(screen.getByText(/Afiax-managed DHA credentials/i)).toBeInTheDocument();
+    expect(await screen.findByText('Kenya DHA HIE Access')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Kenya HIE Consumer Key')).toBeNull();
+    expect(screen.queryByLabelText('Kenya HIE Username')).toBeNull();
+    expect(screen.queryByLabelText('Kenya HIE Password')).toBeNull();
+    expect(screen.getByText(/Afiax-managed HIE credentials/i)).toBeInTheDocument();
   });
 });

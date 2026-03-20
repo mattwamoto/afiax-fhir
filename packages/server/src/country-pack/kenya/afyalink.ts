@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
 import {
-  getKenyaAfyaLinkCredentialMode,
-  getKenyaAfyaLinkEnvironment,
+  getKenyaHieCredentialMode,
+  getKenyaHieEnvironment,
   normalizeErrorString,
-  type KenyaAfyaLinkCredentialMode,
-  type KenyaAfyaLinkEnvironment,
+  type KenyaHieCredentialMode,
+  type KenyaHieEnvironment,
 } from '@medplum/core';
 import type { Project } from '@medplum/fhirtypes';
 import fetch from 'node-fetch';
@@ -52,7 +52,7 @@ function getProjectSystemSecret(project: Project, name: string): string | undefi
 function getManagedProjectSecret(
   project: Project,
   name: string,
-  credentialMode: KenyaAfyaLinkCredentialMode
+  credentialMode: KenyaHieCredentialMode
 ): string | undefined {
   if (credentialMode === 'afiax-managed') {
     return getProjectSystemSecret(project, name);
@@ -63,7 +63,7 @@ function getManagedProjectSecret(
 function requireManagedProjectSecret(
   project: Project,
   name: string,
-  credentialMode: KenyaAfyaLinkCredentialMode
+  credentialMode: KenyaHieCredentialMode
 ): string {
   const value = getManagedProjectSecret(project, name, credentialMode);
   if (!value) {
@@ -78,8 +78,8 @@ function requireManagedProjectSecret(
 
 function getKenyaAfyaLinkBaseUrl(
   project: Project,
-  credentialMode: KenyaAfyaLinkCredentialMode,
-  environment: KenyaAfyaLinkEnvironment
+  credentialMode: KenyaHieCredentialMode,
+  environment: KenyaHieEnvironment
 ): string {
   const explicitBaseUrl = getManagedProjectSecret(project, KenyaAfyaLinkSecretNames.baseUrl, credentialMode);
   if (explicitBaseUrl) {
@@ -97,8 +97,8 @@ function getKenyaAfyaLinkBaseUrl(
 }
 
 export function getKenyaAfyaLinkCredentials(project: Project): KenyaAfyaLinkCredentials {
-  const credentialMode = getKenyaAfyaLinkCredentialMode(project);
-  const environment = getKenyaAfyaLinkEnvironment(project);
+  const credentialMode = getKenyaHieCredentialMode(project);
+  const environment = getKenyaHieEnvironment(project);
   return {
     baseUrl: getKenyaAfyaLinkBaseUrl(project, credentialMode, environment),
     consumerKey: requireManagedProjectSecret(project, KenyaAfyaLinkSecretNames.consumerKey, credentialMode),

@@ -15,7 +15,7 @@ Kenya binding:
 Current implementation:
 - reads the canonical `Organization`
 - resolves the active project country pack
-- reads Kenya DHA environment and credential mode from `Project.setting`
+- reads Kenya HIE environment and HIE credential mode from `Project.setting`
 - reads tenant-managed credentials from `Project.secret` when required
 - obtains a DHA JWT via `GET /v1/hie-auth?key=...`
 - calls `GET /v1/facility-search?facility_code=...`
@@ -23,8 +23,8 @@ Current implementation:
 - creates a verification `Task` and an `AuditEvent`
 
 Required project settings:
-- `kenyaAfyaLinkEnvironment`
-- `kenyaAfyaLinkCredentialMode`
+- `kenyaHieEnvironment`
+- `kenyaHieCredentialMode`
 
 Required tenant-managed secret names:
 - `kenyaAfyaLinkConsumerKey`
@@ -38,6 +38,7 @@ Response contract:
 - next state
 
 Notes:
-- the DHA endpoint is derived from environment and platform config
+- the Kenya HIE endpoint is derived from environment and platform config
+- SHA claims use a separate endpoint family and environment selection
 - `kenyaAfyaLinkBaseUrl` is only an override path
 - tenant UI should not call AfyaLink directly

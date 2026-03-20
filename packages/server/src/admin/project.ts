@@ -1,6 +1,14 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
-import { allOk, badRequest, forbidden, getProjectSettingString, getReferenceString, normalizeErrorString, Operator } from '@medplum/core';
+import {
+  allOk,
+  badRequest,
+  forbidden,
+  getProjectSettingString,
+  getReferenceString,
+  normalizeErrorString,
+  Operator,
+} from '@medplum/core';
 import type { ProjectMembership, ProjectSetting, Reference, User } from '@medplum/fhirtypes';
 import type { Request, Response } from 'express';
 import { Router } from 'express';
@@ -111,7 +119,7 @@ projectAdminRouter.post('/:projectId/kenya/afyalink/test', async (req: Request, 
     await getAfyaLinkToken(credentials);
     res.json({
       ok: true,
-      message: `AfyaLink authentication succeeded for ${credentials.baseUrl}`,
+      message: `Kenya HIE authentication succeeded for ${credentials.baseUrl}`,
       baseUrl: credentials.baseUrl,
     });
   } catch (err) {

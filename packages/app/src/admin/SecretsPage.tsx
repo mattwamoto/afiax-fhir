@@ -6,8 +6,9 @@ import type { InternalSchemaElement } from '@medplum/core';
 import {
   deepClone,
   getElementDefinition,
-  getKenyaAfyaLinkCredentialMode,
-  getKenyaAfyaLinkEnvironment,
+  getKenyaHieCredentialMode,
+  getKenyaHieEnvironment,
+  getKenyaShaClaimsEnvironment,
   getProjectSettingString,
   normalizeErrorString,
 } from '@medplum/core';
@@ -35,18 +36,18 @@ interface NamedSecretField {
 const kenyaAfyaLinkFields: NamedSecretField[] = [
   {
     name: KenyaAfyaLinkSecretNames.consumerKey,
-    label: 'AfyaLink Consumer Key',
-    description: 'Consumer key issued from the DHA developer portal.',
+    label: 'Kenya HIE Consumer Key',
+    description: 'Consumer key issued from the DHA developer portal for HIE registry and related APIs.',
   },
   {
     name: KenyaAfyaLinkSecretNames.username,
-    label: 'AfyaLink Username',
-    description: 'DHA developer portal username used for Basic authentication.',
+    label: 'Kenya HIE Username',
+    description: 'DHA developer portal username used for HIE Basic authentication.',
   },
   {
     name: KenyaAfyaLinkSecretNames.password,
-    label: 'AfyaLink Password',
-    description: 'DHA developer portal password used for Basic authentication.',
+    label: 'Kenya HIE Password',
+    description: 'DHA developer portal password used for HIE Basic authentication.',
     sensitive: true,
   },
 ];
@@ -107,8 +108,9 @@ export function SecretsPage(): JSX.Element {
 
   const countryPack = getProjectSettingString(projectDetails.project, 'countryPack');
   const isKenyaProject = countryPack === 'kenya';
-  const kenyaEnvironment = getKenyaAfyaLinkEnvironment(projectDetails.project);
-  const kenyaCredentialMode = getKenyaAfyaLinkCredentialMode(projectDetails.project);
+  const kenyaHieEnvironment = getKenyaHieEnvironment(projectDetails.project);
+  const kenyaShaClaimsEnvironment = getKenyaShaClaimsEnvironment(projectDetails.project);
+  const kenyaCredentialMode = getKenyaHieCredentialMode(projectDetails.project);
   const isTenantManagedKenyaProject = isKenyaProject && kenyaCredentialMode === 'tenant-managed';
   const missingKenyaSecretCount = isTenantManagedKenyaProject
     ? kenyaAfyaLinkFields.filter((field) => !getNamedSecretValue(secrets, field.name).trim()).length
@@ -153,15 +155,19 @@ export function SecretsPage(): JSX.Element {
       {isKenyaProject && (
         <Stack gap="md" mb="xl">
           <div>
-            <Title order={3}>Kenya DHA Access</Title>
+            <Title order={3}>Kenya DHA HIE Access</Title>
             <Text size="sm" c="dimmed">
-              DHA access for this project is controlled by the Kenya settings. The endpoint is derived from the selected
-              environment, so tenant admins do not need to type it here.
+              These credentials are used for DHA HIE auth plus facility, practitioner, eligibility, and client-registry
+              APIs. Kenya SHA claim operations use a separate endpoint family selected in Settings.
             </Text>
             <Text size="sm" mt="xs">
-              Environment:
+              HIE environment:
               {' '}
-              <strong>{kenyaEnvironment === 'production' ? 'Production' : 'UAT'}</strong>
+              <strong>{kenyaHieEnvironment === 'production' ? 'Production' : 'UAT'}</strong>
+              {' | '}
+              SHA claims environment:
+              {' '}
+              <strong>{kenyaShaClaimsEnvironment === 'production' ? 'Production' : 'UAT'}</strong>
               {' | '}
               Credential mode:
               {' '}
@@ -170,9 +176,9 @@ export function SecretsPage(): JSX.Element {
             <Text size="sm" mt="xs">
               {isTenantManagedKenyaProject
                 ? missingKenyaSecretCount === 0
-                  ? 'All required tenant-managed Kenya DHA credentials are configured.'
-                  : `${missingKenyaSecretCount} required Kenya DHA credential${missingKenyaSecretCount === 1 ? '' : 's'} still missing.`
-                : 'This project relies on Afiax-managed DHA credentials. Tenant admins do not enter DHA credentials here; platform ops manages them in Super Admin.'}
+                  ? 'All required tenant-managed Kenya HIE credentials are configured.'
+                  : `${missingKenyaSecretCount} required Kenya HIE credential${missingKenyaSecretCount === 1 ? '' : 's'} still missing.`
+                : 'This project relies on Afiax-managed HIE credentials. Tenant admins do not enter HIE credentials here; platform ops manages them in Super Admin.'}
             </Text>
           </div>
           {isTenantManagedKenyaProject &&
@@ -208,8 +214,8 @@ export function SecretsPage(): JSX.Element {
           <Group justify="space-between" align="flex-end">
             <Text size="sm" c="dimmed">
               {isTenantManagedKenyaProject
-                ? 'Test the current tenant-managed Kenya DHA credentials before saving them to the project.'
-                : 'Test the current Afiax-managed Kenya DHA connection using platform-managed credentials.'}
+                ? 'Test the current tenant-managed Kenya HIE credentials before saving them to the project.'
+                : 'Test the current Afiax-managed Kenya HIE connection using platform-managed credentials.'}
             </Text>
             <Button
               type="button"
@@ -218,7 +224,7 @@ export function SecretsPage(): JSX.Element {
               loading={testingAfyaLink}
               disabled={isTenantManagedKenyaProject && missingKenyaSecretCount > 0}
             >
-              Test Connection
+              Test HIE Connection
             </Button>
           </Group>
           <Divider />
@@ -227,7 +233,7 @@ export function SecretsPage(): JSX.Element {
       <Title order={3}>{isKenyaProject ? 'Advanced Project Secrets' : 'Secret Editor'}</Title>
       <Text size="sm" c="dimmed" mb="md">
         {isKenyaProject
-          ? 'Use the advanced editor for additional project secrets beyond the curated Kenya AfyaLink credential set.'
+          ? 'Use the advanced editor for additional project secrets beyond the curated Kenya HIE credential set.'
           : 'Use the editor below to manage project-level secret values.'}
       </Text>
       <ResourcePropertyInput

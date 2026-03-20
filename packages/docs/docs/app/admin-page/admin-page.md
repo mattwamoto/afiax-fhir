@@ -36,7 +36,8 @@ Use `Settings` for non-secret project configuration.
 Current country-pack-related fields are generic:
 
 - `Country Pack`
-- environment selection when a pack needs it
+- environment selection when a pack needs more than one endpoint family
+- agent or routing identifiers when a pack requires them
 - credential ownership mode when a pack supports tenant-managed or platform-managed access
 
 The advanced editor remains available for additional `Project.setting` values.
@@ -65,7 +66,7 @@ validation actions.
 Config split:
 
 - `Settings` owns non-secret country-pack config
-- `Secrets` owns tenant-managed credentials
+- `Secrets` owns tenant-managed credentials for the pack's active connector family
 - `Super Admin` owns Afiax-managed credentials in `Project.systemSecret`
 
 For concrete Kenya settings, secrets, and connection behavior, see the [Kenya reference pack](/docs/country-packs/kenya).

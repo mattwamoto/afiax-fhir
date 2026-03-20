@@ -6,11 +6,12 @@ import {
   allOk,
   badRequest,
   forbidden,
-  getKenyaAfyaLinkCredentialMode,
-  getKenyaAfyaLinkEnvironment,
+  getKenyaHieCredentialMode,
+  getKenyaHieEnvironment,
   getQueryString,
   getProjectSettingString,
   getResourceTypes,
+  KenyaProjectSettingNames,
   OperationOutcomeError,
   parseSearchRequest,
   validateResourceType,
@@ -108,8 +109,8 @@ superAdminRouter.get('/projects/:projectId/kenya/afyalink/systemsecrets', async 
       systemSecret: getKenyaSystemSecrets(project),
     },
     kenya: {
-      environment: getKenyaAfyaLinkEnvironment(project),
-      credentialMode: getKenyaAfyaLinkCredentialMode(project),
+      environment: getKenyaHieEnvironment(project),
+      credentialMode: getKenyaHieCredentialMode(project),
     },
   });
 });
@@ -132,8 +133,8 @@ superAdminRouter.post('/projects/:projectId/kenya/afyalink/systemsecrets', async
       systemSecret: getKenyaSystemSecrets(updatedProject),
     },
     kenya: {
-      environment: getKenyaAfyaLinkEnvironment(updatedProject),
-      credentialMode: getKenyaAfyaLinkCredentialMode(updatedProject),
+      environment: getKenyaHieEnvironment(updatedProject),
+      credentialMode: getKenyaHieCredentialMode(updatedProject),
     },
   });
 });
@@ -147,8 +148,12 @@ superAdminRouter.post('/projects/:projectId/kenya/afyalink/test', async (req: Re
     const testProject: Project = {
       ...project,
       setting: [
-        ...(project.setting?.filter((entry) => entry.name !== 'kenyaAfyaLinkCredentialMode') ?? []),
-        { name: 'kenyaAfyaLinkCredentialMode', valueString: 'afiax-managed' },
+        ...(project.setting?.filter(
+          (entry) =>
+            entry.name !== KenyaProjectSettingNames.hieCredentialMode &&
+            entry.name !== KenyaProjectSettingNames.afyaLinkCredentialMode
+        ) ?? []),
+        { name: KenyaProjectSettingNames.hieCredentialMode, valueString: 'afiax-managed' },
       ],
       systemSecret: mergeKenyaSystemSecrets(project, (req.body as ProjectSetting[]) ?? []),
     };
@@ -156,7 +161,7 @@ superAdminRouter.post('/projects/:projectId/kenya/afyalink/test', async (req: Re
     await getAfyaLinkToken(credentials);
     res.json({
       ok: true,
-      message: `AfyaLink authentication succeeded for ${credentials.baseUrl}`,
+      message: `Kenya HIE authentication succeeded for ${credentials.baseUrl}`,
       baseUrl: credentials.baseUrl,
     });
   } catch (err) {
