@@ -283,6 +283,12 @@ Use these repo-level documents when you need the Kenya implementation contract f
 - `operations/submit-national-claim.md`
 - `operations/check-national-claim-status.md`
 
+Use these repo-level guides when you need the execution model around those workflows:
+
+- `connectors/README.md`
+- `bots/README.md`
+- `compliance/README.md`
+
 ## Test commands
 
 Target the smallest package-level tests instead of broad repo runs:
