@@ -51,9 +51,18 @@ interface KenyaFacilityLookupMessage {
 }
 
 interface KenyaFacilityLookupResponse {
+  readonly ok?: boolean;
+  readonly baseUrl?: string;
+  readonly facilityCode?: string;
   readonly result?: {
     readonly message?: KenyaFacilityLookupMessage;
   } & KenyaFacilityLookupMessage;
+}
+
+interface KenyaFacilityLookupDebug {
+  readonly baseUrl?: string;
+  readonly facilityCode?: string;
+  readonly response: KenyaFacilityLookupResponse;
 }
 
 export interface OrganizationFacilityVerificationPanelProps {
@@ -118,6 +127,7 @@ export function OrganizationFacilityVerificationPanel(
   const facilityRegistrySnapshot = getKenyaFacilityRegistrySnapshot(props.organization);
   const persistedResult = getKenyaFacilityVerificationSnapshot(props.organization);
   const [registrySnapshotOverride, setRegistrySnapshotOverride] = useState(facilityRegistrySnapshot);
+  const [lookupDebug, setLookupDebug] = useState<KenyaFacilityLookupDebug | undefined>();
   const [snapshotOverride, setSnapshotOverride] = useState<FacilityVerificationResult | null>();
   const currentRegistrySnapshot =
     registrySnapshotOverride === undefined ? facilityRegistrySnapshot : registrySnapshotOverride ?? undefined;
@@ -133,6 +143,7 @@ export function OrganizationFacilityVerificationPanel(
       setSavedMflCode(currentFacilityIdentifier?.value ?? '');
       setLoadedKey(syncKey);
       setRegistrySnapshotOverride(undefined);
+      setLookupDebug(undefined);
       setSnapshotOverride(undefined);
     }
   }, [currentFacilityIdentifier?.value, loadedKey, syncKey]);
@@ -154,6 +165,7 @@ export function OrganizationFacilityVerificationPanel(
       setMflCode(trimmedCode);
       setSavedMflCode(trimmedCode);
       setRegistrySnapshotOverride(getKenyaFacilityRegistrySnapshot(savedOrganization));
+      setLookupDebug(undefined);
       setResult(undefined);
       setSnapshotOverride(null);
       showNotification({ color: 'green', message: 'Kenya MFL code saved' });
@@ -181,6 +193,11 @@ export function OrganizationFacilityVerificationPanel(
       })) as KenyaFacilityLookupResponse;
       const message = getLookupMessage(lookupResult);
       const lookedUpAt = new Date().toISOString();
+      setLookupDebug({
+        baseUrl: lookupResult.baseUrl,
+        facilityCode: lookupResult.facilityCode ?? trimmedCode,
+        response: lookupResult,
+      });
 
       const updatedOrganization = applyKenyaFacilityRegistryToOrganization(
         clearKenyaFacilityVerificationSnapshot(props.organization),
@@ -365,6 +382,35 @@ export function OrganizationFacilityVerificationPanel(
             )}
           </DescriptionListEntry>
         </DescriptionList>
+      )}
+      {lookupDebug && (
+        <Stack gap={4}>
+          <Title order={5}>Raw Kenya HIE Response</Title>
+          <Text size="sm" c="dimmed">
+            Temporary debug output for DHA UAT lookup troubleshooting.
+          </Text>
+          <DescriptionList>
+            <DescriptionListEntry term="Lookup Base URL">{lookupDebug.baseUrl ?? 'Not returned'}</DescriptionListEntry>
+            <DescriptionListEntry term="Lookup Facility Code">
+              {lookupDebug.facilityCode ?? 'Not returned'}
+            </DescriptionListEntry>
+          </DescriptionList>
+          <Text
+            component="pre"
+            size="xs"
+            style={{
+              margin: 0,
+              padding: '12px',
+              borderRadius: '8px',
+              backgroundColor: 'var(--mantine-color-gray-0)',
+              overflowX: 'auto',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+            }}
+          >
+            {JSON.stringify(lookupDebug.response, null, 2)}
+          </Text>
+        </Stack>
       )}
     </Stack>
   );

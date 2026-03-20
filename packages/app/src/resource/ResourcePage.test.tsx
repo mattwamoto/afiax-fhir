@@ -199,6 +199,8 @@ describe('ResourcePage', () => {
     const updateResourceSpy = jest.spyOn(medplum, 'updateResource');
     const postSpy = jest.spyOn(medplum, 'post').mockResolvedValue({
       ok: true,
+      baseUrl: 'https://uat.dha.go.ke',
+      facilityCode: '15409',
       result: {
         message: {
           facility_code: '15409',
@@ -242,6 +244,9 @@ describe('ResourcePage', () => {
         ]),
       })
     );
+    expect(await screen.findByText('Raw Kenya HIE Response')).toBeInTheDocument();
+    expect(screen.getByText('https://uat.dha.go.ke')).toBeInTheDocument();
+    expect(screen.getByText(/"facility_code": "15409"/)).toBeInTheDocument();
   });
 
   test('Questionnaire bots -- create only (default)', async () => {
