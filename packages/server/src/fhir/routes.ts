@@ -69,6 +69,7 @@ import { structureDefinitionExpandProfileHandler } from './operations/structured
 import { codeSystemSubsumesOperation } from './operations/subsumes';
 import { updateUserEmailOperation } from './operations/update-user-email';
 import { verifyFacilityAuthorityHandler } from './operations/verify-facility-authority';
+import { verifyPractitionerAuthorityHandler } from './operations/verify-practitioner-authority';
 import { valueSetValidateOperation } from './operations/valuesetvalidatecode';
 import { sendOutcome } from './outcomes';
 import type { ResendSubscriptionsOptions } from './repo';
@@ -346,6 +347,11 @@ function initInternalFhirRouter(): FhirRouter {
   router.add('GET', '/Organization/:id/$verify-facility-authority', verifyFacilityAuthorityHandler);
   router.add('POST', '/Organization/:id/$verify-facility-authority', verifyFacilityAuthorityHandler);
   router.add('POST', '/Organization/$verify-facility-authority', verifyFacilityAuthorityHandler);
+
+  // Practitioner $verify-practitioner-authority operation
+  router.add('GET', '/Practitioner/:id/$verify-practitioner-authority', verifyPractitionerAuthorityHandler);
+  router.add('POST', '/Practitioner/:id/$verify-practitioner-authority', verifyPractitionerAuthorityHandler);
+  router.add('POST', '/Practitioner/$verify-practitioner-authority', verifyPractitionerAuthorityHandler);
 
   // QuestionnaireResponse $extract operation
   router.add('GET', '/QuestionnaireResponse/:id/$extract', extractHandler);

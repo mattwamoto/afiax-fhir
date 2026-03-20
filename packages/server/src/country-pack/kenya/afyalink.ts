@@ -51,6 +51,16 @@ export interface AfyaLinkFacilitySearchResponse {
   readonly message?: AfyaLinkFacilityMessage;
 }
 
+export interface AfyaLinkPractitionerMessage {
+  readonly registration_number?: string | null;
+  readonly found?: number;
+  readonly is_active?: string | boolean | null;
+}
+
+export interface AfyaLinkPractitionerSearchResponse {
+  readonly message?: AfyaLinkPractitionerMessage;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value);
 }
@@ -150,6 +160,48 @@ function normalizeAfyaLinkFacilitySearchResponse(
   }
 
   throw new Error('AfyaLink facility search response did not include a recognizable facility payload');
+}
+
+function normalizeAfyaLinkPractitionerMessage(payload: Record<string, unknown>): AfyaLinkPractitionerMessage | undefined {
+  const normalizedFound = normalizeFoundValue(payload.found);
+  const registrationNumber =
+    typeof payload.registration_number === 'number'
+      ? String(payload.registration_number)
+      : typeof payload.registration_number === 'string'
+        ? payload.registration_number
+        : null;
+  const isActive =
+    typeof payload.is_active === 'boolean' || typeof payload.is_active === 'string' ? payload.is_active : null;
+
+  if (normalizedFound === undefined && !registrationNumber && isActive === null) {
+    return undefined;
+  }
+
+  return {
+    registration_number: registrationNumber,
+    found: normalizedFound,
+    is_active: isActive,
+  };
+}
+
+function normalizeAfyaLinkPractitionerSearchResponse(payload: unknown): AfyaLinkPractitionerSearchResponse {
+  if (!isRecord(payload)) {
+    throw new Error('AfyaLink practitioner search returned an unsupported response body');
+  }
+
+  if (isRecord(payload.message)) {
+    const message = normalizeAfyaLinkPractitionerMessage(payload.message);
+    if (message) {
+      return { message };
+    }
+  }
+
+  const rootMessage = normalizeAfyaLinkPractitionerMessage(payload);
+  if (rootMessage) {
+    return { message: rootMessage };
+  }
+
+  throw new Error('AfyaLink practitioner search response did not include a recognizable practitioner payload');
 }
 
 function getProjectSecret(project: Project, name: string): string | undefined {
@@ -290,5 +342,46 @@ export async function searchAfyaLinkFacility(
     return normalizeAfyaLinkFacilitySearchResponse(await response.json(), facilityCode);
   } catch (err) {
     throw new Error(`Failed to parse AfyaLink facility search response: ${normalizeErrorString(err)}`);
+  }
+}
+
+export async function searchAfyaLinkPractitioner(
+  credentials: KenyaAfyaLinkCredentials,
+  identificationType: string,
+  identificationNumber: string
+): Promise<AfyaLinkPractitionerSearchResponse> {
+  const token = await getAfyaLinkToken(credentials);
+  const response = await fetch(
+    `${credentials.baseUrl}/v1/practitioner-search?identification_type=${encodeURIComponent(
+      identificationType
+    )}&identification_number=${encodeURIComponent(identificationNumber)}`,
+    {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+
+  if (response.status === 404) {
+    return {
+      message: {
+        found: 0,
+        registration_number: null,
+        is_active: null,
+      },
+    };
+  }
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`AfyaLink practitioner search failed (${response.status}): ${errorBody}`);
+  }
+
+  try {
+    return normalizeAfyaLinkPractitionerSearchResponse(await response.json());
+  } catch (err) {
+    throw new Error(`Failed to parse AfyaLink practitioner search response: ${normalizeErrorString(err)}`);
   }
 }

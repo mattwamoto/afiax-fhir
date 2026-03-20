@@ -1,18 +1,31 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
-import type { Organization } from '@medplum/fhirtypes';
+import type { Organization, Practitioner } from '@medplum/fhirtypes';
 import {
   applyKenyaFacilityRegistryToOrganization,
+  applyKenyaPractitionerRegistryToPractitioner,
   buildKenyaFacilityVerificationExtension,
+  buildKenyaPractitionerVerificationExtension,
   clearKenyaFacilityRegistrySnapshot,
   clearKenyaFacilityVerificationSnapshot,
+  clearKenyaPractitionerRegistrySnapshot,
+  clearKenyaPractitionerVerificationSnapshot,
   getKenyaFacilityVerificationSnapshot,
   getKenyaFacilityAuthorityIdentifier,
   getKenyaFacilityRegistrySnapshot,
+  getKenyaPractitionerAuthorityIdentifier,
+  getKenyaPractitionerLookupIdentifier,
+  getKenyaPractitionerRegistrySnapshot,
+  getKenyaPractitionerVerificationSnapshot,
   KenyaFacilityVerificationExtension,
   KenyaFacilityAuthorityIdentifierSystem,
   KenyaFacilityRegistrationIdentifierSystem,
+  KenyaPractitionerAuthorityIdentifierSystem,
+  KenyaPractitionerNationalIdIdentifierSystem,
+  KenyaPractitionerVerificationExtension,
   setKenyaFacilityAuthorityIdentifier,
+  setKenyaPractitionerAuthorityIdentifier,
+  setKenyaPractitionerLookupIdentifier,
 } from './kenya';
 
 describe('Kenya facility verification helpers', () => {
@@ -163,6 +176,148 @@ describe('Kenya facility verification helpers', () => {
       operationalStatus: 'active',
       currentLicenseExpiryDate: '2026-12-31',
       lookedUpAt: '2026-03-20T14:00:00.000Z',
+    });
+  });
+
+  test('builds and reads practitioner verification snapshot extensions', () => {
+    const practitioner: Practitioner = {
+      resourceType: 'Practitioner',
+      extension: [
+        buildKenyaPractitionerVerificationExtension(
+          {
+            status: 'verified',
+            correlationId: 'corr-prac-123',
+            message: 'Practitioner verified successfully',
+            nextState: 'ready-for-care-delivery',
+            practitionerAuthorityIdentifier: '40675898',
+            practitionerAuthoritySystem: KenyaPractitionerAuthorityIdentifierSystem,
+            registrationNumber: '40675898',
+            identificationType: 'ID',
+            identificationNumber: '12345678',
+            practitionerActiveStatus: 'yes',
+          },
+          '2026-03-20T15:00:00.000Z',
+          { reference: 'Task/task-prac-123' }
+        ),
+      ],
+    };
+
+    expect(practitioner.extension?.[0]?.url).toBe(KenyaPractitionerVerificationExtension.baseUrl);
+    expect(getKenyaPractitionerVerificationSnapshot(practitioner)).toEqual({
+      status: 'verified',
+      correlationId: 'corr-prac-123',
+      message: 'Practitioner verified successfully',
+      nextState: 'ready-for-care-delivery',
+      verifiedAt: '2026-03-20T15:00:00.000Z',
+      task: { reference: 'Task/task-prac-123' },
+      practitionerAuthorityIdentifier: '40675898',
+      practitionerAuthoritySystem: KenyaPractitionerAuthorityIdentifierSystem,
+      registrationNumber: '40675898',
+      identificationType: 'ID',
+      identificationNumber: '12345678',
+      practitionerActiveStatus: 'yes',
+    });
+  });
+
+  test('gets and sets Kenya practitioner identifiers', () => {
+    const original: Practitioner = {
+      resourceType: 'Practitioner',
+      identifier: [{ system: 'https://example.com/local-id', value: 'abc' }],
+    };
+
+    const withLookupId = setKenyaPractitionerLookupIdentifier(original, 'ID', '12345678');
+    expect(getKenyaPractitionerLookupIdentifier(withLookupId)).toEqual(
+      expect.objectContaining({
+        identificationType: 'ID',
+        identifier: expect.objectContaining({
+          system: KenyaPractitionerNationalIdIdentifierSystem,
+          value: '12345678',
+        }),
+      })
+    );
+
+    const withAuthorityId = setKenyaPractitionerAuthorityIdentifier(withLookupId, '40675898');
+    expect(getKenyaPractitionerAuthorityIdentifier(withAuthorityId)).toEqual(
+      expect.objectContaining({
+        system: KenyaPractitionerAuthorityIdentifierSystem,
+        value: '40675898',
+      })
+    );
+  });
+
+  test('clears Kenya practitioner verification snapshot', () => {
+    const practitioner: Practitioner = {
+      resourceType: 'Practitioner',
+      extension: [
+        {
+          url: KenyaPractitionerVerificationExtension.baseUrl,
+          extension: [{ url: KenyaPractitionerVerificationExtension.status, valueCode: 'verified' }],
+        },
+        { url: 'https://example.com/other', valueString: 'keep-me' },
+      ],
+    };
+
+    expect(clearKenyaPractitionerVerificationSnapshot(practitioner).extension).toEqual([
+      { url: 'https://example.com/other', valueString: 'keep-me' },
+    ]);
+  });
+
+  test('clears Kenya practitioner registry snapshot', () => {
+    const practitioner: Practitioner = {
+      resourceType: 'Practitioner',
+      extension: [
+        {
+          url: 'https://afiax.africa/fhir/StructureDefinition/kenya-practitioner-registry',
+          extension: [{ url: 'identificationNumber', valueString: '12345678' }],
+        },
+        { url: 'https://example.com/other', valueString: 'keep-me' },
+      ],
+    };
+
+    expect(clearKenyaPractitionerRegistrySnapshot(practitioner).extension).toEqual([
+      { url: 'https://example.com/other', valueString: 'keep-me' },
+    ]);
+  });
+
+  test('applies Kenya practitioner registry data to practitioner', () => {
+    const practitioner: Practitioner = {
+      resourceType: 'Practitioner',
+    };
+
+    const updated = applyKenyaPractitionerRegistryToPractitioner(
+      practitioner,
+      {
+        identificationType: 'ID',
+        identificationNumber: '12345678',
+        registrationNumber: '40675898',
+        found: 1,
+        isActive: 'yes',
+      },
+      '2026-03-20T16:00:00.000Z'
+    );
+
+    expect(getKenyaPractitionerLookupIdentifier(updated)).toEqual(
+      expect.objectContaining({
+        identificationType: 'ID',
+        identifier: expect.objectContaining({
+          system: KenyaPractitionerNationalIdIdentifierSystem,
+          value: '12345678',
+        }),
+      })
+    );
+    expect(getKenyaPractitionerAuthorityIdentifier(updated)).toEqual(
+      expect.objectContaining({
+        system: KenyaPractitionerAuthorityIdentifierSystem,
+        value: '40675898',
+      })
+    );
+    expect(getKenyaPractitionerRegistrySnapshot(updated)).toEqual({
+      identificationType: 'ID',
+      identificationNumber: '12345678',
+      registrationNumber: '40675898',
+      found: true,
+      isActive: true,
+      lookedUpAt: '2026-03-20T16:00:00.000Z',
     });
   });
 });

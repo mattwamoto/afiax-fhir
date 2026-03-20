@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
 import type { WithId } from '@medplum/core';
-import type { Organization, Project, Reference, ResourceType, Task } from '@medplum/fhirtypes';
+import type { Organization, Practitioner, Project, Reference, ResourceType, Task } from '@medplum/fhirtypes';
 import type { AuthenticatedRequestContext } from '../context';
 
 export type CountryPackOperationCode =
@@ -28,11 +28,20 @@ export interface CountryPackDefinition {
   readonly supportedOperations: readonly CountryPackOperationCode[];
   readonly identifierBindings: readonly CountryPackIdentifierBinding[];
   verifyFacilityAuthority?: (input: CountryPackVerifyFacilityAuthorityInput) => Promise<VerifyFacilityAuthorityResult>;
+  verifyPractitionerAuthority?: (
+    input: CountryPackVerifyPractitionerAuthorityInput
+  ) => Promise<VerifyPractitionerAuthorityResult>;
 }
 
 export interface CountryPackVerifyFacilityAuthorityInput {
   readonly ctx: AuthenticatedRequestContext;
   readonly organization: WithId<Organization>;
+  readonly correlationId: string;
+}
+
+export interface CountryPackVerifyPractitionerAuthorityInput {
+  readonly ctx: AuthenticatedRequestContext;
+  readonly practitioner: WithId<Practitioner>;
   readonly correlationId: string;
 }
 
@@ -51,6 +60,22 @@ export interface VerifyFacilityAuthorityResult {
   readonly facilityName?: string;
   readonly facilityAuthorityIdentifier?: string;
   readonly facilityAuthoritySystem?: string;
+  readonly task?: Reference<Task>;
+}
+
+export interface VerifyPractitionerAuthorityResult {
+  readonly status: FacilityAuthorityVerificationStatus;
+  readonly correlationId: string;
+  readonly message: string;
+  readonly nextState: string;
+  readonly countryPack: string;
+  readonly registryFound?: boolean;
+  readonly registrationNumber?: string;
+  readonly practitionerAuthorityIdentifier?: string;
+  readonly practitionerAuthoritySystem?: string;
+  readonly identificationType?: string;
+  readonly identificationNumber?: string;
+  readonly practitionerActiveStatus?: string;
   readonly task?: Reference<Task>;
 }
 

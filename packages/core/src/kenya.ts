@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
 import { getExtensionValue } from './utils';
-import type { Extension, Identifier, Organization, Reference, Task } from '@medplum/fhirtypes';
+import type { Extension, Identifier, Organization, Practitioner, Reference, Task } from '@medplum/fhirtypes';
 
 export interface KenyaFacilityVerificationResultInput {
   readonly status: string;
@@ -33,6 +33,10 @@ export const KenyaFacilityVerificationExtension = {
 export const KenyaFacilityAuthorityIdentifierSystem = 'https://afiax.africa/kenya/identifier/mfl-code';
 export const KenyaFacilityRegistrationIdentifierSystem =
   'https://afiax.africa/kenya/identifier/facility-registration-number';
+export const KenyaPractitionerAuthorityIdentifierSystem =
+  'https://afiax.africa/kenya/identifier/health-worker-registration-number';
+export const KenyaPractitionerNationalIdIdentifierSystem = 'https://afiax.africa/kenya/identifier/national-id';
+export const KenyaPractitionerPassportIdentifierSystem = 'https://afiax.africa/kenya/identifier/passport-number';
 
 export const KenyaFacilityRegistryExtension = {
   baseUrl: 'https://afiax.africa/fhir/StructureDefinition/kenya-facility-registry',
@@ -435,5 +439,496 @@ function getKenyaRegistryStringValue(
   childUrl: string
 ): string | undefined {
   const value = getExtensionValue(organization, KenyaFacilityRegistryExtension.baseUrl, childUrl);
+  return typeof value === 'string' && value ? value : undefined;
+}
+
+export type KenyaPractitionerIdentificationType = 'ID' | 'PASSPORT';
+
+export interface KenyaPractitionerVerificationResultInput {
+  readonly status: string;
+  readonly correlationId: string;
+  readonly message: string;
+  readonly nextState: string;
+  readonly practitionerAuthorityIdentifier?: string;
+  readonly practitionerAuthoritySystem?: string;
+  readonly registrationNumber?: string;
+  readonly identificationType?: string;
+  readonly identificationNumber?: string;
+  readonly practitionerActiveStatus?: string;
+}
+
+export const KenyaPractitionerVerificationExtension = {
+  baseUrl: 'https://afiax.africa/fhir/StructureDefinition/kenya-practitioner-verification',
+  status: 'status',
+  correlationId: 'correlationId',
+  message: 'message',
+  nextState: 'nextState',
+  verifiedAt: 'verifiedAt',
+  task: 'task',
+  practitionerAuthorityIdentifier: 'practitionerAuthorityIdentifier',
+  practitionerAuthoritySystem: 'practitionerAuthoritySystem',
+  registrationNumber: 'registrationNumber',
+  identificationType: 'identificationType',
+  identificationNumber: 'identificationNumber',
+  practitionerActiveStatus: 'practitionerActiveStatus',
+} as const;
+
+export const KenyaPractitionerRegistryExtension = {
+  baseUrl: 'https://afiax.africa/fhir/StructureDefinition/kenya-practitioner-registry',
+  identificationType: 'identificationType',
+  identificationNumber: 'identificationNumber',
+  registrationNumber: 'registrationNumber',
+  found: 'found',
+  isActive: 'isActive',
+  lookedUpAt: 'lookedUpAt',
+} as const;
+
+export interface KenyaPractitionerVerificationSnapshot {
+  readonly status?: string;
+  readonly correlationId?: string;
+  readonly message?: string;
+  readonly nextState?: string;
+  readonly verifiedAt?: string;
+  readonly task?: Reference<Task>;
+  readonly practitionerAuthorityIdentifier?: string;
+  readonly practitionerAuthoritySystem?: string;
+  readonly registrationNumber?: string;
+  readonly identificationType?: string;
+  readonly identificationNumber?: string;
+  readonly practitionerActiveStatus?: string;
+}
+
+export interface KenyaPractitionerRegistrySnapshot {
+  readonly identificationType?: string;
+  readonly identificationNumber?: string;
+  readonly registrationNumber?: string;
+  readonly found?: boolean;
+  readonly isActive?: boolean;
+  readonly lookedUpAt?: string;
+}
+
+export interface KenyaPractitionerRegistryInput {
+  readonly identificationType?: string | null;
+  readonly identificationNumber?: string | null;
+  readonly registrationNumber?: string | null;
+  readonly found?: number | boolean | null;
+  readonly isActive?: string | boolean | null;
+}
+
+export interface KenyaPractitionerLookupIdentifier {
+  readonly identificationType: KenyaPractitionerIdentificationType;
+  readonly identifier: Identifier;
+}
+
+export function buildKenyaPractitionerVerificationExtension(
+  result: KenyaPractitionerVerificationResultInput,
+  verifiedAt: string,
+  task?: Reference<Task>
+): Extension {
+  const extension: Extension = {
+    url: KenyaPractitionerVerificationExtension.baseUrl,
+    extension: [
+      { url: KenyaPractitionerVerificationExtension.status, valueCode: result.status },
+      { url: KenyaPractitionerVerificationExtension.correlationId, valueString: result.correlationId },
+      { url: KenyaPractitionerVerificationExtension.message, valueString: result.message },
+      { url: KenyaPractitionerVerificationExtension.nextState, valueString: result.nextState },
+      { url: KenyaPractitionerVerificationExtension.verifiedAt, valueDateTime: verifiedAt },
+    ],
+  };
+
+  if (task) {
+    extension.extension?.push({ url: KenyaPractitionerVerificationExtension.task, valueReference: task });
+  }
+  pushString(
+    extension,
+    KenyaPractitionerVerificationExtension.practitionerAuthorityIdentifier,
+    result.practitionerAuthorityIdentifier
+  );
+  if (result.practitionerAuthoritySystem) {
+    extension.extension?.push({
+      url: KenyaPractitionerVerificationExtension.practitionerAuthoritySystem,
+      valueUri: result.practitionerAuthoritySystem,
+    });
+  }
+  pushString(extension, KenyaPractitionerVerificationExtension.registrationNumber, result.registrationNumber);
+  pushString(extension, KenyaPractitionerVerificationExtension.identificationType, result.identificationType);
+  pushString(extension, KenyaPractitionerVerificationExtension.identificationNumber, result.identificationNumber);
+  pushString(
+    extension,
+    KenyaPractitionerVerificationExtension.practitionerActiveStatus,
+    result.practitionerActiveStatus
+  );
+
+  return extension;
+}
+
+export function getKenyaPractitionerVerificationSnapshot(
+  practitioner: Pick<Practitioner, 'extension'> | undefined
+): KenyaPractitionerVerificationSnapshot | undefined {
+  if (!practitioner?.extension?.length) {
+    return undefined;
+  }
+
+  const base = KenyaPractitionerVerificationExtension.baseUrl;
+  const status = getExtensionValue(practitioner, base, KenyaPractitionerVerificationExtension.status);
+  if (typeof status !== 'string' || !status) {
+    return undefined;
+  }
+
+  const taskValue = getExtensionValue(practitioner, base, KenyaPractitionerVerificationExtension.task);
+  return {
+    status,
+    correlationId: getKenyaExtensionStringValue(practitioner, base, KenyaPractitionerVerificationExtension.correlationId),
+    message: getKenyaExtensionStringValue(practitioner, base, KenyaPractitionerVerificationExtension.message),
+    nextState: getKenyaExtensionStringValue(practitioner, base, KenyaPractitionerVerificationExtension.nextState),
+    verifiedAt: getKenyaExtensionStringValue(practitioner, base, KenyaPractitionerVerificationExtension.verifiedAt),
+    task: isReference(taskValue) ? (taskValue as Reference<Task>) : undefined,
+    practitionerAuthorityIdentifier: getKenyaExtensionStringValue(
+      practitioner,
+      base,
+      KenyaPractitionerVerificationExtension.practitionerAuthorityIdentifier
+    ),
+    practitionerAuthoritySystem: getKenyaExtensionStringValue(
+      practitioner,
+      base,
+      KenyaPractitionerVerificationExtension.practitionerAuthoritySystem
+    ),
+    registrationNumber: getKenyaExtensionStringValue(
+      practitioner,
+      base,
+      KenyaPractitionerVerificationExtension.registrationNumber
+    ),
+    identificationType: getKenyaExtensionStringValue(
+      practitioner,
+      base,
+      KenyaPractitionerVerificationExtension.identificationType
+    ),
+    identificationNumber: getKenyaExtensionStringValue(
+      practitioner,
+      base,
+      KenyaPractitionerVerificationExtension.identificationNumber
+    ),
+    practitionerActiveStatus: getKenyaExtensionStringValue(
+      practitioner,
+      base,
+      KenyaPractitionerVerificationExtension.practitionerActiveStatus
+    ),
+  };
+}
+
+export function buildKenyaPractitionerRegistryExtension(
+  input: KenyaPractitionerRegistryInput,
+  lookedUpAt: string
+): Extension {
+  const extension: Extension = {
+    url: KenyaPractitionerRegistryExtension.baseUrl,
+    extension: [{ url: KenyaPractitionerRegistryExtension.lookedUpAt, valueDateTime: lookedUpAt }],
+  };
+
+  pushString(extension, KenyaPractitionerRegistryExtension.identificationType, input.identificationType);
+  pushString(extension, KenyaPractitionerRegistryExtension.identificationNumber, input.identificationNumber);
+  pushString(extension, KenyaPractitionerRegistryExtension.registrationNumber, input.registrationNumber);
+  if (input.found !== undefined && input.found !== null) {
+    extension.extension?.push({
+      url: KenyaPractitionerRegistryExtension.found,
+      valueBoolean: input.found === true || input.found === 1,
+    });
+  }
+
+  const normalizedActive = normalizeOptionalBoolean(input.isActive);
+  if (normalizedActive !== undefined) {
+    extension.extension?.push({
+      url: KenyaPractitionerRegistryExtension.isActive,
+      valueBoolean: normalizedActive,
+    });
+  }
+
+  return extension;
+}
+
+export function getKenyaPractitionerRegistrySnapshot(
+  practitioner: Pick<Practitioner, 'extension'> | undefined
+): KenyaPractitionerRegistrySnapshot | undefined {
+  if (!practitioner?.extension?.length) {
+    return undefined;
+  }
+
+  const base = KenyaPractitionerRegistryExtension.baseUrl;
+  const identificationNumber = getExtensionValue(practitioner, base, KenyaPractitionerRegistryExtension.identificationNumber);
+  const lookedUpAt = getExtensionValue(practitioner, base, KenyaPractitionerRegistryExtension.lookedUpAt);
+  if (typeof identificationNumber !== 'string' && typeof lookedUpAt !== 'string') {
+    return undefined;
+  }
+
+  const found = getExtensionValue(practitioner, base, KenyaPractitionerRegistryExtension.found);
+  const isActive = getExtensionValue(practitioner, base, KenyaPractitionerRegistryExtension.isActive);
+  return {
+    identificationType: getKenyaExtensionStringValue(
+      practitioner,
+      base,
+      KenyaPractitionerRegistryExtension.identificationType
+    ),
+    identificationNumber: typeof identificationNumber === 'string' ? identificationNumber : undefined,
+    registrationNumber: getKenyaExtensionStringValue(
+      practitioner,
+      base,
+      KenyaPractitionerRegistryExtension.registrationNumber
+    ),
+    found: typeof found === 'boolean' ? found : undefined,
+    isActive: typeof isActive === 'boolean' ? isActive : undefined,
+    lookedUpAt: typeof lookedUpAt === 'string' ? lookedUpAt : undefined,
+  };
+}
+
+export function getKenyaPractitionerAuthorityIdentifier(
+  practitioner: Pick<Practitioner, 'identifier'> | undefined,
+  preferredSystem = KenyaPractitionerAuthorityIdentifierSystem
+): Identifier | undefined {
+  return practitioner?.identifier?.find((identifier) => isKenyaPractitionerAuthorityIdentifier(identifier, preferredSystem));
+}
+
+export function setKenyaPractitionerAuthorityIdentifier(
+  practitioner: Practitioner,
+  value: string,
+  preferredSystem = KenyaPractitionerAuthorityIdentifierSystem
+): Practitioner {
+  const trimmed = value.trim();
+  const nextIdentifier: Identifier = {
+    system: preferredSystem,
+    value: trimmed,
+    type: {
+      text: 'Practitioner authority identifier',
+      coding: [{ code: 'practitioner-authority-id', display: 'Practitioner authority identifier' }],
+    },
+  };
+
+  const identifiers = [...(practitioner.identifier ?? [])];
+  const existingIndex = identifiers.findIndex((identifier) => isKenyaPractitionerAuthorityIdentifier(identifier, preferredSystem));
+  if (existingIndex >= 0) {
+    identifiers[existingIndex] = {
+      ...identifiers[existingIndex],
+      ...nextIdentifier,
+    };
+  } else {
+    identifiers.push(nextIdentifier);
+  }
+
+  return {
+    ...practitioner,
+    identifier: identifiers,
+  };
+}
+
+export function getKenyaPractitionerLookupIdentifier(
+  practitioner: Pick<Practitioner, 'identifier'> | undefined
+): KenyaPractitionerLookupIdentifier | undefined {
+  const identifiers = practitioner?.identifier ?? [];
+  for (const identifier of identifiers) {
+    const identificationType = getKenyaPractitionerIdentificationTypeForIdentifier(identifier);
+    if (identificationType && identifier.value?.trim()) {
+      return { identificationType, identifier };
+    }
+  }
+  return undefined;
+}
+
+export function setKenyaPractitionerLookupIdentifier(
+  practitioner: Practitioner,
+  identificationType: KenyaPractitionerIdentificationType,
+  identificationNumber: string
+): Practitioner {
+  const trimmedNumber = identificationNumber.trim();
+  const nextIdentifier: Identifier = {
+    system: getKenyaPractitionerLookupSystem(identificationType),
+    value: trimmedNumber,
+    type: {
+      text: identificationType === 'PASSPORT' ? 'Passport number' : 'National ID number',
+      coding: [{ code: identificationType, display: identificationType === 'PASSPORT' ? 'Passport' : 'National ID' }],
+    },
+  };
+
+  const identifiers = [...(practitioner.identifier ?? [])];
+  const existingIndex = identifiers.findIndex(
+    (identifier) => getKenyaPractitionerIdentificationTypeForIdentifier(identifier) === identificationType
+  );
+  if (existingIndex >= 0) {
+    identifiers[existingIndex] = {
+      ...identifiers[existingIndex],
+      ...nextIdentifier,
+    };
+  } else {
+    identifiers.push(nextIdentifier);
+  }
+
+  return {
+    ...practitioner,
+    identifier: identifiers,
+  };
+}
+
+export function clearKenyaPractitionerVerificationSnapshot(practitioner: Practitioner): Practitioner {
+  if (!practitioner.extension?.length) {
+    return practitioner;
+  }
+
+  return {
+    ...practitioner,
+    extension: practitioner.extension.filter((ext) => ext.url !== KenyaPractitionerVerificationExtension.baseUrl),
+  };
+}
+
+export function clearKenyaPractitionerRegistrySnapshot(practitioner: Practitioner): Practitioner {
+  if (!practitioner.extension?.length) {
+    return practitioner;
+  }
+
+  return {
+    ...practitioner,
+    extension: practitioner.extension.filter((ext) => ext.url !== KenyaPractitionerRegistryExtension.baseUrl),
+  };
+}
+
+export function applyKenyaPractitionerRegistryToPractitioner(
+  practitioner: Practitioner,
+  input: KenyaPractitionerRegistryInput,
+  lookedUpAt: string
+): Practitioner {
+  const registryExtension = buildKenyaPractitionerRegistryExtension(input, lookedUpAt);
+  const nextExtensions =
+    practitioner.extension?.filter(
+      (ext) =>
+        ext.url !== KenyaPractitionerRegistryExtension.baseUrl &&
+        ext.url !== KenyaPractitionerVerificationExtension.baseUrl
+    ) ?? [];
+
+  let updated: Practitioner = {
+    ...practitioner,
+    extension: [...nextExtensions, registryExtension],
+  };
+
+  const identificationType = normalizePractitionerIdentificationType(input.identificationType);
+  const identificationNumber = input.identificationNumber?.trim();
+  if (identificationType && identificationNumber) {
+    updated = setKenyaPractitionerLookupIdentifier(updated, identificationType, identificationNumber);
+  }
+
+  const registrationNumber = input.registrationNumber?.trim();
+  if (registrationNumber) {
+    updated = setKenyaPractitionerAuthorityIdentifier(updated, registrationNumber);
+  }
+
+  return updated;
+}
+
+function isKenyaPractitionerAuthorityIdentifier(identifier: Identifier | undefined, preferredSystem: string): boolean {
+  if (!identifier) {
+    return false;
+  }
+
+  if (identifier.system === preferredSystem) {
+    return true;
+  }
+
+  if (identifier.system?.toLowerCase().includes('registration-number')) {
+    return true;
+  }
+
+  const typeText = identifier.type?.text?.toLowerCase();
+  if (typeText?.includes('practitioner authority')) {
+    return true;
+  }
+
+  return (identifier.type?.coding ?? []).some(
+    (coding) =>
+      coding.code === 'practitioner-authority-id' || coding.display?.toLowerCase().includes('practitioner authority')
+  );
+}
+
+function getKenyaPractitionerIdentificationTypeForIdentifier(
+  identifier: Identifier | undefined
+): KenyaPractitionerIdentificationType | undefined {
+  if (!identifier?.value?.trim()) {
+    return undefined;
+  }
+
+  if (identifier.system === KenyaPractitionerNationalIdIdentifierSystem) {
+    return 'ID';
+  }
+  if (identifier.system === KenyaPractitionerPassportIdentifierSystem) {
+    return 'PASSPORT';
+  }
+
+  const typeText = identifier.type?.text?.toLowerCase();
+  if (typeText?.includes('passport')) {
+    return 'PASSPORT';
+  }
+  if (typeText?.includes('national id') || typeText === 'id' || typeText?.includes('national identification')) {
+    return 'ID';
+  }
+
+  for (const coding of identifier.type?.coding ?? []) {
+    const code = coding.code?.toUpperCase();
+    const display = coding.display?.toLowerCase();
+    if (code === 'PASSPORT' || display?.includes('passport')) {
+      return 'PASSPORT';
+    }
+    if (code === 'ID' || display?.includes('national id')) {
+      return 'ID';
+    }
+  }
+
+  return undefined;
+}
+
+function getKenyaPractitionerLookupSystem(identificationType: KenyaPractitionerIdentificationType): string {
+  return identificationType === 'PASSPORT'
+    ? KenyaPractitionerPassportIdentifierSystem
+    : KenyaPractitionerNationalIdIdentifierSystem;
+}
+
+function normalizePractitionerIdentificationType(
+  value: string | null | undefined
+): KenyaPractitionerIdentificationType | undefined {
+  const normalized = value?.trim().toUpperCase();
+  if (normalized === 'PASSPORT') {
+    return 'PASSPORT';
+  }
+  if (normalized === 'ID') {
+    return 'ID';
+  }
+  return undefined;
+}
+
+function normalizeOptionalBoolean(value: unknown): boolean | undefined {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+
+  if (typeof value === 'number') {
+    return value === 1;
+  }
+
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (!normalized) {
+      return undefined;
+    }
+    if (['1', 'true', 'yes', 'active'].includes(normalized)) {
+      return true;
+    }
+    if (['0', 'false', 'no', 'inactive'].includes(normalized)) {
+      return false;
+    }
+  }
+
+  return undefined;
+}
+
+function getKenyaExtensionStringValue(
+  resource: Pick<Organization, 'extension'> | Pick<Practitioner, 'extension'>,
+  baseUrl: string,
+  childUrl: string
+): string | undefined {
+  const value = getExtensionValue(resource, baseUrl, childUrl);
   return typeof value === 'string' && value ? value : undefined;
 }

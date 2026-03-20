@@ -249,6 +249,152 @@ describe('ResourcePage', () => {
     expect(screen.getByText(/"facility_code": "15409"/)).toBeInTheDocument();
   });
 
+  test('Practitioner verification panel saves Kenya practitioner identifier', async () => {
+    const medplum = new MockClient();
+    const practitioner = await medplum.createResource<Practitioner>({
+      resourceType: 'Practitioner',
+    });
+
+    jest.spyOn(medplum, 'getProject').mockReturnValue({
+      resourceType: 'Project',
+      id: 'project-123',
+      setting: [{ name: 'countryPack', valueString: 'kenya' }],
+    } as Project);
+
+    const updateResourceSpy = jest.spyOn(medplum, 'updateResource');
+
+    await setup(`/Practitioner/${practitioner.id}`, medplum);
+    expect(await screen.findByText('Save Identification')).toBeInTheDocument();
+    expect(screen.getByText(/Verification stays disabled until it is saved/i)).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Identification Number'), { target: { value: '12345678' } });
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Save Identification'));
+    });
+
+    await waitFor(() =>
+      expect(updateResourceSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          resourceType: 'Practitioner',
+          id: practitioner.id,
+          identifier: expect.arrayContaining([
+            expect.objectContaining({
+              system: 'https://afiax.africa/kenya/identifier/national-id',
+              value: '12345678',
+            }),
+          ]),
+        })
+      )
+    );
+  });
+
+  test('Practitioner verification panel looks up practitioner details from Kenya HIE', async () => {
+    const medplum = new MockClient();
+    const practitioner = await medplum.createResource<Practitioner>({
+      resourceType: 'Practitioner',
+    });
+
+    jest.spyOn(medplum, 'getProject').mockReturnValue({
+      resourceType: 'Project',
+      id: 'project-123',
+      setting: [{ name: 'countryPack', valueString: 'kenya' }],
+    } as Project);
+
+    const updateResourceSpy = jest.spyOn(medplum, 'updateResource');
+    const postSpy = jest.spyOn(medplum, 'post').mockResolvedValue({
+      ok: true,
+      baseUrl: 'https://uat.dha.go.ke',
+      identificationType: 'ID',
+      identificationNumber: '12345678',
+      result: {
+        message: {
+          registration_number: 40675898,
+          found: 1,
+          is_active: 'yes',
+        },
+      },
+    });
+
+    await setup(`/Practitioner/${practitioner.id}`, medplum);
+    expect(await screen.findByText('Lookup Practitioner')).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Identification Number'), { target: { value: '12345678' } });
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Lookup Practitioner'));
+    });
+
+    expect(postSpy).toHaveBeenCalledWith('admin/projects/project-123/kenya/afyalink/practitioner-lookup', {
+      identificationType: 'ID',
+      identificationNumber: '12345678',
+    });
+    expect(updateResourceSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        resourceType: 'Practitioner',
+        id: practitioner.id,
+        identifier: expect.arrayContaining([
+          expect.objectContaining({
+            system: 'https://afiax.africa/kenya/identifier/national-id',
+            value: '12345678',
+          }),
+          expect.objectContaining({
+            system: 'https://afiax.africa/kenya/identifier/health-worker-registration-number',
+            value: '40675898',
+          }),
+        ]),
+      })
+    );
+    expect(await screen.findByText('Raw Kenya HIE Response')).toBeInTheDocument();
+    expect(screen.getByText(/"registration_number": 40675898/)).toBeInTheDocument();
+  });
+
+  test('Practitioner verification panel runs Kenya practitioner verification', async () => {
+    const medplum = new MockClient();
+    const practitioner = await medplum.createResource<Practitioner>({
+      resourceType: 'Practitioner',
+      identifier: [{ system: 'https://afiax.africa/kenya/identifier/national-id', value: '12345678' }],
+    });
+
+    jest.spyOn(medplum, 'getProject').mockReturnValue({
+      resourceType: 'Project',
+      id: 'project-123',
+      setting: [{ name: 'countryPack', valueString: 'kenya' }],
+    } as Project);
+
+    const postSpy = jest.spyOn(medplum, 'post').mockResolvedValue({
+      resourceType: 'Parameters',
+      parameter: [
+        { name: 'status', valueCode: 'verified' },
+        { name: 'message', valueString: 'Practitioner verified in Kenya HIE' },
+        { name: 'nextState', valueString: 'ready-for-care-delivery' },
+        { name: 'correlationId', valueString: 'corr-prac-123' },
+        { name: 'registrationNumber', valueString: '40675898' },
+        { name: 'practitionerAuthorityIdentifier', valueString: '40675898' },
+        { name: 'practitionerActiveStatus', valueString: 'yes' },
+        { name: 'task', valueReference: { reference: 'Task/task-prac-123' } },
+      ],
+    });
+
+    await setup(`/Practitioner/${practitioner.id}`, medplum);
+    expect(await screen.findByText('Verify Practitioner')).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Verify Practitioner'));
+    });
+
+    expect(postSpy).toHaveBeenCalledWith(
+      medplum.fhirUrl('Practitioner', practitioner.id as string, '$verify-practitioner-authority')
+    );
+    expect(await screen.findByText('Practitioner verified in Kenya HIE')).toBeInTheDocument();
+    expect(screen.getAllByText('40675898').length).toBeGreaterThan(0);
+    expect(screen.getByText('Task/task-prac-123')).toBeInTheDocument();
+  });
+
   test('Questionnaire bots -- create only (default)', async () => {
     const medplum = new MockClient();
     const bot = await medplum.createResource<Bot>({

@@ -15,7 +15,12 @@ import { Router } from 'express';
 import { body, validationResult } from 'express-validator';
 import { setPassword } from '../auth/setpassword';
 import { getAuthenticatedContext } from '../context';
-import { getAfyaLinkToken, getKenyaAfyaLinkCredentials, searchAfyaLinkFacility } from '../country-pack/kenya/afyalink';
+import {
+  getAfyaLinkToken,
+  getKenyaAfyaLinkCredentials,
+  searchAfyaLinkFacility,
+  searchAfyaLinkPractitioner,
+} from '../country-pack/kenya/afyalink';
 import { invalidRequest, sendOutcome } from '../fhir/outcomes';
 import { authenticateRequest } from '../oauth/middleware';
 import { getUserByEmailInProject } from '../oauth/utils';
@@ -148,6 +153,36 @@ projectAdminRouter.post('/:projectId/kenya/afyalink/facility-lookup', async (req
       ok: true,
       baseUrl: credentials.baseUrl,
       facilityCode,
+      result,
+    });
+  } catch (err) {
+    sendOutcome(res, badRequest(normalizeErrorString(err)));
+  }
+});
+
+projectAdminRouter.post('/:projectId/kenya/afyalink/practitioner-lookup', async (req: Request, res: Response) => {
+  const ctx = getAuthenticatedContext();
+
+  if (getProjectSettingString(ctx.project, 'countryPack') !== 'kenya') {
+    sendOutcome(res, badRequest('Kenya country pack is not enabled for this project'));
+    return;
+  }
+
+  const identificationType = String(req.body?.identificationType ?? '').trim().toUpperCase();
+  const identificationNumber = String(req.body?.identificationNumber ?? '').trim();
+  if (!identificationType || !identificationNumber) {
+    sendOutcome(res, badRequest('identificationType and identificationNumber are required'));
+    return;
+  }
+
+  try {
+    const credentials = getKenyaAfyaLinkCredentials(ctx.project);
+    const result = await searchAfyaLinkPractitioner(credentials, identificationType, identificationNumber);
+    res.json({
+      ok: true,
+      baseUrl: credentials.baseUrl,
+      identificationType,
+      identificationNumber,
       result,
     });
   } catch (err) {

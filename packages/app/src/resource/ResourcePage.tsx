@@ -3,7 +3,7 @@
 import { Button, Paper, ScrollArea, Title } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
 import { getReferenceString, isGone, normalizeErrorString } from '@medplum/core';
-import type { OperationOutcome, Organization, Resource, ResourceType, ServiceRequest } from '@medplum/fhirtypes';
+import type { OperationOutcome, Organization, Practitioner, Resource, ResourceType, ServiceRequest } from '@medplum/fhirtypes';
 import { Document, LinkTabs, OperationOutcomeAlert, PatientHeader, useMedplum, useResource } from '@medplum/react';
 import type { JSX } from 'react';
 import { useState } from 'react';
@@ -14,6 +14,7 @@ import { ResourceHeader } from '../components/ResourceHeader';
 import { SpecimenHeader } from '../components/SpecimenHeader';
 import { getPatient, getSpecimen } from '../utils';
 import { OrganizationFacilityVerificationPanel } from './OrganizationFacilityVerificationPanel';
+import { PractitionerAuthorityVerificationPanel } from './PractitionerAuthorityVerificationPanel';
 import { cleanResource } from './utils';
 
 function getTabs(resourceType: string): string[] {
@@ -133,6 +134,9 @@ export function ResourcePage(): JSX.Element | null {
       )}
       {value && <QuickServiceRequests value={value} />}
       {value?.resourceType === 'Organization' && <OrganizationFacilityVerificationPanel organization={value as Organization} />}
+      {value?.resourceType === 'Practitioner' && (
+        <PractitionerAuthorityVerificationPanel practitioner={value as Practitioner} />
+      )}
       {value && (
         <Paper>
           {patient && <PatientHeader patient={patient} />}

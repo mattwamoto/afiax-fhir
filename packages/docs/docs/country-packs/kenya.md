@@ -76,8 +76,11 @@ Implemented now:
 - Afiax-managed HIE credentials in `/admin/super`
 - DHA facility lookup and first-organization bootstrap from `/admin/country-pack`
 - `Organization`-level facility code capture, lookup, and verification UI
+- `Practitioner`-level identity capture, lookup, and verification UI
 - generic `Organization/$verify-facility-authority`
+- generic `Practitioner/$verify-practitioner-authority`
 - Kenya-specific AfyaLink auth and facility search
+- Kenya-specific AfyaLink practitioner search
 - verification `Task` and `AuditEvent` creation
 
 ## Current operation bindings
@@ -91,7 +94,7 @@ Kenya logic currently sits behind country-neutral operations such as:
 - `$publish-national-record`
 - `$submit-national-claim`
 
-Only `$verify-facility-authority` has an implemented Kenya connector path today.
+`$verify-facility-authority` and `$verify-practitioner-authority` have implemented Kenya connector paths today.
 
 ## Facility verification flow
 
@@ -106,6 +109,22 @@ Current path for `Organization/$verify-facility-authority`:
 7. Write a verification `Task` and `AuditEvent`.
 
 The expected identifier is the MFL code bound to `facility-authority-id`.
+
+## Practitioner verification flow
+
+Current path for `Practitioner/$verify-practitioner-authority`:
+
+1. Resolve the active project.
+2. Read `countryPack`, Kenya HIE environment, and HIE credential mode from `Project.setting`.
+3. Load credentials from `Project.secret` or `Project.systemSecret`.
+4. Authenticate against AfyaLink.
+5. Call practitioner search with `identification_type` and `identification_number`.
+6. Persist the registry snapshot on the `Practitioner`.
+7. Normalize the result into shared verification status.
+8. Write a verification `Task` and `AuditEvent`.
+
+The current Kenya UX captures the lookup identity as a national ID or passport number and stores the returned
+registration number as the practitioner authority identifier.
 
 ## Admin UI flow
 
@@ -133,6 +152,12 @@ For a Kenya project:
   - runs DHA lookup
   - shows the verification summary and raw DHA lookup payload
   - runs the audited `Verify Facility` action
+- `/Practitioner/{id}`
+  - captures the practitioner identification type and number directly on the resource
+  - runs DHA practitioner lookup
+  - persists the returned registry snapshot on the resource
+  - shows the verification summary and raw DHA lookup payload
+  - runs the audited `Verify Practitioner` action
 
 ## Guardrails
 
@@ -143,10 +168,10 @@ For a Kenya project:
 
 ## Recommended next steps
 
-1. Implement `Practitioner/$verify-practitioner-authority`.
-2. Implement `Coverage/$check-coverage`.
-3. Add reconciliation and retry surfaces around external calls.
-4. Add a Kenya setup flow for practitioner onboarding after facility bootstrap.
+1. Implement `Coverage/$check-coverage`.
+2. Add reconciliation and retry surfaces around external calls.
+3. Add a Kenya setup flow for practitioner onboarding after facility bootstrap.
+4. Add facility and practitioner verification queue views for operational follow-up.
 
 ## Related docs
 

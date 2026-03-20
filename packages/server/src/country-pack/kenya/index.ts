@@ -3,6 +3,7 @@
 import type { CountryPackDefinition } from '../types';
 import { KenyaAfyaLinkSecretNames } from './afyalink';
 import { verifyKenyaFacilityAuthority } from './verify-facility-authority';
+import { verifyKenyaPractitionerAuthority } from './verify-practitioner-authority';
 
 export const kenyaCountryPack: CountryPackDefinition = {
   id: 'kenya',
@@ -45,4 +46,5 @@ export const kenyaCountryPack: CountryPackDefinition = {
     },
   ],
   verifyFacilityAuthority: verifyKenyaFacilityAuthority,
+  verifyPractitionerAuthority: verifyKenyaPractitionerAuthority,
 };

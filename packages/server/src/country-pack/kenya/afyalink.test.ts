@@ -7,6 +7,7 @@ import {
   getKenyaAfyaLinkCredentials,
   KenyaAfyaLinkSecretNames,
   searchAfyaLinkFacility,
+  searchAfyaLinkPractitioner,
 } from './afyalink';
 
 jest.mock('node-fetch');
@@ -202,6 +203,70 @@ describe('Kenya AfyaLink connector', () => {
         ward: null,
         operational_status: null,
         current_license_expiry_date: null,
+      },
+    });
+  });
+
+  test('searches practitioner registry with bearer token', async () => {
+    (fetch as unknown as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        text: jest.fn(async () => JSON.stringify({ token: 'jwt-token' })),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: jest.fn(async () => ({
+          message: {
+            registration_number: 40675898,
+            found: 1,
+            is_active: 'yes',
+          },
+        })),
+      });
+
+    const credentials = getKenyaAfyaLinkCredentials(project);
+    await expect(searchAfyaLinkPractitioner(credentials, 'ID', '12345678')).resolves.toEqual({
+      message: {
+        registration_number: '40675898',
+        found: 1,
+        is_active: 'yes',
+      },
+    });
+
+    expect(fetch).toHaveBeenLastCalledWith(
+      'https://uat.dha.go.ke/v1/practitioner-search?identification_type=ID&identification_number=12345678',
+      expect.objectContaining({
+        method: 'GET',
+        headers: expect.objectContaining({
+          Authorization: 'Bearer jwt-token',
+        }),
+      })
+    );
+  });
+
+  test('normalizes practitioner search when DHA returns fields at the root', async () => {
+    (fetch as unknown as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        text: jest.fn(async () => JSON.stringify({ token: 'jwt-token' })),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: jest.fn(async () => ({
+          registration_number: 'REG-123',
+          found: '1',
+          is_active: true,
+        })),
+      });
+
+    const credentials = getKenyaAfyaLinkCredentials(project);
+    await expect(searchAfyaLinkPractitioner(credentials, 'PASSPORT', 'A1234567')).resolves.toEqual({
+      message: {
+        registration_number: 'REG-123',
+        found: 1,
+        is_active: true,
       },
     });
   });

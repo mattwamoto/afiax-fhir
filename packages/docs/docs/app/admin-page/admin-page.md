@@ -62,6 +62,11 @@ that:
 - shows the raw DHA lookup payload for troubleshooting
 - creates or updates the first `Organization` from registry data when DHA returns a match
 
+Kenya also exposes resource-level onboarding panels after project setup:
+
+- `Organization` pages capture the Kenya facility code, run DHA facility lookup, and run audited facility verification
+- `Practitioner` pages capture the Kenya identity document, run DHA practitioner lookup, and run audited practitioner verification
+
 Pack-specific behavior belongs in the relevant country-pack docs.
 
 ## Secrets
