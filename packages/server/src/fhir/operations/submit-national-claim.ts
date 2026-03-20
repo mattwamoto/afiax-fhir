@@ -44,9 +44,12 @@ export const submitNationalClaimOperation: OperationDefinition = {
     { use: 'out', name: 'countryPack', type: 'string', min: 1, max: '1' },
     { use: 'out', name: 'shaClaimsEnvironment', type: 'string', min: 0, max: '1' },
     { use: 'out', name: 'submissionEndpoint', type: 'string', min: 0, max: '1' },
+    { use: 'out', name: 'statusTrackingEndpoint', type: 'string', min: 0, max: '1' },
+    { use: 'out', name: 'responseStatusCode', type: 'integer', min: 0, max: '1' },
     { use: 'out', name: 'bundleId', type: 'string', min: 0, max: '1' },
     { use: 'out', name: 'bundleEntryCount', type: 'integer', min: 0, max: '1' },
     { use: 'out', name: 'rawBundle', type: 'string', min: 0, max: '1' },
+    { use: 'out', name: 'rawResponse', type: 'string', min: 0, max: '1' },
     { use: 'out', name: 'task', type: 'Reference', min: 0, max: '1' },
   ],
 };
@@ -108,7 +111,7 @@ async function createClaimTask(claim: WithId<Claim>, correlationId: string): Pro
     authoredOn: new Date().toISOString(),
     requester: ctx.profile as Task['requester'],
     focus: createReference(claim),
-    description: `Prepare national claim submission bundle for ${claim.id}`,
+    description: `Prepare or submit national claim bundle for ${claim.id}`,
     code: {
       text: 'submit-national-claim',
     },
@@ -141,6 +144,12 @@ async function completeClaimTask(task: WithId<Task>, result: SubmitNationalClaim
       ...(result.bundleId ? [{ type: { text: 'bundleId' }, valueString: result.bundleId }] : []),
       ...(result.submissionEndpoint
         ? [{ type: { text: 'submissionEndpoint' }, valueString: result.submissionEndpoint }]
+        : []),
+      ...(result.statusTrackingEndpoint
+        ? [{ type: { text: 'statusTrackingEndpoint' }, valueString: result.statusTrackingEndpoint }]
+        : []),
+      ...(result.responseStatusCode !== undefined
+        ? [{ type: { text: 'responseStatusCode' }, valueInteger: result.responseStatusCode }]
         : []),
     ],
   });

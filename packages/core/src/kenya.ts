@@ -1207,6 +1207,8 @@ export interface KenyaNationalClaimSubmissionResultInput {
   readonly nextState: string;
   readonly shaClaimsEnvironment?: string;
   readonly submissionEndpoint?: string;
+  readonly statusTrackingEndpoint?: string;
+  readonly responseStatusCode?: number;
   readonly bundleId?: string;
   readonly bundleEntryCount?: number;
 }
@@ -1221,6 +1223,8 @@ export const KenyaNationalClaimSubmissionExtension = {
   task: 'task',
   shaClaimsEnvironment: 'shaClaimsEnvironment',
   submissionEndpoint: 'submissionEndpoint',
+  statusTrackingEndpoint: 'statusTrackingEndpoint',
+  responseStatusCode: 'responseStatusCode',
   bundleId: 'bundleId',
   bundleEntryCount: 'bundleEntryCount',
 } as const;
@@ -1234,6 +1238,8 @@ export interface KenyaNationalClaimSubmissionSnapshot {
   readonly task?: Reference<Task>;
   readonly shaClaimsEnvironment?: string;
   readonly submissionEndpoint?: string;
+  readonly statusTrackingEndpoint?: string;
+  readonly responseStatusCode?: number;
   readonly bundleId?: string;
   readonly bundleEntryCount?: number;
 }
@@ -1259,6 +1265,13 @@ export function buildKenyaNationalClaimSubmissionExtension(
   }
   pushString(extension, KenyaNationalClaimSubmissionExtension.shaClaimsEnvironment, result.shaClaimsEnvironment);
   pushString(extension, KenyaNationalClaimSubmissionExtension.submissionEndpoint, result.submissionEndpoint);
+  pushString(extension, KenyaNationalClaimSubmissionExtension.statusTrackingEndpoint, result.statusTrackingEndpoint);
+  if (result.responseStatusCode !== undefined) {
+    extension.extension?.push({
+      url: KenyaNationalClaimSubmissionExtension.responseStatusCode,
+      valueUnsignedInt: result.responseStatusCode,
+    });
+  }
   pushString(extension, KenyaNationalClaimSubmissionExtension.bundleId, result.bundleId);
   if (result.bundleEntryCount !== undefined) {
     extension.extension?.push({
@@ -1293,6 +1306,12 @@ export function getKenyaNationalClaimSubmissionSnapshot(
     task: isReference(taskValue) ? (taskValue as Reference<Task>) : undefined,
     shaClaimsEnvironment: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimSubmissionExtension.shaClaimsEnvironment),
     submissionEndpoint: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimSubmissionExtension.submissionEndpoint),
+    statusTrackingEndpoint: getKenyaExtensionStringValue(
+      claim,
+      base,
+      KenyaNationalClaimSubmissionExtension.statusTrackingEndpoint
+    ),
+    responseStatusCode: getKenyaExtensionNumberValue(claim, base, KenyaNationalClaimSubmissionExtension.responseStatusCode),
     bundleId: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimSubmissionExtension.bundleId),
     bundleEntryCount: getKenyaExtensionNumberValue(claim, base, KenyaNationalClaimSubmissionExtension.bundleEntryCount),
   };

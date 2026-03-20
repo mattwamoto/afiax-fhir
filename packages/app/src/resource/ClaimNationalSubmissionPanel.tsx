@@ -20,9 +20,12 @@ interface ClaimSubmissionResult {
   readonly nextState?: string;
   readonly shaClaimsEnvironment?: string;
   readonly submissionEndpoint?: string;
+  readonly statusTrackingEndpoint?: string;
+  readonly responseStatusCode?: number;
   readonly bundleId?: string;
   readonly bundleEntryCount?: number;
   readonly rawBundle?: string;
+  readonly rawResponse?: string;
   readonly task?: Reference<Task>;
 }
 
@@ -42,9 +45,12 @@ function getClaimSubmissionResult(parameters: Parameters | undefined): ClaimSubm
     nextState: getParameter(parameters, 'nextState')?.valueString,
     shaClaimsEnvironment: getParameter(parameters, 'shaClaimsEnvironment')?.valueString,
     submissionEndpoint: getParameter(parameters, 'submissionEndpoint')?.valueString,
+    statusTrackingEndpoint: getParameter(parameters, 'statusTrackingEndpoint')?.valueString,
+    responseStatusCode: getParameter(parameters, 'responseStatusCode')?.valueInteger,
     bundleId: getParameter(parameters, 'bundleId')?.valueString,
     bundleEntryCount: getParameter(parameters, 'bundleEntryCount')?.valueInteger,
     rawBundle: getParameter(parameters, 'rawBundle')?.valueString,
+    rawResponse: getParameter(parameters, 'rawResponse')?.valueString,
     task: getParameter(parameters, 'task')?.valueReference as Reference<Task> | undefined,
   };
 }
@@ -64,7 +70,7 @@ export function ClaimNationalSubmissionPanel(props: ClaimNationalSubmissionPanel
     return null;
   }
 
-  async function handlePrepareClaim(): Promise<void> {
+  async function handleSubmitClaim(): Promise<void> {
     setSubmitting(true);
     setError(undefined);
     try {
@@ -73,7 +79,16 @@ export function ClaimNationalSubmissionPanel(props: ClaimNationalSubmissionPanel
       )) as Parameters;
       const claimResult = getClaimSubmissionResult(parameters);
       setResult(claimResult);
-      showNotification({ color: 'green', message: 'Kenya SHA claim bundle prepared' });
+      showNotification({
+        color: claimResult.status === 'submitted' ? 'green' : claimResult.status === 'error' ? 'red' : 'green',
+        message:
+          claimResult.status === 'submitted'
+            ? 'Kenya SHA claim submitted'
+            : claimResult.status === 'error'
+              ? (claimResult.message ?? 'Kenya SHA claim submission failed')
+              : 'Kenya SHA claim bundle prepared',
+        autoClose: claimResult.status === 'error' ? false : undefined,
+      });
     } catch (err) {
       const message = normalizeErrorString(err);
       setError(message);
@@ -89,16 +104,17 @@ export function ClaimNationalSubmissionPanel(props: ClaimNationalSubmissionPanel
         <div>
           <Title order={3}>Kenya National Claim Submission</Title>
           <Text size="sm" c="dimmed">
-            Builds the Kenya SHA claim bundle from this Claim and its linked Medplum resources.
+            Builds the Kenya SHA claim bundle from this Claim and submits it when Kenya SHA credentials are configured.
           </Text>
         </div>
-        <Button onClick={() => handlePrepareClaim().catch(console.error)} loading={submitting}>
-          Prepare Kenya SHA Claim
+        <Button onClick={() => handleSubmitClaim().catch(console.error)} loading={submitting}>
+          Submit Kenya SHA Claim
         </Button>
       </Group>
       <Alert color="blue">
         SHA claims use the <strong>{kenyaShaClaimsEnvironment === 'production' ? 'production' : 'UAT'}</strong> claims
-        environment. This panel prepares the DHA-style claim bundle and records workflow evidence on the Claim.
+        environment. This panel builds the DHA-style claim bundle, submits it when SHA credentials are configured, and
+        records workflow evidence on the Claim.
       </Alert>
       {error && <Alert color="red">{error}</Alert>}
       {currentResult?.status && (
@@ -116,6 +132,12 @@ export function ClaimNationalSubmissionPanel(props: ClaimNationalSubmissionPanel
             <DescriptionListEntry term="Submission Endpoint">
               {currentResult.submissionEndpoint ?? 'Not provided'}
             </DescriptionListEntry>
+            <DescriptionListEntry term="Status Tracking Endpoint">
+              {currentResult.statusTrackingEndpoint ?? 'Not provided'}
+            </DescriptionListEntry>
+            <DescriptionListEntry term="Response Status Code">
+              {currentResult.responseStatusCode ?? 'Not provided'}
+            </DescriptionListEntry>
             <DescriptionListEntry term="Bundle ID">{currentResult.bundleId ?? 'Not provided'}</DescriptionListEntry>
             <DescriptionListEntry term="Bundle Entry Count">
               {currentResult.bundleEntryCount ?? 'Not provided'}
@@ -130,6 +152,11 @@ export function ClaimNationalSubmissionPanel(props: ClaimNationalSubmissionPanel
               )}
             </DescriptionListEntry>
           </DescriptionList>
+          {result?.rawResponse && (
+            <Alert color="gray" title="Raw Kenya SHA Response">
+              <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{result.rawResponse}</pre>
+            </Alert>
+          )}
           {result?.rawBundle && (
             <Alert color="gray" title="Raw Kenya SHA Claim Bundle">
               <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{result.rawBundle}</pre>

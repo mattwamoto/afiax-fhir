@@ -500,7 +500,7 @@ describe('ResourcePage', () => {
     expect(screen.getByText(/"eligible": 1/)).toBeInTheDocument();
   });
 
-  test('Claim panel prepares Kenya SHA claim bundle', async () => {
+  test('Claim panel submits Kenya SHA claim bundle', async () => {
     const medplum = new MockClient();
     const claim = await medplum.createResource<Claim>({
       resourceType: 'Claim',
@@ -528,32 +528,40 @@ describe('ResourcePage', () => {
     const postSpy = jest.spyOn(medplum, 'post').mockResolvedValue({
       resourceType: 'Parameters',
       parameter: [
-        { name: 'status', valueCode: 'prepared' },
-        { name: 'message', valueString: 'Kenya SHA claim bundle prepared from the current Medplum claim resources.' },
-        { name: 'nextState', valueString: 'ready-for-sha-transport' },
+        { name: 'status', valueCode: 'submitted' },
+        { name: 'message', valueString: 'Kenya SHA claim bundle submitted successfully.' },
+        { name: 'nextState', valueString: 'awaiting-sha-status' },
         { name: 'correlationId', valueString: 'corr-claim-123' },
         { name: 'shaClaimsEnvironment', valueString: 'uat' },
-        { name: 'submissionEndpoint', valueString: 'https://qa-mis.apeiro-digital.com/fhir' },
+        { name: 'submissionEndpoint', valueString: 'https://qa-mis.apeiro-digital.com/v1/shr-med/bundle' },
+        {
+          name: 'statusTrackingEndpoint',
+          valueString: 'https://qa-mis.apeiro-digital.com/v1/shr-med/claim-status?claim_id=bundle-123',
+        },
+        { name: 'responseStatusCode', valueInteger: 200 },
         { name: 'bundleId', valueString: 'bundle-123' },
         { name: 'bundleEntryCount', valueInteger: 5 },
         { name: 'rawBundle', valueString: '{\n  \"resourceType\": \"Bundle\"\n}' },
+        { name: 'rawResponse', valueString: '{\n  \"status\": \"accepted\"\n}' },
         { name: 'task', valueReference: { reference: 'Task/task-claim-123' } },
       ],
     });
 
     await setup(`/Claim/${claim.id}`, medplum);
-    expect(await screen.findByText('Prepare Kenya SHA Claim')).toBeInTheDocument();
+    expect(await screen.findByText('Submit Kenya SHA Claim')).toBeInTheDocument();
 
     await act(async () => {
-      fireEvent.click(screen.getByText('Prepare Kenya SHA Claim'));
+      fireEvent.click(screen.getByText('Submit Kenya SHA Claim'));
     });
 
     expect(postSpy).toHaveBeenCalledWith(medplum.fhirUrl('Claim', claim.id as string, '$submit-national-claim'));
+    expect(await screen.findByText('Kenya SHA claim bundle submitted successfully.')).toBeInTheDocument();
+    expect(screen.getByText('https://qa-mis.apeiro-digital.com/v1/shr-med/bundle')).toBeInTheDocument();
     expect(
-      await screen.findByText('Kenya SHA claim bundle prepared from the current Medplum claim resources.')
+      screen.getByText('https://qa-mis.apeiro-digital.com/v1/shr-med/claim-status?claim_id=bundle-123')
     ).toBeInTheDocument();
-    expect(screen.getByText('https://qa-mis.apeiro-digital.com/fhir')).toBeInTheDocument();
     expect(screen.getByText('bundle-123')).toBeInTheDocument();
+    expect(screen.getByText(/"status": "accepted"/)).toBeInTheDocument();
     expect(screen.getByText(/"resourceType": "Bundle"/)).toBeInTheDocument();
   });
 

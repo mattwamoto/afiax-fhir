@@ -139,9 +139,12 @@ export interface SubmitNationalClaimResult {
   readonly countryPack: string;
   readonly shaClaimsEnvironment?: string;
   readonly submissionEndpoint?: string;
+  readonly statusTrackingEndpoint?: string;
+  readonly responseStatusCode?: number;
   readonly bundleId?: string;
   readonly bundleEntryCount?: number;
   readonly rawBundle?: string;
+  readonly rawResponse?: string;
   readonly task?: Reference<Task>;
 }
 

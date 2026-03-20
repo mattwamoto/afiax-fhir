@@ -5,6 +5,7 @@ import {
   badRequest,
   createReference,
   getKenyaShaClaimsEnvironment,
+  normalizeErrorString,
   OperationOutcomeError,
 } from '@medplum/core';
 import type {
@@ -22,15 +23,13 @@ import type {
 } from '@medplum/fhirtypes';
 import { randomUUID } from 'node:crypto';
 import type { CountryPackSubmitNationalClaimInput, SubmitNationalClaimResult } from '../types';
-
-const KenyaShaClaimsBaseUrl = {
-  uat: 'https://qa-mis.apeiro-digital.com',
-  production: 'https://mis.apeiro-digital.com',
-} as const;
-
-function getKenyaShaClaimsBaseUrl(environment: 'uat' | 'production'): string {
-  return KenyaShaClaimsBaseUrl[environment];
-}
+import {
+  getKenyaShaClaimsBaseUrl,
+  getKenyaShaClaimsCredentials,
+  hasKenyaShaClaimsCredentials,
+  normalizeKenyaShaClaimsError,
+  submitKenyaShaClaimBundle,
+} from './sha';
 
 function buildResourceFullUrl(baseUrl: string, resource: WithId<Resource>): string {
   return `${baseUrl}/fhir/${resource.resourceType}/${resource.id}`;
@@ -200,6 +199,7 @@ export async function buildKenyaNationalClaimBundle(
   readonly bundleEntryCount: number;
   readonly shaClaimsEnvironment: 'uat' | 'production';
   readonly submissionEndpoint: string;
+  readonly statusTrackingEndpoint: string;
 }> {
   ensureClaimReadiness(input.claim);
 
@@ -210,9 +210,10 @@ export async function buildKenyaNationalClaimBundle(
   const location = await readClaimLocation(input);
 
   const shaClaimsEnvironment = getKenyaShaClaimsEnvironment(input.ctx.project);
-  const claimsBaseUrl = getKenyaShaClaimsBaseUrl(shaClaimsEnvironment);
-  const submissionEndpoint = `${claimsBaseUrl}/fhir`;
+  const claimsBaseUrl = getKenyaShaClaimsBaseUrl(input.ctx.project);
   const bundleId = randomUUID();
+  const submissionEndpoint = `${claimsBaseUrl}/v1/shr-med/bundle`;
+  const statusTrackingEndpoint = `${claimsBaseUrl}/v1/shr-med/claim-status?claim_id=${encodeURIComponent(bundleId)}`;
 
   const bundleResources: WithId<Resource>[] = [
     ...organizations,
@@ -226,13 +227,13 @@ export async function buildKenyaNationalClaimBundle(
     referenceMap.set(createReference(resource).reference as string, buildResourceFullUrl(claimsBaseUrl, resource));
   }
 
-  const claimFullUrl = `${submissionEndpoint}/Claim/${bundleId}`;
+  const claimFullUrl = `${claimsBaseUrl}/fhir/Claim/${bundleId}`;
   const transformedClaim: Claim = {
     ...input.claim,
     id: bundleId,
     identifier: [
       ...(input.claim.identifier ?? []),
-      { system: `${submissionEndpoint}/Claim`, value: bundleId },
+      { system: `${claimsBaseUrl}/fhir/Claim`, value: bundleId },
     ],
     patient: rewriteReference(input.claim.patient, referenceMap),
     provider: rewriteReference(input.claim.provider, referenceMap),
@@ -292,25 +293,65 @@ export async function buildKenyaNationalClaimBundle(
     bundleEntryCount: bundleEntries.length,
     shaClaimsEnvironment,
     submissionEndpoint,
+    statusTrackingEndpoint,
   };
 }
 
 export async function submitKenyaNationalClaim(
   input: CountryPackSubmitNationalClaimInput
 ): Promise<SubmitNationalClaimResult> {
-  const { bundle, bundleId, bundleEntryCount, shaClaimsEnvironment, submissionEndpoint } =
+  const { bundle, bundleId, bundleEntryCount, shaClaimsEnvironment, submissionEndpoint, statusTrackingEndpoint } =
     await buildKenyaNationalClaimBundle(input);
 
-  return {
-    status: 'prepared',
-    correlationId: input.correlationId,
-    message: 'Kenya SHA claim bundle prepared from the current Medplum claim resources.',
-    nextState: 'ready-for-sha-transport',
-    countryPack: 'kenya',
-    shaClaimsEnvironment,
-    submissionEndpoint,
-    bundleId,
-    bundleEntryCount,
-    rawBundle: JSON.stringify(bundle, null, 2),
-  };
+  if (!hasKenyaShaClaimsCredentials(input.ctx.project)) {
+    return {
+      status: 'prepared',
+      correlationId: input.correlationId,
+      message: 'Kenya SHA claim bundle prepared from the current Medplum claim resources.',
+      nextState: 'ready-for-sha-transport',
+      countryPack: 'kenya',
+      shaClaimsEnvironment,
+      submissionEndpoint,
+      statusTrackingEndpoint,
+      bundleId,
+      bundleEntryCount,
+      rawBundle: JSON.stringify(bundle, null, 2),
+    };
+  }
+
+  try {
+    const credentials = getKenyaShaClaimsCredentials(input.ctx.project);
+    const submission = await submitKenyaShaClaimBundle(credentials, bundle, bundleId);
+
+    return {
+      status: 'submitted',
+      correlationId: input.correlationId,
+      message: 'Kenya SHA claim bundle submitted successfully.',
+      nextState: 'awaiting-sha-status',
+      countryPack: 'kenya',
+      shaClaimsEnvironment,
+      submissionEndpoint: submission.submissionEndpoint,
+      statusTrackingEndpoint: submission.statusTrackingEndpoint,
+      responseStatusCode: submission.responseStatusCode,
+      bundleId,
+      bundleEntryCount,
+      rawBundle: JSON.stringify(bundle, null, 2),
+      rawResponse: submission.rawResponse,
+    };
+  } catch (err) {
+    return {
+      status: 'error',
+      correlationId: input.correlationId,
+      message: normalizeKenyaShaClaimsError(err),
+      nextState: 'retry-or-review-sha-credentials',
+      countryPack: 'kenya',
+      shaClaimsEnvironment,
+      submissionEndpoint,
+      statusTrackingEndpoint,
+      bundleId,
+      bundleEntryCount,
+      rawBundle: JSON.stringify(bundle, null, 2),
+      rawResponse: normalizeErrorString(err),
+    };
+  }
 }
