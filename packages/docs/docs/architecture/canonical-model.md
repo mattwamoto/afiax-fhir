@@ -11,93 +11,168 @@ Use it to decide what belongs in:
 - core Afiax FHIR resources
 - country packs
 - tenant-specific overlays
+- adjacent enterprise systems
 
-The rule is simple: if a field or workflow only exists because of one regulator, payer, or country program, it should
-not define the core model.
+The core rule is simple: if a field, identifier, or workflow only exists because of one regulator, payer, or country
+program, it should not define the core model.
+
+## What the canonical model is for
+
+The canonical model gives Afiax Enterprise one stable clinical and reimbursement ledger even when:
+
+- country packs differ
+- deployment models differ
+- ERP, payment, and partner systems differ
+- UI products differ
+
+This is the mechanism that lets Afiax FHIR remain the source of truth while the platform grows around it.
 
 ## Design rules
+
+The canonical model follows these rules:
 
 - keep the clinical source of truth country-neutral
 - use shared FHIR resources as the editable system of record
 - bind national requirements as overlays, not core mutations
 - let apps, bots, and external integrations share the same underlying resource model
-- keep core, country, and tenant concerns separate
+- keep core, country, tenant, and enterprise concerns separate
+- keep exchange payloads as derived artifacts, not primary records
 
 ## Layering model
 
-This repo uses three layers:
+This repo uses four layers around the canonical model.
 
-- `Core`
-  - shared clinical and operational semantics
-  - generic internal operations
-  - shared identifier categories
-- `Country`
-  - national identifiers
-  - terminology bindings
-  - payer and regulator rules
-  - exchange mappings
-- `Tenant`
-  - customer-specific constraints
-  - rollout toggles
-  - deployment-specific defaults
+### Core
 
-Example:
+Core owns:
 
-- `Patient.identifier` exists in core
-- `national-client-id` is a core identifier category
-- the meaning of that identifier is resolved by the active country pack
-- which country workflows a customer enables is tenant config
+- shared clinical and operational semantics
+- generic internal operations
+- shared identifier categories
+- workflow evidence model
 
-The core model should not contain regulator or country-program names as first-class field names.
+### Country
 
-## Core resource set
+Country packs own:
 
-The current shared model should center on these resources:
+- national identifiers
+- terminology bindings
+- payer and regulator rules
+- exchange mappings
+- connector auth and normalization
+
+### Tenant
+
+Tenant overlays own:
+
+- customer-specific constraints
+- rollout toggles
+- deployment-specific defaults
+- secret ownership mode
+
+### Enterprise
+
+Adjacent enterprise systems own:
+
+- payments execution
+- ERP execution
+- partner integration execution
+
+They consume canonical state and write back normalized outcomes. They do not redefine the canonical model.
+
+## Current implementation state
+
+Implemented in this repo now:
+
+- canonical resource workflows for `Organization`, `Practitioner`, `Coverage`, and `Claim`
+- country-pack overlays through Kenya
+- pack-specific identifiers and extension snapshots layered on shared resources
+- workflow evidence through `Task`, `AuditEvent`, `CoverageEligibilityRequest`, `CoverageEligibilityResponse`, and `ClaimResponse`
+- claim and reimbursement workflows on top of the shared model
+
+That means the canonical model is already wider than basic identity and encounter workflows. It already includes real
+reimbursement surfaces because the Kenya pack now uses them.
+
+## Current core resource domains
+
+The shared model should center on these domains.
+
+### Identity and care context
 
 - `Patient`
 - `Practitioner`
 - `PractitionerRole`
 - `Organization`
 - `Location`
-- `Coverage`
 - `Encounter`
-- `Task`
-- `Communication`
 - `Consent`
+- `Communication`
+
+### Workflow and traceability
+
+- `Task`
 - `AuditEvent`
 - `Provenance`
-- `DocumentReference` or `Composition`
 
-These cover the first operational spine:
+### Financial and reimbursement context
 
-- identity
-- providers and facilities
-- eligibility
-- encounters
-- communication
-- auditability
+- `Coverage`
+- `CoverageEligibilityRequest`
+- `CoverageEligibilityResponse`
+- `Claim`
+- `ClaimResponse`
+- `ChargeItem`
+- `Account`
+- `Invoice`
+- `PaymentReconciliation`
 
-Additional domains such as `Claim`, `ClaimResponse`, and `Invoice` should be layered in only after the verification
-and interoperability path is stable.
+### Clinical and document exchange context
+
+- `DocumentReference`
+- `Composition`
+
+This does not mean every deployment must use all of them at once. It means these resources already fit the canonical
+model and do not need to be treated as country-only concepts.
 
 ## Identifier architecture
 
-The core model stores identifier meaning at the category level. Country packs bind those categories to real national
-codes.
+The canonical model stores identifier meaning at the category level. Country packs bind those categories to concrete
+country identifiers.
 
 | Category | Core meaning | Country binding example | Resources |
 | --- | --- | --- | --- |
 | `internal-record-id` | local platform or tenant identifier | MRN | most master resources |
 | `national-client-id` | national patient authority identifier | national client registry ID | `Patient` |
-| `facility-authority-id` | national facility authority identifier | facility authority code | `Organization`, `Location` |
-| `practitioner-authority-id` | national professional authority identifier | professional authority ID | `Practitioner` |
+| `facility-authority-id` | national facility authority identifier | MFL code | `Organization`, `Location` |
+| `practitioner-authority-id` | national professional authority identifier | health worker registration number | `Practitioner` |
 | `payer-member-id` | payer or beneficiary identifier | national or scheme member ID | `Coverage` |
 
 Implementation rule:
 
 - code against the category, not the country label
-- map the category to a local code in the country pack
+- map the category to a concrete identifier in the country pack
 - do not create new core fields just to expose regulator names
+
+## Country-pack write-back model
+
+Country packs should not mutate the canonical model by adding country-specific top-level fields.
+
+They should:
+
+- use shared resources such as `Organization`, `Practitioner`, `Coverage`, and `Claim`
+- use canonical identifiers
+- store country-specific workflow snapshots as extensions
+- create supporting evidence resources
+
+This is the current Kenya pattern:
+
+- Kenya facility code stored in `Organization.identifier`
+- Kenya facility registry and verification state stored in `Organization.extension`
+- Kenya practitioner lookup and verification state stored in `Practitioner.extension`
+- Kenya eligibility state stored in `Coverage.extension`
+- Kenya claim submission and claim-status state stored in `Claim.extension`
+
+That is the correct shape: canonical resource first, country extension second.
 
 ## Operation model
 
@@ -112,16 +187,9 @@ behind those contracts.
 | `$check-coverage` | perform eligibility or coverage verification | country pack handler |
 | `$publish-national-record` | submit a national clinical exchange payload | country pack handler |
 | `$submit-national-claim` | submit a country-specific claim bundle | country pack handler |
+| `$check-national-claim-status` | refresh country claim status | country pack handler |
 
 The public contract stays generic even when the backend implementation is country-specific.
-
-Current implemented example:
-
-- `Organization/$verify-facility-authority`
-- resolve `facility-authority-id` from `Organization.identifier`
-- active country pack maps that to the local authority code
-- connector authenticates with the country-specific authority service
-- result is normalized and written back through workflow records
 
 ## Workflow evidence model
 
@@ -132,10 +200,12 @@ Use:
 - `Task` for workflow state
 - `AuditEvent` for integration audit trail
 - `Provenance` when source or derivation tracking matters
+- `CoverageEligibilityRequest` and `CoverageEligibilityResponse` for eligibility evidence
+- `ClaimResponse` for payer-side claim outcome evidence
 
 This is the recommended pattern for regulator lookups, eligibility checks, exchange submissions, and claim workflows.
 
-## What belongs outside the core
+## What belongs outside the canonical model
 
 Keep these out of the canonical model:
 
@@ -143,26 +213,54 @@ Keep these out of the canonical model:
 - regulator-specific payload shapes
 - country program names as field names
 - ERPNext invoice, payroll, CRM, training, and inventory object shapes
+- Afiax Pay wallet ledger internals
+- partner-product and quote objects
 - tenant shortcuts that collapse core and country layers
 - UI-specific convenience structures that duplicate the source of truth
 
+## Relationship to enterprise systems
+
+The canonical model does not try to absorb ERP, payment, or partner systems.
+
+Instead:
+
+- Afiax Billing derives finance execution from canonical resources
+- Afiax Pay derives payment execution from canonical resources plus country-pack context
+- partner systems such as Lami derive embedded-insurance workflows from canonical context
+
+Those systems write back normalized outcomes when needed. They do not redefine `Patient`, `Encounter`, `Coverage`, or
+`Claim`.
+
+## Decision checklist
+
+When adding a new field, identifier, or workflow, ask:
+
+1. would this still exist if the current active country pack were removed
+2. would another country likely need the same concept under a different binding
+3. can this be represented as a shared resource plus a country-specific identifier or extension
+4. is this actually an ERP, payment, or partner-integration concern rather than a canonical data concern
+
+Interpretation:
+
+- if 1 is no, it probably does not belong in core
+- if 2 is yes, it is a strong candidate for the canonical model
+- if 3 is yes, prefer the canonical resource plus country-pack overlay
+- if 4 is yes, keep it outside the canonical model and write back only the normalized outcome
+
 ## Guardrails
 
-- Keep Afiax FHIR resources as the editable source of truth.
-- Generate national bundles from canonical resources using mappings and Bots.
-- Derive ERP and finance views from canonical resources rather than editing clinical truth in ERPNext.
-- Store country-specific reconciliation state as extensions or workflow resources.
-- Use `Task`, `AuditEvent`, and `Provenance` to trace external verification and exchange steps.
-- Avoid tenant shortcuts that weaken the core model.
-- Require every country pack to map from the canonical model instead of redefining it.
-- Keep country-pack contracts documented and versioned so the platform can add markets without changing core semantics.
+- keep Afiax FHIR resources as the editable source of truth
+- generate national bundles from canonical resources using mappings, handlers, and bots
+- derive ERP and finance views from canonical resources rather than editing clinical truth in ERP
+- store country-specific reconciliation state as extensions or workflow resources
+- require every country pack to map from the canonical model instead of redefining it
+- keep country-pack contracts documented and versioned so the platform can add markets without changing core semantics
 
-## Practical test
+## Related docs
 
-When adding a new field or workflow, ask:
-
-1. Would this still exist if the current active country pack were removed?
-2. Would another country likely need the same concept under a different name?
-3. Can this be represented as a shared resource plus a country binding?
-
-If the answer to `1` is no, it probably does not belong in core.
+- [Architecture overview](./index)
+- [Platform foundation](./platform-foundation)
+- [Enterprise platform](./enterprise-platform)
+- [Afiax financial architecture](./financial-architecture)
+- [Integration boundaries](./integration-boundaries)
+- [Country packs](../country-packs)
