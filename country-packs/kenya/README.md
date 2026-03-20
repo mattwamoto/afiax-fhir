@@ -288,6 +288,11 @@ Use these repo-level guides when you need the execution model around those workf
 - `connectors/README.md`
 - `bots/README.md`
 - `compliance/README.md`
+- `fixtures/README.md`
+- `mappings/README.md`
+- `profiles/README.md`
+- `valuesets/README.md`
+- `codesystems/README.md`
 
 ## Test commands
 
