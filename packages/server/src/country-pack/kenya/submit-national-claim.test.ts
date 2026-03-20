@@ -3,6 +3,7 @@
 import fetch from 'node-fetch';
 import type { Claim, Coverage, Organization, Patient, Practitioner, Project } from '@medplum/fhirtypes';
 import { buildKenyaNationalClaimBundle, submitKenyaNationalClaim } from './submit-national-claim';
+import { checkKenyaShaClaimStatus } from './sha';
 
 jest.mock('node-fetch');
 
@@ -210,5 +211,34 @@ describe('submitKenyaNationalClaim', () => {
         }),
       })
     );
+  });
+
+  test('parses Kenya SHA claim status from root-level DHA response fields', async () => {
+    (fetch as unknown as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      text: jest.fn(async () =>
+        JSON.stringify({
+          claim_id: 'bundle-123',
+          claim_state: 'Payment Approved',
+          message: 'Claim is ready for payment',
+        })
+      ),
+    });
+
+    const result = await checkKenyaShaClaimStatus(
+      {
+        baseUrl: 'https://qa-mis.apeiro-digital.com',
+        accessKey: 'sha-access-key',
+        secretKey: 'sha-secret-key',
+      },
+      'bundle-123'
+    );
+
+    expect(result.statusEndpoint).toBe(
+      'https://qa-mis.apeiro-digital.com/v1/shr-med/claim-status?claim_id=bundle-123'
+    );
+    expect(result.claimState).toBe('Payment Approved');
+    expect(result.message).toBe('Claim is ready for payment');
   });
 });

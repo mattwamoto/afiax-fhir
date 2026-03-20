@@ -6,16 +6,19 @@ import {
   applyKenyaPractitionerRegistryToPractitioner,
   buildKenyaFacilityVerificationExtension,
   buildKenyaCoverageEligibilityExtension,
+  buildKenyaNationalClaimStatusExtension,
   buildKenyaNationalClaimSubmissionExtension,
   buildKenyaPractitionerVerificationExtension,
   clearKenyaFacilityRegistrySnapshot,
   clearKenyaFacilityVerificationSnapshot,
   clearKenyaCoverageEligibilitySnapshot,
+  clearKenyaNationalClaimStatusSnapshot,
   clearKenyaNationalClaimSubmissionSnapshot,
   clearKenyaPractitionerRegistrySnapshot,
   clearKenyaPractitionerVerificationSnapshot,
   getKenyaCoverageEligibilityLookupIdentifier,
   getKenyaCoverageEligibilitySnapshot,
+  getKenyaNationalClaimStatusSnapshot,
   getKenyaFacilityVerificationSnapshot,
   getKenyaFacilityAuthorityIdentifier,
   getKenyaFacilityRegistrySnapshot,
@@ -481,6 +484,61 @@ describe('Kenya facility verification helpers', () => {
     });
   });
 
+  test('builds and reads Kenya national claim status snapshot extensions', () => {
+    const claim: Claim = {
+      resourceType: 'Claim',
+      status: 'active',
+      type: { text: 'Institutional' },
+      use: 'claim',
+      patient: { reference: 'Patient/123' },
+      created: '2026-03-20',
+      provider: { reference: 'Organization/456' },
+      priority: { text: 'normal' },
+      insurance: [{ sequence: 1, focal: true, coverage: { reference: 'Coverage/123' } }],
+      extension: [
+        buildKenyaNationalClaimStatusExtension(
+          {
+            status: 'adjudicated',
+            correlationId: 'corr-claim-status-123',
+            message: 'Claim approved for payment',
+            nextState: 'ready-for-financial-reconciliation',
+            shaClaimsEnvironment: 'uat',
+            statusEndpoint: 'https://qa-mis.apeiro-digital.com/v1/shr-med/claim-status?claim_id=bundle-123',
+            responseStatusCode: 200,
+            claimId: 'bundle-123',
+            claimState: 'Payment Approved',
+            workflowBot: 'Bot/bot-claim-status-123',
+            workflowBotStatus: 'triggered',
+            workflowBotMessage: 'Configured Kenya claim workflow bot executed successfully.',
+          },
+          '2026-03-20T19:00:00.000Z',
+          {
+            task: { reference: 'Task/task-claim-status-123' },
+            claimResponse: { reference: 'ClaimResponse/claim-response-123' },
+          }
+        ),
+      ],
+    };
+
+    expect(getKenyaNationalClaimStatusSnapshot(claim)).toEqual({
+      status: 'adjudicated',
+      correlationId: 'corr-claim-status-123',
+      message: 'Claim approved for payment',
+      nextState: 'ready-for-financial-reconciliation',
+      checkedAt: '2026-03-20T19:00:00.000Z',
+      task: { reference: 'Task/task-claim-status-123' },
+      claimResponse: { reference: 'ClaimResponse/claim-response-123' },
+      shaClaimsEnvironment: 'uat',
+      statusEndpoint: 'https://qa-mis.apeiro-digital.com/v1/shr-med/claim-status?claim_id=bundle-123',
+      responseStatusCode: 200,
+      claimId: 'bundle-123',
+      claimState: 'Payment Approved',
+      workflowBot: 'Bot/bot-claim-status-123',
+      workflowBotStatus: 'triggered',
+      workflowBotMessage: 'Configured Kenya claim workflow bot executed successfully.',
+    });
+  });
+
   test('clears Kenya national claim submission snapshot', () => {
     const claim: Claim = {
       resourceType: 'Claim',
@@ -502,6 +560,31 @@ describe('Kenya facility verification helpers', () => {
     };
 
     expect(clearKenyaNationalClaimSubmissionSnapshot(claim).extension).toEqual([
+      { url: 'https://example.com/other', valueString: 'keep-me' },
+    ]);
+  });
+
+  test('clears Kenya national claim status snapshot', () => {
+    const claim: Claim = {
+      resourceType: 'Claim',
+      status: 'active',
+      type: { text: 'Institutional' },
+      use: 'claim',
+      patient: { reference: 'Patient/123' },
+      created: '2026-03-20',
+      provider: { reference: 'Organization/456' },
+      priority: { text: 'normal' },
+      insurance: [{ sequence: 1, focal: true, coverage: { reference: 'Coverage/123' } }],
+      extension: [
+        {
+          url: 'https://afiax.africa/fhir/StructureDefinition/kenya-national-claim-status',
+          extension: [{ url: 'status', valueCode: 'queued' }],
+        },
+        { url: 'https://example.com/other', valueString: 'keep-me' },
+      ],
+    };
+
+    expect(clearKenyaNationalClaimStatusSnapshot(claim).extension).toEqual([
       { url: 'https://example.com/other', valueString: 'keep-me' },
     ]);
   });

@@ -3,6 +3,7 @@
 import type { WithId } from '@medplum/core';
 import type {
   Claim,
+  ClaimResponse,
   Coverage,
   CoverageEligibilityRequest,
   CoverageEligibilityResponse,
@@ -21,7 +22,8 @@ export type CountryPackOperationCode =
   | 'verify-practitioner-authority'
   | 'check-coverage'
   | 'publish-national-record'
-  | 'submit-national-claim';
+  | 'submit-national-claim'
+  | 'check-national-claim-status';
 
 export interface CountryPackIdentifierBinding {
   readonly category: string;
@@ -44,6 +46,9 @@ export interface CountryPackDefinition {
   ) => Promise<VerifyPractitionerAuthorityResult>;
   checkCoverage?: (input: CountryPackCheckCoverageInput) => Promise<CheckCoverageResult>;
   submitNationalClaim?: (input: CountryPackSubmitNationalClaimInput) => Promise<SubmitNationalClaimResult>;
+  checkNationalClaimStatus?: (
+    input: CountryPackCheckNationalClaimStatusInput
+  ) => Promise<CheckNationalClaimStatusResult>;
 }
 
 export interface CountryPackVerifyFacilityAuthorityInput {
@@ -65,6 +70,12 @@ export interface CountryPackCheckCoverageInput {
 }
 
 export interface CountryPackSubmitNationalClaimInput {
+  readonly ctx: AuthenticatedRequestContext;
+  readonly claim: WithId<Claim>;
+  readonly correlationId: string;
+}
+
+export interface CountryPackCheckNationalClaimStatusInput {
   readonly ctx: AuthenticatedRequestContext;
   readonly claim: WithId<Claim>;
   readonly correlationId: string;
@@ -145,6 +156,27 @@ export interface SubmitNationalClaimResult {
   readonly bundleEntryCount?: number;
   readonly rawBundle?: string;
   readonly rawResponse?: string;
+  readonly workflowBot?: string;
+  readonly workflowBotStatus?: 'triggered' | 'failed';
+  readonly workflowBotMessage?: string;
+  readonly task?: Reference<Task>;
+}
+
+export type NationalClaimStatusCheckStatus = 'queued' | 'in-review' | 'adjudicated' | 'rejected' | 'error';
+
+export interface CheckNationalClaimStatusResult {
+  readonly status: NationalClaimStatusCheckStatus;
+  readonly correlationId: string;
+  readonly message: string;
+  readonly nextState: string;
+  readonly countryPack: string;
+  readonly shaClaimsEnvironment?: string;
+  readonly statusEndpoint?: string;
+  readonly responseStatusCode?: number;
+  readonly claimId?: string;
+  readonly claimState?: string;
+  readonly rawResponse?: string;
+  readonly claimResponse?: Reference<ClaimResponse>;
   readonly workflowBot?: string;
   readonly workflowBotStatus?: 'triggered' | 'failed';
   readonly workflowBotMessage?: string;

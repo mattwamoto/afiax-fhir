@@ -84,11 +84,13 @@ Implemented now:
 - `Practitioner`-level identity capture, lookup, and verification UI
 - `Coverage`-level eligibility lookup capture and DHA eligibility UI
 - `Claim`-level Kenya SHA claim submission UI
+- `Claim`-level Kenya SHA claim status check UI
 - optional post-submit Kenya claim workflow bot hook
 - generic `Organization/$verify-facility-authority`
 - generic `Practitioner/$verify-practitioner-authority`
 - generic `Coverage/$check-coverage`
 - generic `Claim/$submit-national-claim`
+- generic `Claim/$check-national-claim-status`
 - Kenya-specific AfyaLink auth and facility search
 - Kenya-specific AfyaLink practitioner search
 - Kenya-specific AfyaLink eligibility lookup
@@ -107,8 +109,8 @@ Kenya logic currently sits behind country-neutral operations such as:
 - `$publish-national-record`
 - `$submit-national-claim`
 
-`$verify-facility-authority`, `$verify-practitioner-authority`, `$check-coverage`, and `$submit-national-claim` have implemented Kenya
-connector paths today.
+`$verify-facility-authority`, `$verify-practitioner-authority`, `$check-coverage`, `$submit-national-claim`, and
+`$check-national-claim-status` have implemented Kenya connector paths today.
 
 ## Facility verification flow
 
@@ -181,6 +183,24 @@ If Kenya SHA credentials are not configured, the same operation still returns a 
 the live SHA response and status-tracking endpoint. When the optional claim workflow bot is configured, the UI also
 shows whether the downstream bot handoff was triggered successfully.
 
+## National claim status flow
+
+Current path for `Claim/$check-national-claim-status`:
+
+1. Resolve the active project.
+2. Read the Kenya SHA claims environment from `Project.setting`.
+3. Load the last submitted Kenya bundle ID from the persisted claim snapshot.
+4. Sign a DHA-style JWT using the SHA access key and secret key.
+5. Call the SHA claim-status endpoint.
+6. Normalize the returned claim state into shared workflow state such as `queued`, `in-review`, `adjudicated`, or `rejected`.
+7. Upsert a local `ClaimResponse` for the latest payer-side status evidence.
+8. If `Project.setting.kenyaClaimWorkflowBotId` is configured, execute that bot after a successful status refresh.
+9. Persist the status snapshot on the `Claim`.
+10. Create a `Task` and `AuditEvent`.
+
+The `Claim` page exposes this as an explicit `Check Kenya SHA Claim Status` action. The panel shows the current
+claim state, local `ClaimResponse` reference, raw SHA status response, and workflow bot handoff state.
+
 ## Admin UI flow
 
 For a Kenya project:
@@ -226,9 +246,10 @@ For a Kenya project:
 - `/Claim/{id}`
   - builds the Kenya SHA claim bundle from the current Medplum claim graph
   - submits it when Kenya SHA credentials are configured
+  - checks the latest Kenya SHA claim status against the last submitted bundle ID
   - optionally triggers a downstream Kenya claim workflow bot
-  - shows the submission environment, submission endpoint, status-tracking endpoint, raw SHA response, workflow bot status, and raw bundle payload
-  - records the workflow snapshot and task on the resource
+  - shows the submission environment, submission endpoint, status-tracking endpoint, current claim state, local `ClaimResponse`, raw SHA response, workflow bot status, and raw bundle payload
+  - records both submission and claim-status workflow snapshots and tasks on the resource
 
 ## Guardrails
 
@@ -239,10 +260,10 @@ For a Kenya project:
 
 ## Recommended next steps
 
-1. Add SHA response mapping into `ClaimResponse` and adjudication state.
+1. Add SHA callback support for asynchronous payer updates when DHA makes that path available.
 2. Add reconciliation and retry surfaces around external calls.
-3. Add a dedicated Kenya claim-status bot or callback flow for asynchronous payer updates.
-4. Add facility, practitioner, and coverage queue views for operational follow-up.
+3. Split claim-status bots from submission bots if Kenya operations need different downstream orchestration.
+4. Add facility, practitioner, coverage, and claim work queues for operational follow-up.
 
 ## Related docs
 

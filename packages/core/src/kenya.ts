@@ -3,6 +3,7 @@
 import { getExtensionValue } from './utils';
 import type {
   Claim,
+  ClaimResponse,
   Coverage,
   CoverageEligibilityRequest,
   CoverageEligibilityResponse,
@@ -1340,6 +1341,148 @@ export function clearKenyaNationalClaimSubmissionSnapshot(claim: Claim): Claim {
   return {
     ...claim,
     extension: claim.extension.filter((ext) => ext.url !== KenyaNationalClaimSubmissionExtension.baseUrl),
+  };
+}
+
+export interface KenyaNationalClaimStatusResultInput {
+  readonly status: string;
+  readonly correlationId: string;
+  readonly message: string;
+  readonly nextState: string;
+  readonly shaClaimsEnvironment?: string;
+  readonly statusEndpoint?: string;
+  readonly responseStatusCode?: number;
+  readonly claimId?: string;
+  readonly claimState?: string;
+  readonly workflowBot?: string;
+  readonly workflowBotStatus?: string;
+  readonly workflowBotMessage?: string;
+}
+
+export const KenyaNationalClaimStatusExtension = {
+  baseUrl: 'https://afiax.africa/fhir/StructureDefinition/kenya-national-claim-status',
+  status: 'status',
+  correlationId: 'correlationId',
+  message: 'message',
+  nextState: 'nextState',
+  checkedAt: 'checkedAt',
+  task: 'task',
+  claimResponse: 'claimResponse',
+  shaClaimsEnvironment: 'shaClaimsEnvironment',
+  statusEndpoint: 'statusEndpoint',
+  responseStatusCode: 'responseStatusCode',
+  claimId: 'claimId',
+  claimState: 'claimState',
+  workflowBot: 'workflowBot',
+  workflowBotStatus: 'workflowBotStatus',
+  workflowBotMessage: 'workflowBotMessage',
+} as const;
+
+export interface KenyaNationalClaimStatusSnapshot {
+  readonly status?: string;
+  readonly correlationId?: string;
+  readonly message?: string;
+  readonly nextState?: string;
+  readonly checkedAt?: string;
+  readonly task?: Reference<Task>;
+  readonly claimResponse?: Reference<ClaimResponse>;
+  readonly shaClaimsEnvironment?: string;
+  readonly statusEndpoint?: string;
+  readonly responseStatusCode?: number;
+  readonly claimId?: string;
+  readonly claimState?: string;
+  readonly workflowBot?: string;
+  readonly workflowBotStatus?: string;
+  readonly workflowBotMessage?: string;
+}
+
+export function buildKenyaNationalClaimStatusExtension(
+  result: KenyaNationalClaimStatusResultInput,
+  checkedAt: string,
+  references?: {
+    readonly task?: Reference<Task>;
+    readonly claimResponse?: Reference<ClaimResponse>;
+  }
+): Extension {
+  const extension: Extension = {
+    url: KenyaNationalClaimStatusExtension.baseUrl,
+    extension: [
+      { url: KenyaNationalClaimStatusExtension.status, valueCode: result.status },
+      { url: KenyaNationalClaimStatusExtension.correlationId, valueString: result.correlationId },
+      { url: KenyaNationalClaimStatusExtension.message, valueString: result.message },
+      { url: KenyaNationalClaimStatusExtension.nextState, valueString: result.nextState },
+      { url: KenyaNationalClaimStatusExtension.checkedAt, valueDateTime: checkedAt },
+    ],
+  };
+
+  if (references?.task) {
+    extension.extension?.push({ url: KenyaNationalClaimStatusExtension.task, valueReference: references.task });
+  }
+  if (references?.claimResponse) {
+    extension.extension?.push({
+      url: KenyaNationalClaimStatusExtension.claimResponse,
+      valueReference: references.claimResponse,
+    });
+  }
+  pushString(extension, KenyaNationalClaimStatusExtension.shaClaimsEnvironment, result.shaClaimsEnvironment);
+  pushString(extension, KenyaNationalClaimStatusExtension.statusEndpoint, result.statusEndpoint);
+  if (result.responseStatusCode !== undefined) {
+    extension.extension?.push({
+      url: KenyaNationalClaimStatusExtension.responseStatusCode,
+      valueUnsignedInt: result.responseStatusCode,
+    });
+  }
+  pushString(extension, KenyaNationalClaimStatusExtension.claimId, result.claimId);
+  pushString(extension, KenyaNationalClaimStatusExtension.claimState, result.claimState);
+  pushString(extension, KenyaNationalClaimStatusExtension.workflowBot, result.workflowBot);
+  pushString(extension, KenyaNationalClaimStatusExtension.workflowBotStatus, result.workflowBotStatus);
+  pushString(extension, KenyaNationalClaimStatusExtension.workflowBotMessage, result.workflowBotMessage);
+
+  return extension;
+}
+
+export function getKenyaNationalClaimStatusSnapshot(
+  claim: Pick<Claim, 'extension'> | undefined
+): KenyaNationalClaimStatusSnapshot | undefined {
+  if (!claim?.extension?.length) {
+    return undefined;
+  }
+
+  const base = KenyaNationalClaimStatusExtension.baseUrl;
+  const status = getExtensionValue(claim, base, KenyaNationalClaimStatusExtension.status);
+  if (typeof status !== 'string' || !status) {
+    return undefined;
+  }
+
+  const taskValue = getExtensionValue(claim, base, KenyaNationalClaimStatusExtension.task);
+  const claimResponseValue = getExtensionValue(claim, base, KenyaNationalClaimStatusExtension.claimResponse);
+  return {
+    status,
+    correlationId: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimStatusExtension.correlationId),
+    message: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimStatusExtension.message),
+    nextState: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimStatusExtension.nextState),
+    checkedAt: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimStatusExtension.checkedAt),
+    task: isReference(taskValue) ? (taskValue as Reference<Task>) : undefined,
+    claimResponse: isReference(claimResponseValue) ? (claimResponseValue as Reference<ClaimResponse>) : undefined,
+    shaClaimsEnvironment: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimStatusExtension.shaClaimsEnvironment),
+    statusEndpoint: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimStatusExtension.statusEndpoint),
+    responseStatusCode: getKenyaExtensionNumberValue(claim, base, KenyaNationalClaimStatusExtension.responseStatusCode),
+    claimId: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimStatusExtension.claimId),
+    claimState: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimStatusExtension.claimState),
+    workflowBot: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimStatusExtension.workflowBot),
+    workflowBotStatus: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimStatusExtension.workflowBotStatus),
+    workflowBotMessage: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimStatusExtension.workflowBotMessage),
+  };
+}
+
+export function clearKenyaNationalClaimStatusSnapshot(claim: Claim): Claim {
+  if (!claim.extension?.length) {
+    return claim;
+  }
+
+  return {
+    ...claim,
+    extension: claim.extension.filter((ext) => ext.url !== KenyaNationalClaimStatusExtension.baseUrl),
   };
 }
 

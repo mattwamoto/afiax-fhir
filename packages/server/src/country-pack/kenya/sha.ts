@@ -8,7 +8,7 @@ import {
   type KenyaShaClaimsCredentialMode,
   type KenyaShaClaimsEnvironment,
 } from '@medplum/core';
-import type { Bundle, Project } from '@medplum/fhirtypes';
+import type { Bundle, ClaimResponse, Project } from '@medplum/fhirtypes';
 import { SignJWT } from 'jose';
 import fetch from 'node-fetch';
 
@@ -30,6 +30,16 @@ export interface KenyaShaClaimsSubmissionResponse {
   readonly responseStatusCode: number;
   readonly rawResponse: string;
   readonly parsedResponse?: unknown;
+}
+
+export interface KenyaShaClaimStatusResponse {
+  readonly statusEndpoint: string;
+  readonly responseStatusCode: number;
+  readonly rawResponse: string;
+  readonly parsedResponse?: unknown;
+  readonly claimResponse?: ClaimResponse;
+  readonly claimState?: string;
+  readonly message?: string;
 }
 
 function getProjectSecret(project: Project, name: string): string | undefined {
@@ -122,6 +132,116 @@ function tryParseJson(rawResponse: string): unknown | undefined {
   }
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+
+function getStringValue(value: unknown): string | undefined {
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  return trimmed || undefined;
+}
+
+function getClaimStateFromExtension(extension: unknown): string | undefined {
+  if (!isRecord(extension)) {
+    return undefined;
+  }
+
+  const url = getStringValue(extension.url);
+  if (!url || !url.toLowerCase().includes('claim-state')) {
+    return undefined;
+  }
+
+  return (
+    getStringValue(extension.valueCode) ??
+    getStringValue(extension.valueString) ??
+    (isRecord(extension.valueCoding)
+      ? getStringValue(extension.valueCoding.code) ?? getStringValue(extension.valueCoding.display)
+      : undefined) ??
+    (isRecord(extension.valueCodeableConcept)
+      ? getStringValue(extension.valueCodeableConcept.text)
+      : undefined)
+  );
+}
+
+function getClaimStateFromClaimResponse(claimResponse: ClaimResponse | undefined): string | undefined {
+  if (!claimResponse) {
+    return undefined;
+  }
+
+  for (const extension of claimResponse.extension ?? []) {
+    const claimState = getClaimStateFromExtension(extension);
+    if (claimState) {
+      return claimState;
+    }
+  }
+
+  return claimResponse.outcome ? String(claimResponse.outcome) : undefined;
+}
+
+function getClaimStateFromParsedResponse(parsedResponse: unknown): string | undefined {
+  if (!isRecord(parsedResponse)) {
+    return undefined;
+  }
+
+  const directValue =
+    getStringValue(parsedResponse.claim_state) ??
+    getStringValue(parsedResponse.claimState) ??
+    getStringValue(parsedResponse.claim_status) ??
+    getStringValue(parsedResponse.claimStatus) ??
+    getStringValue(parsedResponse.status);
+  if (directValue) {
+    return directValue;
+  }
+
+  const nestedMessage = isRecord(parsedResponse.message) ? parsedResponse.message : undefined;
+  if (!nestedMessage) {
+    return undefined;
+  }
+
+  return (
+    getStringValue(nestedMessage.claim_state) ??
+    getStringValue(nestedMessage.claimState) ??
+    getStringValue(nestedMessage.claim_status) ??
+    getStringValue(nestedMessage.claimStatus) ??
+    getStringValue(nestedMessage.status)
+  );
+}
+
+function findClaimResponseInParsedResponse(parsedResponse: unknown): ClaimResponse | undefined {
+  if (!isRecord(parsedResponse)) {
+    return undefined;
+  }
+
+  if (parsedResponse.resourceType === 'ClaimResponse') {
+    return parsedResponse as unknown as ClaimResponse;
+  }
+
+  if (parsedResponse.resourceType === 'Bundle' && Array.isArray(parsedResponse.entry)) {
+    for (const entry of parsedResponse.entry) {
+      if (isRecord(entry) && isRecord(entry.resource) && entry.resource.resourceType === 'ClaimResponse') {
+        return entry.resource as unknown as ClaimResponse;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+function getClaimStatusMessage(parsedResponse: unknown, claimResponse: ClaimResponse | undefined): string | undefined {
+  if (claimResponse?.disposition) {
+    return claimResponse.disposition;
+  }
+
+  if (isRecord(parsedResponse)) {
+    return getStringValue(parsedResponse.message) ?? getStringValue(parsedResponse.status);
+  }
+
+  return undefined;
+}
+
 export async function submitKenyaShaClaimBundle(
   credentials: KenyaShaClaimsCredentials,
   bundle: Bundle,
@@ -153,6 +273,41 @@ export async function submitKenyaShaClaimBundle(
     responseStatusCode: response.status,
     rawResponse,
     parsedResponse: tryParseJson(rawResponse),
+  };
+}
+
+export async function checkKenyaShaClaimStatus(
+  credentials: KenyaShaClaimsCredentials,
+  claimId: string
+): Promise<KenyaShaClaimStatusResponse> {
+  const statusEndpoint = `${credentials.baseUrl}/v1/shr-med/claim-status?claim_id=${encodeURIComponent(claimId)}`;
+  const token = await getKenyaShaClaimsToken(credentials);
+
+  const response = await fetch(statusEndpoint, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json, application/fhir+json',
+    },
+  });
+
+  const rawResponse = await response.text();
+  if (!response.ok) {
+    throw new Error(`Kenya SHA claim status failed (${response.status}): ${rawResponse}`);
+  }
+
+  const parsedResponse = tryParseJson(rawResponse);
+  const claimResponse = findClaimResponseInParsedResponse(parsedResponse);
+  const claimState = getClaimStateFromClaimResponse(claimResponse) ?? getClaimStateFromParsedResponse(parsedResponse);
+
+  return {
+    statusEndpoint,
+    responseStatusCode: response.status,
+    rawResponse,
+    parsedResponse,
+    claimResponse,
+    claimState,
+    message: getClaimStatusMessage(parsedResponse, claimResponse),
   };
 }
 

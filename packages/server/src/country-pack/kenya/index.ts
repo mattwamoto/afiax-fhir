@@ -3,6 +3,7 @@
 import type { CountryPackDefinition } from '../types';
 import { KenyaAfyaLinkSecretNames } from './afyalink';
 import { checkKenyaCoverage } from './check-coverage';
+import { checkKenyaNationalClaimStatus } from './check-national-claim-status';
 import { submitKenyaNationalClaim } from './submit-national-claim';
 import { verifyKenyaFacilityAuthority } from './verify-facility-authority';
 import { verifyKenyaPractitionerAuthority } from './verify-practitioner-authority';
@@ -20,6 +21,7 @@ export const kenyaCountryPack: CountryPackDefinition = {
     'check-coverage',
     'publish-national-record',
     'submit-national-claim',
+    'check-national-claim-status',
   ],
   identifierBindings: [
     {
@@ -51,4 +53,5 @@ export const kenyaCountryPack: CountryPackDefinition = {
   verifyPractitionerAuthority: verifyKenyaPractitionerAuthority,
   checkCoverage: checkKenyaCoverage,
   submitNationalClaim: submitKenyaNationalClaim,
+  checkNationalClaimStatus: checkKenyaNationalClaimStatus,
 };

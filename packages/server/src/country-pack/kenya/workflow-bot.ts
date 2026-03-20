@@ -5,7 +5,7 @@ import type { Bot, Claim } from '@medplum/fhirtypes';
 import { executeBot } from '../../bots/execute';
 import { getBotProjectMembership } from '../../bots/utils';
 import type { AuthenticatedRequestContext } from '../../context';
-import type { SubmitNationalClaimResult } from '../types';
+import type { CheckNationalClaimStatusResult, SubmitNationalClaimResult } from '../types';
 
 export interface KenyaClaimWorkflowBotResult {
   readonly workflowBot?: string;
@@ -17,13 +17,14 @@ function normalizeBotId(value: string): string {
   return value.startsWith('Bot/') ? value.slice('Bot/'.length) : value;
 }
 
-export async function triggerKenyaClaimWorkflowBot(
+async function triggerKenyaClaimWorkflowEvent(
   ctx: AuthenticatedRequestContext,
   claim: Claim,
-  result: SubmitNationalClaimResult
+  eventType: string,
+  payload: Record<string, unknown>
 ): Promise<KenyaClaimWorkflowBotResult> {
   const configuredBot = getProjectSettingString(ctx.project, 'kenyaClaimWorkflowBotId');
-  if (!configuredBot || result.status !== 'submitted') {
+  if (!configuredBot) {
     return {};
   }
 
@@ -36,21 +37,9 @@ export async function triggerKenyaClaimWorkflowBot(
       runAs: await getBotProjectMembership(ctx, bot),
       requester: ctx.profile,
       input: {
-        eventType: 'kenya.claim.submitted',
+        eventType,
         claim: createReference(claim),
-        submission: {
-          status: result.status,
-          correlationId: result.correlationId,
-          message: result.message,
-          nextState: result.nextState,
-          shaClaimsEnvironment: result.shaClaimsEnvironment,
-          submissionEndpoint: result.submissionEndpoint,
-          statusTrackingEndpoint: result.statusTrackingEndpoint,
-          responseStatusCode: result.responseStatusCode,
-          bundleId: result.bundleId,
-          bundleEntryCount: result.bundleEntryCount,
-          task: result.task,
-        },
+        ...payload,
       },
       contentType: ContentType.JSON,
       traceId: ctx.traceId,
@@ -77,4 +66,56 @@ export async function triggerKenyaClaimWorkflowBot(
       workflowBotMessage: `Kenya claim workflow bot failed: ${normalizeErrorString(err)}`,
     };
   }
+}
+
+export async function triggerKenyaClaimWorkflowBot(
+  ctx: AuthenticatedRequestContext,
+  claim: Claim,
+  result: SubmitNationalClaimResult
+): Promise<KenyaClaimWorkflowBotResult> {
+  if (result.status !== 'submitted') {
+    return {};
+  }
+
+  return triggerKenyaClaimWorkflowEvent(ctx, claim, 'kenya.claim.submitted', {
+    submission: {
+      status: result.status,
+      correlationId: result.correlationId,
+      message: result.message,
+      nextState: result.nextState,
+      shaClaimsEnvironment: result.shaClaimsEnvironment,
+      submissionEndpoint: result.submissionEndpoint,
+      statusTrackingEndpoint: result.statusTrackingEndpoint,
+      responseStatusCode: result.responseStatusCode,
+      bundleId: result.bundleId,
+      bundleEntryCount: result.bundleEntryCount,
+      task: result.task,
+    },
+  });
+}
+
+export async function triggerKenyaClaimStatusWorkflowBot(
+  ctx: AuthenticatedRequestContext,
+  claim: Claim,
+  result: CheckNationalClaimStatusResult
+): Promise<KenyaClaimWorkflowBotResult> {
+  if (result.status === 'error') {
+    return {};
+  }
+
+  return triggerKenyaClaimWorkflowEvent(ctx, claim, 'kenya.claim.status-updated', {
+    claimStatus: {
+      status: result.status,
+      correlationId: result.correlationId,
+      message: result.message,
+      nextState: result.nextState,
+      shaClaimsEnvironment: result.shaClaimsEnvironment,
+      statusEndpoint: result.statusEndpoint,
+      responseStatusCode: result.responseStatusCode,
+      claimId: result.claimId,
+      claimState: result.claimState,
+      claimResponse: result.claimResponse,
+      task: result.task,
+    },
+  });
 }

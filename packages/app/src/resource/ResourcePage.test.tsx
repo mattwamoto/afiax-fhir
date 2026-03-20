@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
 import type { OperationOutcomeError } from '@medplum/core';
-import { getReferenceString } from '@medplum/core';
+import { buildKenyaNationalClaimSubmissionExtension, getReferenceString } from '@medplum/core';
 import type {
   Bot,
   Claim,
@@ -568,6 +568,87 @@ describe('ResourcePage', () => {
     expect(screen.getByText('triggered')).toBeInTheDocument();
     expect(screen.getByText(/"status": "accepted"/)).toBeInTheDocument();
     expect(screen.getByText(/"resourceType": "Bundle"/)).toBeInTheDocument();
+  });
+
+  test('Claim panel checks Kenya SHA claim status', async () => {
+    const medplum = new MockClient();
+    const claim = await medplum.createResource<Claim>({
+      resourceType: 'Claim',
+      status: 'active',
+      type: { text: 'Institutional' },
+      use: 'claim',
+      patient: { reference: 'Patient/123' },
+      created: '2026-03-20',
+      provider: { reference: 'Organization/456' },
+      priority: { text: 'normal' },
+      insurance: [{ sequence: 1, focal: true, coverage: { reference: 'Coverage/123' } }],
+      item: [{ sequence: 1, productOrService: { text: 'Consultation' } }],
+      total: { value: 1000, currency: 'KES' },
+      extension: [
+        buildKenyaNationalClaimSubmissionExtension(
+          {
+            status: 'submitted',
+            correlationId: 'corr-claim-123',
+            message: 'Kenya SHA claim bundle submitted successfully.',
+            nextState: 'awaiting-sha-status',
+            shaClaimsEnvironment: 'uat',
+            submissionEndpoint: 'https://qa-mis.apeiro-digital.com/v1/shr-med/bundle',
+            statusTrackingEndpoint: 'https://qa-mis.apeiro-digital.com/v1/shr-med/claim-status?claim_id=bundle-123',
+            responseStatusCode: 202,
+            bundleId: 'bundle-123',
+            bundleEntryCount: 5,
+          },
+          '2026-03-20T18:00:00.000Z',
+          { reference: 'Task/task-claim-123' }
+        ),
+      ],
+    });
+
+    jest.spyOn(medplum, 'getProject').mockReturnValue({
+      resourceType: 'Project',
+      id: 'project-123',
+      setting: [
+        { name: 'countryPack', valueString: 'kenya' },
+        { name: 'kenyaShaClaimsEnvironment', valueString: 'uat' },
+      ],
+    } as Project);
+
+    const postSpy = jest.spyOn(medplum, 'post').mockResolvedValue({
+      resourceType: 'Parameters',
+      parameter: [
+        { name: 'status', valueCode: 'adjudicated' },
+        { name: 'message', valueString: 'Claim approved for payment' },
+        { name: 'nextState', valueString: 'ready-for-financial-reconciliation' },
+        { name: 'correlationId', valueString: 'corr-claim-status-123' },
+        { name: 'shaClaimsEnvironment', valueString: 'uat' },
+        {
+          name: 'statusEndpoint',
+          valueString: 'https://qa-mis.apeiro-digital.com/v1/shr-med/claim-status?claim_id=bundle-123',
+        },
+        { name: 'responseStatusCode', valueInteger: 200 },
+        { name: 'claimId', valueString: 'bundle-123' },
+        { name: 'claimState', valueString: 'Payment Approved' },
+        { name: 'claimResponse', valueReference: { reference: 'ClaimResponse/claim-response-123' } },
+        { name: 'workflowBot', valueString: 'Bot/kenya-claim-bot' },
+        { name: 'workflowBotStatus', valueCode: 'triggered' },
+        { name: 'workflowBotMessage', valueString: 'Configured Kenya claim workflow bot executed successfully.' },
+        { name: 'task', valueReference: { reference: 'Task/task-claim-status-123' } },
+        { name: 'rawResponse', valueString: '{\n  \"claim_state\": \"Payment Approved\"\n}' },
+      ],
+    });
+
+    await setup(`/Claim/${claim.id}`, medplum);
+    expect(await screen.findByText('Check Kenya SHA Claim Status')).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Check Kenya SHA Claim Status'));
+    });
+
+    expect(postSpy).toHaveBeenCalledWith(medplum.fhirUrl('Claim', claim.id as string, '$check-national-claim-status'));
+    expect((await screen.findAllByText('Claim approved for payment')).length).toBeGreaterThan(0);
+    expect(screen.getByText('Payment Approved')).toBeInTheDocument();
+    expect(screen.getByText('ClaimResponse/claim-response-123')).toBeInTheDocument();
+    expect(screen.getByText(/"claim_state": "Payment Approved"/)).toBeInTheDocument();
   });
 
   test('Questionnaire bots -- create only (default)', async () => {

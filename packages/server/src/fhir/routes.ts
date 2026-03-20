@@ -25,6 +25,7 @@ import { asyncJobCancelHandler } from './operations/asyncjobcancel';
 import { appointmentBookHandler } from './operations/book';
 import { botInitHandler } from './operations/botinit';
 import { checkCoverageHandler } from './operations/check-coverage';
+import { checkNationalClaimStatusHandler } from './operations/check-national-claim-status';
 import { ccdaExportHandler } from './operations/ccdaexport';
 import { chargeItemDefinitionApplyHandler } from './operations/chargeitemdefinitionapply';
 import { claimExportGetHandler, claimExportPostHandler } from './operations/claimexport';
@@ -311,6 +312,11 @@ function initInternalFhirRouter(): FhirRouter {
   router.add('GET', '/Claim/:id/$submit-national-claim', submitNationalClaimHandler);
   router.add('POST', '/Claim/:id/$submit-national-claim', submitNationalClaimHandler);
   router.add('POST', '/Claim/$submit-national-claim', submitNationalClaimHandler);
+
+  // Claim $check-national-claim-status operation
+  router.add('GET', '/Claim/:id/$check-national-claim-status', checkNationalClaimStatusHandler);
+  router.add('POST', '/Claim/:id/$check-national-claim-status', checkNationalClaimStatusHandler);
+  router.add('POST', '/Claim/$check-national-claim-status', checkNationalClaimStatusHandler);
 
   // Coverage $check-coverage operation
   router.add('GET', '/Coverage/:id/$check-coverage', checkCoverageHandler);
