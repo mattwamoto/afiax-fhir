@@ -40,6 +40,12 @@ Current country-pack-related fields are generic:
 - agent or routing identifiers when a pack requires them
 - credential ownership mode when a pack supports tenant-managed or platform-managed access
 
+For Kenya, that currently means separate non-secret settings for:
+
+- HIE environment and HIE credential mode
+- SHA claims environment and SHA claims credential mode
+- Kenya HIE agent ID
+
 The advanced editor remains available for additional `Project.setting` values.
 
 ## Country Pack
@@ -81,8 +87,15 @@ validation actions.
 Config split:
 
 - `Settings` owns non-secret country-pack config
-- `Secrets` owns tenant-managed credentials for the pack's active connector family
+- `Secrets` owns tenant-managed credentials for the pack's connector families
 - `Super Admin` owns Afiax-managed credentials in `Project.systemSecret`
+
+The current Kenya implementation exposes:
+
+- tenant-managed HIE credentials
+- tenant-managed SHA claim credentials
+- HIE connection testing
+- platform-managed HIE and SHA credential management in Super Admin
 
 For concrete Kenya settings, secrets, and connection behavior, see the [Kenya reference pack](/docs/country-packs/kenya).
 

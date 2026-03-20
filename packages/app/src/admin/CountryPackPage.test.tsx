@@ -55,18 +55,24 @@ describe('CountryPackPage', () => {
         { name: 'kenyaHieEnvironment', valueString: 'uat' },
         { name: 'kenyaHieCredentialMode', valueString: 'tenant-managed' },
         { name: 'kenyaShaClaimsEnvironment', valueString: 'production' },
+        { name: 'kenyaShaClaimsCredentialMode', valueString: 'tenant-managed' },
       ],
-      secret: [{ name: 'kenyaAfyaLinkConsumerKey', valueString: 'consumer-key-123' }],
+      secret: [
+        { name: 'kenyaAfyaLinkConsumerKey', valueString: 'consumer-key-123' },
+        { name: 'kenyaShaClaimsAccessKey', valueString: 'sha-access-key-123' },
+      ],
     });
     await medplum.get('admin/projects/123', { cache: 'reload' });
 
     await setup('/admin/country-pack');
 
     expect(await screen.findByText(/Kenya is active for this project/)).toBeInTheDocument();
-    expect(screen.getByText('Tenant-managed')).toBeInTheDocument();
+    expect(screen.getAllByText('Tenant-managed')).toHaveLength(2);
     expect(screen.getByText('Production')).toBeInTheDocument();
     expect(screen.getByText('1 of 3 required HIE credentials configured')).toBeInTheDocument();
     expect(screen.getByText(/2 Kenya HIE credentials still missing/)).toBeInTheDocument();
+    expect(screen.getByText('1 of 3 required SHA credentials configured')).toBeInTheDocument();
+    expect(screen.getByText(/2 Kenya SHA credentials still missing/)).toBeInTheDocument();
   });
 
   test('Runs Kenya setup wizard and creates primary facility from lookup', async () => {

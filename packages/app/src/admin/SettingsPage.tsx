@@ -12,6 +12,7 @@ import {
   getKenyaHieAgentId,
   getKenyaHieCredentialMode,
   getKenyaHieEnvironment,
+  getKenyaShaClaimsCredentialMode,
   getKenyaShaClaimsEnvironment,
   getProjectSettingString,
   KenyaProjectSettingNames,
@@ -55,6 +56,7 @@ function handleSettingsChange(
   setSelectedKenyaHieEnvironment: (value: 'uat' | 'production') => void,
   setSelectedKenyaShaClaimsEnvironment: (value: 'uat' | 'production') => void,
   setSelectedKenyaHieCredentialMode: (value: 'tenant-managed' | 'afiax-managed') => void,
+  setSelectedKenyaShaClaimsCredentialMode: (value: 'tenant-managed' | 'afiax-managed') => void,
   setKenyaHieAgentId: (value: string) => void
 ): void {
   setSettings(nextSettings);
@@ -62,6 +64,7 @@ function handleSettingsChange(
   setSelectedKenyaHieEnvironment(getKenyaHieEnvironment(nextSettings));
   setSelectedKenyaShaClaimsEnvironment(getKenyaShaClaimsEnvironment(nextSettings));
   setSelectedKenyaHieCredentialMode(getKenyaHieCredentialMode(nextSettings));
+  setSelectedKenyaShaClaimsCredentialMode(getKenyaShaClaimsCredentialMode(nextSettings));
   setKenyaHieAgentId(getKenyaHieAgentId(nextSettings) ?? '');
 }
 
@@ -82,6 +85,11 @@ export function SettingsPage(): JSX.Element {
   >(
     'tenant-managed'
   );
+  const [selectedKenyaShaClaimsCredentialMode, setSelectedKenyaShaClaimsCredentialMode] = useState<
+    'tenant-managed' | 'afiax-managed'
+  >(
+    'tenant-managed'
+  );
   const [kenyaHieAgentId, setKenyaHieAgentId] = useState('');
 
   useEffect(() => {
@@ -98,6 +106,7 @@ export function SettingsPage(): JSX.Element {
     setSelectedKenyaHieEnvironment(getKenyaHieEnvironment(nextSettings));
     setSelectedKenyaShaClaimsEnvironment(getKenyaShaClaimsEnvironment(nextSettings));
     setSelectedKenyaHieCredentialMode(getKenyaHieCredentialMode(nextSettings));
+    setSelectedKenyaShaClaimsCredentialMode(getKenyaShaClaimsCredentialMode(nextSettings));
     setKenyaHieAgentId(getKenyaHieAgentId(nextSettings) ?? '');
   }, [loadedSettingsKey]);
 
@@ -141,6 +150,11 @@ export function SettingsPage(): JSX.Element {
           settingsToSave,
           KenyaProjectSettingNames.shaClaimsEnvironment,
           selectedCountryPack === 'kenya' ? selectedKenyaShaClaimsEnvironment : ''
+        );
+        settingsToSave = setNamedProjectSettingValue(
+          settingsToSave,
+          KenyaProjectSettingNames.shaClaimsCredentialMode,
+          selectedCountryPack === 'kenya' ? selectedKenyaShaClaimsCredentialMode : ''
         );
         settingsToSave = setNamedProjectSettingValue(
           settingsToSave,
@@ -232,6 +246,18 @@ export function SettingsPage(): JSX.Element {
                 setSelectedKenyaShaClaimsEnvironment(event.currentTarget.value as 'uat' | 'production')
               }
             />
+            <NativeSelect
+              label="SHA Claims Credential Mode"
+              description="Tenant-managed uses project secrets. Afiax-managed uses platform-level secrets outside the project UI."
+              value={selectedKenyaShaClaimsCredentialMode}
+              data={[
+                { value: 'tenant-managed', label: 'Tenant-managed' },
+                { value: 'afiax-managed', label: 'Afiax-managed' },
+              ]}
+              onChange={(event) =>
+                setSelectedKenyaShaClaimsCredentialMode(event.currentTarget.value as 'tenant-managed' | 'afiax-managed')
+              }
+            />
             <TextInput
               label="Kenya HIE Agent ID"
               description="Agent identifier used by DHA client-registry and related HIE operations. This is operational config, not a secret."
@@ -243,6 +269,12 @@ export function SettingsPage(): JSX.Element {
               <Text size="sm">
                 Afiax-managed mode hides HIE credentials from tenant admins. The Secrets tab will show connection
                 status only and rely on platform-managed secrets.
+              </Text>
+            )}
+            {selectedKenyaShaClaimsCredentialMode === 'afiax-managed' && (
+              <Text size="sm">
+                Afiax-managed SHA mode hides claim transport credentials from tenant admins. The Secrets tab will show
+                status only and rely on platform-managed SHA claim credentials.
               </Text>
             )}
           </>
@@ -267,6 +299,7 @@ export function SettingsPage(): JSX.Element {
             setSelectedKenyaHieEnvironment,
             setSelectedKenyaShaClaimsEnvironment,
             setSelectedKenyaHieCredentialMode,
+            setSelectedKenyaShaClaimsCredentialMode,
             setKenyaHieAgentId
           )
         }

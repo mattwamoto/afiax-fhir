@@ -75,6 +75,12 @@ describe('SettingsPage', () => {
     });
 
     await act(async () => {
+      fireEvent.change(screen.getByLabelText('SHA Claims Credential Mode', { exact: false }), {
+        target: { value: 'tenant-managed' },
+      });
+    });
+
+    await act(async () => {
       fireEvent.change(screen.getByLabelText('Kenya HIE Agent ID', { exact: false }), {
         target: { value: 'agent-001' },
       });
@@ -92,6 +98,7 @@ describe('SettingsPage', () => {
         expect.objectContaining({ name: 'kenyaHieEnvironment', valueString: 'uat' }),
         expect.objectContaining({ name: 'kenyaHieCredentialMode', valueString: 'afiax-managed' }),
         expect.objectContaining({ name: 'kenyaShaClaimsEnvironment', valueString: 'production' }),
+        expect.objectContaining({ name: 'kenyaShaClaimsCredentialMode', valueString: 'tenant-managed' }),
         expect.objectContaining({ name: 'kenyaHieAgentId', valueString: 'agent-001' }),
       ])
     );

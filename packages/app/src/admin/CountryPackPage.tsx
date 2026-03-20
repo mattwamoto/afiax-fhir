@@ -10,8 +10,10 @@ import {
   getKenyaHieCredentialMode,
   getKenyaHieEnvironment,
   getKenyaFacilityRegistrySnapshot,
+  getKenyaShaClaimsCredentialMode,
   getKenyaShaClaimsEnvironment,
   getProjectSettingString,
+  KenyaShaClaimsSecretNames,
   normalizeErrorString,
 } from '@medplum/core';
 import type { Organization } from '@medplum/fhirtypes';
@@ -24,6 +26,12 @@ const kenyaAfyaLinkSecretNames = [
   'kenyaAfyaLinkConsumerKey',
   'kenyaAfyaLinkUsername',
   'kenyaAfyaLinkPassword',
+];
+
+const kenyaShaClaimsSecretNames = [
+  KenyaShaClaimsSecretNames.accessKey,
+  KenyaShaClaimsSecretNames.secretKey,
+  KenyaShaClaimsSecretNames.callbackUrl,
 ];
 
 const createNewFacilityOption = '__create-new__';
@@ -304,11 +312,15 @@ export function CountryPackPage(): JSX.Element {
   if (countryPackEntry.id === 'kenya') {
     const kenyaHieEnvironment = getKenyaHieEnvironment(project);
     const kenyaShaClaimsEnvironment = getKenyaShaClaimsEnvironment(project);
-    const kenyaCredentialMode = getKenyaHieCredentialMode(project);
+    const kenyaHieCredentialMode = getKenyaHieCredentialMode(project);
+    const kenyaShaClaimsCredentialMode = getKenyaShaClaimsCredentialMode(project);
     const kenyaHieAgentId = getKenyaHieAgentId(project);
-    const configuredSecretCount = kenyaAfyaLinkSecretNames.filter((name) => getProjectSettingString(project.secret, name)).length;
-    const missingSecretCount = kenyaAfyaLinkSecretNames.length - configuredSecretCount;
-    const canLookupFacility = kenyaCredentialMode === 'afiax-managed' || configuredSecretCount === kenyaAfyaLinkSecretNames.length;
+    const configuredHieSecretCount = kenyaAfyaLinkSecretNames.filter((name) => getProjectSettingString(project.secret, name)).length;
+    const missingHieSecretCount = kenyaAfyaLinkSecretNames.length - configuredHieSecretCount;
+    const configuredShaSecretCount = kenyaShaClaimsSecretNames.filter((name) => getProjectSettingString(project.secret, name)).length;
+    const missingShaSecretCount = kenyaShaClaimsSecretNames.length - configuredShaSecretCount;
+    const canLookupFacility =
+      kenyaHieCredentialMode === 'afiax-managed' || configuredHieSecretCount === kenyaAfyaLinkSecretNames.length;
 
     return (
       <Stack gap="md">
@@ -327,13 +339,21 @@ export function CountryPackPage(): JSX.Element {
             {kenyaShaClaimsEnvironment === 'production' ? 'Production' : 'UAT'}
           </DescriptionListEntry>
           <DescriptionListEntry term="HIE Credential Mode">
-            {kenyaCredentialMode === 'afiax-managed' ? 'Afiax-managed' : 'Tenant-managed'}
+            {kenyaHieCredentialMode === 'afiax-managed' ? 'Afiax-managed' : 'Tenant-managed'}
+          </DescriptionListEntry>
+          <DescriptionListEntry term="SHA Credential Mode">
+            {kenyaShaClaimsCredentialMode === 'afiax-managed' ? 'Afiax-managed' : 'Tenant-managed'}
           </DescriptionListEntry>
           <DescriptionListEntry term="Kenya HIE Agent ID">{kenyaHieAgentId ?? 'Not configured'}</DescriptionListEntry>
-          <DescriptionListEntry term="Credential Status">
-            {kenyaCredentialMode === 'afiax-managed'
+          <DescriptionListEntry term="HIE Credential Status">
+            {kenyaHieCredentialMode === 'afiax-managed'
               ? 'Managed by Afiax platform operations'
-              : `${configuredSecretCount} of ${kenyaAfyaLinkSecretNames.length} required HIE credentials configured`}
+              : `${configuredHieSecretCount} of ${kenyaAfyaLinkSecretNames.length} required HIE credentials configured`}
+          </DescriptionListEntry>
+          <DescriptionListEntry term="SHA Credential Status">
+            {kenyaShaClaimsCredentialMode === 'afiax-managed'
+              ? 'Managed by Afiax platform operations'
+              : `${configuredShaSecretCount} of ${kenyaShaClaimsSecretNames.length} required SHA credentials configured`}
           </DescriptionListEntry>
         </DescriptionList>
         <List spacing="xs">
@@ -342,20 +362,33 @@ export function CountryPackPage(): JSX.Element {
             <MedplumLink to="/admin/settings">Settings</MedplumLink>.
           </List.Item>
           <List.Item>
-            {kenyaCredentialMode === 'afiax-managed'
+            {kenyaHieCredentialMode === 'afiax-managed'
               ? 'Coordinate with Afiax platform ops for managed HIE credentials and connection testing.'
               : 'Complete the HIE consumer key, username, and password in '}
-            {kenyaCredentialMode === 'tenant-managed' && <MedplumLink to="/admin/secrets">Secrets</MedplumLink>}
-            {kenyaCredentialMode === 'tenant-managed' && '.'}
+            {kenyaHieCredentialMode === 'tenant-managed' && <MedplumLink to="/admin/secrets">Secrets</MedplumLink>}
+            {kenyaHieCredentialMode === 'tenant-managed' && '.'}
+          </List.Item>
+          <List.Item>
+            {kenyaShaClaimsCredentialMode === 'afiax-managed'
+              ? 'Coordinate with Afiax platform ops for managed SHA claim credentials.'
+              : 'Complete the SHA access key, secret key, and callback URL in '}
+            {kenyaShaClaimsCredentialMode === 'tenant-managed' && <MedplumLink to="/admin/secrets">Secrets</MedplumLink>}
+            {kenyaShaClaimsCredentialMode === 'tenant-managed' && '.'}
           </List.Item>
           <List.Item>
             Add the Kenya HIE agent ID in Settings before you implement client-registry and related HIE operations.
           </List.Item>
           <List.Item>Use an Organization with an MFL code when you are ready to run facility verification.</List.Item>
         </List>
-        {kenyaCredentialMode === 'tenant-managed' && missingSecretCount > 0 && (
+        {kenyaHieCredentialMode === 'tenant-managed' && missingHieSecretCount > 0 && (
           <Text c="dimmed" size="sm">
-            {missingSecretCount} Kenya HIE credential{missingSecretCount === 1 ? '' : 's'} still missing from project
+            {missingHieSecretCount} Kenya HIE credential{missingHieSecretCount === 1 ? '' : 's'} still missing from project
+            secrets.
+          </Text>
+        )}
+        {kenyaShaClaimsCredentialMode === 'tenant-managed' && missingShaSecretCount > 0 && (
+          <Text c="dimmed" size="sm">
+            {missingShaSecretCount} Kenya SHA credential{missingShaSecretCount === 1 ? '' : 's'} still missing from project
             secrets.
           </Text>
         )}

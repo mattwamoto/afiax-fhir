@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Button, Group, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
-import { normalizeErrorString, resolveId } from '@medplum/core';
+import { KenyaShaClaimsSecretNames, normalizeErrorString, resolveId } from '@medplum/core';
 import type { Project, ProjectSetting, Reference } from '@medplum/fhirtypes';
 import { ReferenceInput, useMedplum } from '@medplum/react';
 import type { JSX } from 'react';
@@ -16,6 +16,18 @@ const KenyaAfyaLinkSecretNames = {
 } as const;
 
 interface KenyaAfyaLinkSecretsResponse {
+  readonly project: {
+    readonly id?: string;
+    readonly name?: string;
+    readonly systemSecret?: ProjectSetting[];
+  };
+  readonly kenya: {
+    readonly environment: 'uat' | 'production';
+    readonly credentialMode: 'tenant-managed' | 'afiax-managed';
+  };
+}
+
+interface KenyaShaSecretsResponse {
   readonly project: {
     readonly id?: string;
     readonly name?: string;
@@ -45,6 +57,13 @@ export function SuperAdminKenyaCredentialsForm(): JSX.Element {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
+  const [shaEnvironment, setShaEnvironment] = useState<'uat' | 'production' | undefined>();
+  const [shaCredentialMode, setShaCredentialMode] = useState<'tenant-managed' | 'afiax-managed' | undefined>();
+  const [shaBaseUrlOverride, setShaBaseUrlOverride] = useState('');
+  const [shaAccessKey, setShaAccessKey] = useState('');
+  const [shaSecretKey, setShaSecretKey] = useState('');
+  const [shaCallbackUrl, setShaCallbackUrl] = useState('');
+  const [savingSha, setSavingSha] = useState(false);
 
   async function loadProjectSecrets(): Promise<void> {
     if (!projectId.trim()) {
@@ -57,6 +76,9 @@ export function SuperAdminKenyaCredentialsForm(): JSX.Element {
       const result = (await medplum.get(
         `admin/super/projects/${projectId.trim()}/kenya/afyalink/systemsecrets`
       )) as KenyaAfyaLinkSecretsResponse;
+      const shaResult = (await medplum.get(
+        `admin/super/projects/${projectId.trim()}/kenya/sha/systemsecrets`
+      )) as KenyaShaSecretsResponse;
       setSelectedProject(
         result.project.id ? { reference: `Project/${result.project.id}`, display: result.project.name } : undefined
       );
@@ -67,6 +89,12 @@ export function SuperAdminKenyaCredentialsForm(): JSX.Element {
       setConsumerKey(getSecretValue(result.project.systemSecret, KenyaAfyaLinkSecretNames.consumerKey));
       setUsername(getSecretValue(result.project.systemSecret, KenyaAfyaLinkSecretNames.username));
       setPassword(getSecretValue(result.project.systemSecret, KenyaAfyaLinkSecretNames.password));
+      setShaEnvironment(shaResult.kenya.environment);
+      setShaCredentialMode(shaResult.kenya.credentialMode);
+      setShaBaseUrlOverride(getSecretValue(shaResult.project.systemSecret, KenyaShaClaimsSecretNames.baseUrl));
+      setShaAccessKey(getSecretValue(shaResult.project.systemSecret, KenyaShaClaimsSecretNames.accessKey));
+      setShaSecretKey(getSecretValue(shaResult.project.systemSecret, KenyaShaClaimsSecretNames.secretKey));
+      setShaCallbackUrl(getSecretValue(shaResult.project.systemSecret, KenyaShaClaimsSecretNames.callbackUrl));
       showNotification({ color: 'green', message: 'Loaded Kenya managed HIE credentials' });
     } catch (err) {
       showNotification({ color: 'red', message: normalizeErrorString(err), autoClose: false });
@@ -81,6 +109,15 @@ export function SuperAdminKenyaCredentialsForm(): JSX.Element {
       { name: KenyaAfyaLinkSecretNames.consumerKey, valueString: consumerKey },
       { name: KenyaAfyaLinkSecretNames.username, valueString: username },
       { name: KenyaAfyaLinkSecretNames.password, valueString: password },
+    ];
+  }
+
+  function buildShaSecretPayload(): ProjectSetting[] {
+    return [
+      { name: KenyaShaClaimsSecretNames.baseUrl, valueString: shaBaseUrlOverride },
+      { name: KenyaShaClaimsSecretNames.accessKey, valueString: shaAccessKey },
+      { name: KenyaShaClaimsSecretNames.secretKey, valueString: shaSecretKey },
+      { name: KenyaShaClaimsSecretNames.callbackUrl, valueString: shaCallbackUrl },
     ];
   }
 
@@ -107,6 +144,32 @@ export function SuperAdminKenyaCredentialsForm(): JSX.Element {
       showNotification({ color: 'red', message: normalizeErrorString(err), autoClose: false });
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function saveShaProjectSecrets(): Promise<void> {
+    if (!projectId.trim()) {
+      showNotification({ color: 'red', message: 'Project ID is required' });
+      return;
+    }
+
+    setSavingSha(true);
+    try {
+      const result = (await medplum.post(
+        `admin/super/projects/${projectId.trim()}/kenya/sha/systemsecrets`,
+        buildShaSecretPayload()
+      )) as KenyaShaSecretsResponse;
+      setSelectedProject(
+        result.project.id ? { reference: `Project/${result.project.id}`, display: result.project.name } : undefined
+      );
+      setProjectName(result.project.name);
+      setShaEnvironment(result.kenya.environment);
+      setShaCredentialMode(result.kenya.credentialMode);
+      showNotification({ color: 'green', message: 'Saved Afiax-managed Kenya SHA credentials' });
+    } catch (err) {
+      showNotification({ color: 'red', message: normalizeErrorString(err), autoClose: false });
+    } finally {
+      setSavingSha(false);
     }
   }
 
@@ -221,6 +284,63 @@ export function SuperAdminKenyaCredentialsForm(): JSX.Element {
       />
       <Text size="sm" c="dimmed">
         Saving updates only the Kenya HIE credentials in <code>Project.systemSecret</code>. Other system secrets for
+        the project are preserved.
+      </Text>
+      <Title order={2}>Afiax-Managed Kenya SHA Claim Credentials</Title>
+      <Text>
+        Use this section to manage Kenya SHA claim transport credentials in <code>Project.systemSecret</code>. This is
+        separate from the Kenya HIE credentials used for registries and eligibility.
+      </Text>
+      {projectName && (
+        <Text size="sm">
+          SHA environment:
+          {' '}
+          <strong>{shaEnvironment === 'production' ? 'Production' : 'UAT'}</strong>
+          {' | '}
+          SHA credential mode:
+          {' '}
+          <strong>{shaCredentialMode === 'afiax-managed' ? 'Afiax-managed' : 'Tenant-managed'}</strong>
+        </Text>
+      )}
+      {shaCredentialMode === 'tenant-managed' && (
+        <Text size="sm" c="dimmed">
+          This project is currently set to Tenant-managed SHA mode. Saving Afiax-managed SHA credentials here will
+          stage them, but the project will not use them until its Kenya settings are switched to Afiax-managed.
+        </Text>
+      )}
+      <TextInput
+        label="SHA Base URL Override"
+        description="Optional. Leave blank to use the platform-derived Kenya SHA claims endpoint for the selected environment."
+        placeholder="https://mis.apeiro-digital.com"
+        value={shaBaseUrlOverride}
+        onChange={(event) => setShaBaseUrlOverride(event.currentTarget.value)}
+        data-testid="afiax-managed-sha-base-url"
+      />
+      <TextInput
+        label="Kenya SHA Access Key"
+        value={shaAccessKey}
+        onChange={(event) => setShaAccessKey(event.currentTarget.value)}
+        data-testid="afiax-managed-sha-access-key"
+      />
+      <PasswordInput
+        label="Kenya SHA Secret Key"
+        value={shaSecretKey}
+        onChange={(event) => setShaSecretKey(event.currentTarget.value)}
+        data-testid="afiax-managed-sha-secret-key"
+      />
+      <TextInput
+        label="Kenya SHA Callback URL"
+        value={shaCallbackUrl}
+        onChange={(event) => setShaCallbackUrl(event.currentTarget.value)}
+        data-testid="afiax-managed-sha-callback-url"
+      />
+      <Group>
+        <Button onClick={() => saveShaProjectSecrets().catch(console.log)} loading={savingSha}>
+          Save Managed SHA Credentials
+        </Button>
+      </Group>
+      <Text size="sm" c="dimmed">
+        Saving updates only the Kenya SHA credentials in <code>Project.systemSecret</code>. Other system secrets for
         the project are preserved.
       </Text>
     </Stack>

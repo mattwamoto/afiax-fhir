@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
+import { KenyaShaClaimsSecretNames } from '@medplum/core';
 import { MockClient } from '@medplum/mock';
 import { MedplumProvider } from '@medplum/react';
 import { MemoryRouter } from 'react-router';
@@ -73,6 +74,9 @@ describe('SecretsPage', () => {
     expect(screen.getByLabelText('Kenya HIE Consumer Key')).toBeInTheDocument();
     expect(screen.getByLabelText('Kenya HIE Username')).toBeInTheDocument();
     expect(screen.getByLabelText('Kenya HIE Password')).toBeInTheDocument();
+    expect(screen.getByLabelText('Kenya SHA Access Key')).toBeInTheDocument();
+    expect(screen.getByLabelText('Kenya SHA Secret Key')).toBeInTheDocument();
+    expect(screen.getByLabelText('Kenya SHA Callback URL')).toBeInTheDocument();
     expect(screen.queryByLabelText('AfyaLink Base URL')).toBeNull();
   });
 
@@ -141,6 +145,24 @@ describe('SecretsPage', () => {
     });
 
     await act(async () => {
+      fireEvent.change(screen.getByLabelText('Kenya SHA Access Key'), {
+        target: { value: 'sha-access-key-123' },
+      });
+    });
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Kenya SHA Secret Key'), {
+        target: { value: 'sha-secret-key-123' },
+      });
+    });
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Kenya SHA Callback URL'), {
+        target: { value: 'https://gateway.afiax.africa/kenya/sha/callback' },
+      });
+    });
+
+    await act(async () => {
       fireEvent.click(screen.getByText('Save'));
     });
 
@@ -158,6 +180,18 @@ describe('SecretsPage', () => {
         expect.objectContaining({
           name: KenyaAfyaLinkSecretNames.password,
           valueString: 'portal-password',
+        }),
+        expect.objectContaining({
+          name: KenyaShaClaimsSecretNames.accessKey,
+          valueString: 'sha-access-key-123',
+        }),
+        expect.objectContaining({
+          name: KenyaShaClaimsSecretNames.secretKey,
+          valueString: 'sha-secret-key-123',
+        }),
+        expect.objectContaining({
+          name: KenyaShaClaimsSecretNames.callbackUrl,
+          valueString: 'https://gateway.afiax.africa/kenya/sha/callback',
         }),
       ])
     );
@@ -256,6 +290,7 @@ describe('SecretsPage', () => {
         { name: 'countryPack', valueString: 'kenya' },
         { name: 'kenyaHieEnvironment', valueString: 'uat' },
         { name: 'kenyaHieCredentialMode', valueString: 'afiax-managed' },
+        { name: 'kenyaShaClaimsCredentialMode', valueString: 'afiax-managed' },
       ],
     });
     await medplum.get('admin/projects/123', { cache: 'reload' });
@@ -266,6 +301,10 @@ describe('SecretsPage', () => {
     expect(screen.queryByLabelText('Kenya HIE Consumer Key')).toBeNull();
     expect(screen.queryByLabelText('Kenya HIE Username')).toBeNull();
     expect(screen.queryByLabelText('Kenya HIE Password')).toBeNull();
+    expect(screen.queryByLabelText('Kenya SHA Access Key')).toBeNull();
+    expect(screen.queryByLabelText('Kenya SHA Secret Key')).toBeNull();
+    expect(screen.queryByLabelText('Kenya SHA Callback URL')).toBeNull();
     expect(screen.getByText(/Afiax-managed HIE credentials/i)).toBeInTheDocument();
+    expect(screen.getByText(/Afiax-managed SHA claim credentials/i)).toBeInTheDocument();
   });
 });

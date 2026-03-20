@@ -10,6 +10,7 @@ export type KenyaServiceEnvironment = 'uat' | 'production';
 export type KenyaHieEnvironment = KenyaServiceEnvironment;
 export type KenyaShaClaimsEnvironment = KenyaServiceEnvironment;
 export type KenyaHieCredentialMode = 'tenant-managed' | 'afiax-managed';
+export type KenyaShaClaimsCredentialMode = 'tenant-managed' | 'afiax-managed';
 export type KenyaAfyaLinkEnvironment = KenyaHieEnvironment;
 export type KenyaAfyaLinkCredentialMode = KenyaHieCredentialMode;
 
@@ -190,8 +191,16 @@ export const KenyaProjectSettingNames = {
   hieCredentialMode: 'kenyaHieCredentialMode',
   hieAgentId: 'kenyaHieAgentId',
   shaClaimsEnvironment: 'kenyaShaClaimsEnvironment',
+  shaClaimsCredentialMode: 'kenyaShaClaimsCredentialMode',
   afyaLinkEnvironment: 'kenyaAfyaLinkEnvironment',
   afyaLinkCredentialMode: 'kenyaAfyaLinkCredentialMode',
+} as const;
+
+export const KenyaShaClaimsSecretNames = {
+  accessKey: 'kenyaShaClaimsAccessKey',
+  secretKey: 'kenyaShaClaimsSecretKey',
+  callbackUrl: 'kenyaShaClaimsCallbackUrl',
+  baseUrl: 'kenyaShaClaimsBaseUrl',
 } as const;
 
 function getProjectSettings(source: ProjectSettingsSource): ProjectSetting[] | undefined {
@@ -252,6 +261,17 @@ export function getKenyaShaClaimsEnvironment(source: ProjectSettingsSource): Ken
   return value === 'production'
     ? 'production'
     : 'uat';
+}
+
+export function getKenyaShaClaimsCredentialMode(source: ProjectSettingsSource): KenyaShaClaimsCredentialMode {
+  const value = getProjectSettingString(source, KenyaProjectSettingNames.shaClaimsCredentialMode);
+  if (value === 'afiax-managed') {
+    return 'afiax-managed';
+  }
+  if (value === 'tenant-managed') {
+    return 'tenant-managed';
+  }
+  return getKenyaHieCredentialMode(source);
 }
 
 export function getKenyaAfyaLinkEnvironment(source: ProjectSettingsSource): KenyaAfyaLinkEnvironment {

@@ -44,6 +44,7 @@ Project.setting.kenyaHieEnvironment=uat | production
 Project.setting.kenyaHieCredentialMode=tenant-managed | afiax-managed
 Project.setting.kenyaHieAgentId=<agent-id>
 Project.setting.kenyaShaClaimsEnvironment=uat | production
+Project.setting.kenyaShaClaimsCredentialMode=tenant-managed | afiax-managed
 ```
 
 Tenant-managed Kenya credentials currently use:
@@ -52,6 +53,9 @@ Tenant-managed Kenya credentials currently use:
 Project.secret.kenyaAfyaLinkConsumerKey
 Project.secret.kenyaAfyaLinkUsername
 Project.secret.kenyaAfyaLinkPassword
+Project.secret.kenyaShaClaimsAccessKey
+Project.secret.kenyaShaClaimsSecretKey
+Project.secret.kenyaShaClaimsCallbackUrl
 ```
 
 Afiax-managed Kenya credentials use the same names in `Project.systemSecret`.
@@ -179,6 +183,7 @@ For a Kenya project:
   - sets Kenya HIE environment
   - sets Kenya SHA claims environment
   - sets HIE credential mode
+  - sets SHA claim credential mode
   - sets Kenya HIE agent ID
 - `/admin/country-pack`
   - shows setup status and next steps
@@ -188,9 +193,11 @@ For a Kenya project:
   - creates or updates the first `Organization` from registry data
 - `/admin/secrets`
   - stores tenant-managed HIE credentials
+  - stores tenant-managed SHA claim credentials
   - supports `Test HIE Connection`
 - `/admin/super`
   - stores Afiax-managed HIE credentials in `Project.systemSecret`
+  - stores Afiax-managed SHA claim credentials in `Project.systemSecret`
 - `/Organization/{id}`
   - captures the Kenya facility code directly on the resource
   - runs DHA lookup

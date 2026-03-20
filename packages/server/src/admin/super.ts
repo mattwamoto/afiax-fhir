@@ -8,10 +8,13 @@ import {
   forbidden,
   getKenyaHieCredentialMode,
   getKenyaHieEnvironment,
+  getKenyaShaClaimsCredentialMode,
+  getKenyaShaClaimsEnvironment,
   getQueryString,
   getProjectSettingString,
   getResourceTypes,
   KenyaProjectSettingNames,
+  KenyaShaClaimsSecretNames,
   OperationOutcomeError,
   parseSearchRequest,
   validateResourceType,
@@ -61,6 +64,7 @@ export const superAdminRouter = Router();
 superAdminRouter.use(authenticateRequest);
 
 const kenyaAfyaLinkManagedSecretNames = new Set<string>(Object.values(KenyaAfyaLinkSecretNames));
+const kenyaShaManagedSecretNames = new Set<string>(Object.values(KenyaShaClaimsSecretNames));
 
 function assertKenyaProject(project: Project): void {
   if (getProjectSettingString(project, 'countryPack') !== 'kenya') {
@@ -79,6 +83,34 @@ function mergeKenyaSystemSecrets(project: Project, overrides: ProjectSetting[]):
 
   for (const entry of overrides) {
     if (!entry.name || !kenyaAfyaLinkManagedSecretNames.has(entry.name)) {
+      continue;
+    }
+
+    const value = entry.valueString?.trim();
+    if (!value) {
+      continue;
+    }
+
+    nextSystemSecrets.push({
+      name: entry.name,
+      valueString: entry.valueString,
+    });
+  }
+
+  return nextSystemSecrets;
+}
+
+function getKenyaShaSystemSecrets(project: Project): ProjectSetting[] {
+  return (project.systemSecret ?? []).filter((entry) => entry.name && kenyaShaManagedSecretNames.has(entry.name));
+}
+
+function mergeKenyaShaSystemSecrets(project: Project, overrides: ProjectSetting[]): ProjectSetting[] {
+  const nextSystemSecrets = (project.systemSecret ?? []).filter(
+    (entry) => !entry.name || !kenyaShaManagedSecretNames.has(entry.name)
+  );
+
+  for (const entry of overrides) {
+    if (!entry.name || !kenyaShaManagedSecretNames.has(entry.name)) {
       continue;
     }
 
@@ -167,6 +199,49 @@ superAdminRouter.post('/projects/:projectId/kenya/afyalink/test', async (req: Re
   } catch (err) {
     sendOutcome(res, badRequest(err instanceof Error ? err.message : 'Failed to test AfyaLink connection'));
   }
+});
+
+superAdminRouter.get('/projects/:projectId/kenya/sha/systemsecrets', async (req: Request, res: Response) => {
+  const ctx = requireSuperAdmin();
+  const project = await ctx.systemRepo.readResource<Project>('Project', req.params.projectId as string);
+  assertKenyaProject(project);
+
+  res.json({
+    project: {
+      id: project.id,
+      name: project.name,
+      setting: project.setting,
+      systemSecret: getKenyaShaSystemSecrets(project),
+    },
+    kenya: {
+      environment: getKenyaShaClaimsEnvironment(project),
+      credentialMode: getKenyaShaClaimsCredentialMode(project),
+    },
+  });
+});
+
+superAdminRouter.post('/projects/:projectId/kenya/sha/systemsecrets', async (req: Request, res: Response) => {
+  const ctx = requireSuperAdmin();
+  const project = await ctx.systemRepo.readResource<Project>('Project', req.params.projectId as string);
+  assertKenyaProject(project);
+
+  const updatedProject = await ctx.systemRepo.updateResource<Project>({
+    ...project,
+    systemSecret: mergeKenyaShaSystemSecrets(project, (req.body as ProjectSetting[]) ?? []),
+  });
+
+  res.json({
+    project: {
+      id: updatedProject.id,
+      name: updatedProject.name,
+      setting: updatedProject.setting,
+      systemSecret: getKenyaShaSystemSecrets(updatedProject),
+    },
+    kenya: {
+      environment: getKenyaShaClaimsEnvironment(updatedProject),
+      credentialMode: getKenyaShaClaimsCredentialMode(updatedProject),
+    },
+  });
 });
 
 // POST to /admin/super/valuesets

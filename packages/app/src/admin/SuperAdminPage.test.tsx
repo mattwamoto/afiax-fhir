@@ -106,6 +106,23 @@ describe('SuperAdminPage', () => {
           },
         };
       }
+      if (path === 'admin/super/projects/project-123/kenya/sha/systemsecrets') {
+        return {
+          project: {
+            id: 'project-123',
+            name: 'Afiax Kenya Project',
+            systemSecret: [
+              { name: 'kenyaShaClaimsAccessKey', valueString: 'existing-sha-access-key' },
+              { name: 'kenyaShaClaimsSecretKey', valueString: 'existing-sha-secret-key' },
+              { name: 'kenyaShaClaimsCallbackUrl', valueString: 'https://gateway.afiax.africa/kenya/sha/callback' },
+            ],
+          },
+          kenya: {
+            environment: 'production',
+            credentialMode: 'afiax-managed',
+          },
+        };
+      }
       return {};
     });
 
@@ -124,6 +141,7 @@ describe('SuperAdminPage', () => {
     expect(await screen.findByText(/Afiax Kenya Project/)).toBeInTheDocument();
     expect(screen.getByTestId('afiax-managed-project-id')).toHaveValue('project-123');
     expect(screen.getByTestId('afiax-managed-consumer-key')).toHaveValue('existing-consumer-key');
+    expect(screen.getByTestId('afiax-managed-sha-access-key')).toHaveValue('existing-sha-access-key');
 
     await act(async () => {
       fireEvent.change(screen.getByTestId('afiax-managed-consumer-key'), {
@@ -141,6 +159,28 @@ describe('SuperAdminPage', () => {
         expect.objectContaining({ name: 'kenyaAfyaLinkConsumerKey', valueString: 'updated-consumer-key' }),
         expect.objectContaining({ name: 'kenyaAfyaLinkUsername', valueString: 'existing-username' }),
         expect.objectContaining({ name: 'kenyaAfyaLinkPassword', valueString: 'existing-password' }),
+      ])
+    );
+
+    await act(async () => {
+      fireEvent.change(screen.getByTestId('afiax-managed-sha-access-key'), {
+        target: { value: 'updated-sha-access-key' },
+      });
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Save Managed SHA Credentials'));
+    });
+
+    expect(postSpy).toHaveBeenCalledWith(
+      'admin/super/projects/project-123/kenya/sha/systemsecrets',
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'kenyaShaClaimsAccessKey', valueString: 'updated-sha-access-key' }),
+        expect.objectContaining({ name: 'kenyaShaClaimsSecretKey', valueString: 'existing-sha-secret-key' }),
+        expect.objectContaining({
+          name: 'kenyaShaClaimsCallbackUrl',
+          valueString: 'https://gateway.afiax.africa/kenya/sha/callback',
+        }),
       ])
     );
   });

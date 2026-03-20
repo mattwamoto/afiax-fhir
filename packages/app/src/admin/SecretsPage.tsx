@@ -8,8 +8,10 @@ import {
   getElementDefinition,
   getKenyaHieCredentialMode,
   getKenyaHieEnvironment,
+  getKenyaShaClaimsCredentialMode,
   getKenyaShaClaimsEnvironment,
   getProjectSettingString,
+  KenyaShaClaimsSecretNames,
   normalizeErrorString,
 } from '@medplum/core';
 import type { ProjectSetting } from '@medplum/fhirtypes';
@@ -49,6 +51,26 @@ const kenyaAfyaLinkFields: NamedSecretField[] = [
     label: 'Kenya HIE Password',
     description: 'DHA developer portal password used for HIE Basic authentication.',
     sensitive: true,
+  },
+];
+
+const kenyaShaClaimsFields: NamedSecretField[] = [
+  {
+    name: KenyaShaClaimsSecretNames.accessKey,
+    label: 'Kenya SHA Access Key',
+    description: 'Access key issued for Kenya SHA claim submission APIs.',
+  },
+  {
+    name: KenyaShaClaimsSecretNames.secretKey,
+    label: 'Kenya SHA Secret Key',
+    description: 'Secret key paired with the SHA claims access key.',
+    sensitive: true,
+  },
+  {
+    name: KenyaShaClaimsSecretNames.callbackUrl,
+    label: 'Kenya SHA Callback URL',
+    description: 'Callback URL registered for SHA claim status and adjudication responses.',
+    placeholder: 'https://gateway.afiax.africa/kenya/sha/callback',
   },
 ];
 
@@ -110,10 +132,15 @@ export function SecretsPage(): JSX.Element {
   const isKenyaProject = countryPack === 'kenya';
   const kenyaHieEnvironment = getKenyaHieEnvironment(projectDetails.project);
   const kenyaShaClaimsEnvironment = getKenyaShaClaimsEnvironment(projectDetails.project);
-  const kenyaCredentialMode = getKenyaHieCredentialMode(projectDetails.project);
-  const isTenantManagedKenyaProject = isKenyaProject && kenyaCredentialMode === 'tenant-managed';
-  const missingKenyaSecretCount = isTenantManagedKenyaProject
+  const kenyaHieCredentialMode = getKenyaHieCredentialMode(projectDetails.project);
+  const kenyaShaClaimsCredentialMode = getKenyaShaClaimsCredentialMode(projectDetails.project);
+  const isTenantManagedKenyaHieProject = isKenyaProject && kenyaHieCredentialMode === 'tenant-managed';
+  const isTenantManagedKenyaShaProject = isKenyaProject && kenyaShaClaimsCredentialMode === 'tenant-managed';
+  const missingKenyaHieSecretCount = isTenantManagedKenyaHieProject
     ? kenyaAfyaLinkFields.filter((field) => !getNamedSecretValue(secrets, field.name).trim()).length
+    : 0;
+  const missingKenyaShaSecretCount = isTenantManagedKenyaShaProject
+    ? kenyaShaClaimsFields.filter((field) => !getNamedSecretValue(secrets, field.name).trim()).length
     : 0;
   const secretsEditorKey = JSON.stringify(secrets.map((secret) => [secret.name, secret.valueString ?? '']));
 
@@ -169,19 +196,23 @@ export function SecretsPage(): JSX.Element {
               {' '}
               <strong>{kenyaShaClaimsEnvironment === 'production' ? 'Production' : 'UAT'}</strong>
               {' | '}
-              Credential mode:
+              HIE credential mode:
               {' '}
-              <strong>{kenyaCredentialMode === 'afiax-managed' ? 'Afiax-managed' : 'Tenant-managed'}</strong>
+              <strong>{kenyaHieCredentialMode === 'afiax-managed' ? 'Afiax-managed' : 'Tenant-managed'}</strong>
+              {' | '}
+              SHA credential mode:
+              {' '}
+              <strong>{kenyaShaClaimsCredentialMode === 'afiax-managed' ? 'Afiax-managed' : 'Tenant-managed'}</strong>
             </Text>
             <Text size="sm" mt="xs">
-              {isTenantManagedKenyaProject
-                ? missingKenyaSecretCount === 0
+              {isTenantManagedKenyaHieProject
+                ? missingKenyaHieSecretCount === 0
                   ? 'All required tenant-managed Kenya HIE credentials are configured.'
-                  : `${missingKenyaSecretCount} required Kenya HIE credential${missingKenyaSecretCount === 1 ? '' : 's'} still missing.`
+                  : `${missingKenyaHieSecretCount} required Kenya HIE credential${missingKenyaHieSecretCount === 1 ? '' : 's'} still missing.`
                 : 'This project relies on Afiax-managed HIE credentials. Tenant admins do not enter HIE credentials here; platform ops manages them in Super Admin.'}
             </Text>
           </div>
-          {isTenantManagedKenyaProject &&
+          {isTenantManagedKenyaHieProject &&
             kenyaAfyaLinkFields.map((field) =>
               field.sensitive ? (
                 <PasswordInput
@@ -213,7 +244,7 @@ export function SecretsPage(): JSX.Element {
             )}
           <Group justify="space-between" align="flex-end">
             <Text size="sm" c="dimmed">
-              {isTenantManagedKenyaProject
+              {isTenantManagedKenyaHieProject
                 ? 'Test the current tenant-managed Kenya HIE credentials before saving them to the project.'
                 : 'Test the current Afiax-managed Kenya HIE connection using platform-managed credentials.'}
             </Text>
@@ -222,11 +253,60 @@ export function SecretsPage(): JSX.Element {
               variant="light"
               onClick={() => testKenyaAfyaLinkConnection().catch(console.log)}
               loading={testingAfyaLink}
-              disabled={isTenantManagedKenyaProject && missingKenyaSecretCount > 0}
+              disabled={isTenantManagedKenyaHieProject && missingKenyaHieSecretCount > 0}
             >
               Test HIE Connection
             </Button>
           </Group>
+          <Divider />
+          <div>
+            <Title order={3}>Kenya SHA Claim Transport</Title>
+            <Text size="sm" c="dimmed">
+              These credentials are reserved for Kenya SHA claim submission and callback handling. They are separate
+              from the Kenya HIE credentials used for registries and eligibility.
+            </Text>
+            <Text size="sm" mt="xs">
+              {isTenantManagedKenyaShaProject
+                ? missingKenyaShaSecretCount === 0
+                  ? 'All required tenant-managed Kenya SHA claim credentials are configured.'
+                  : `${missingKenyaShaSecretCount} required Kenya SHA credential${missingKenyaShaSecretCount === 1 ? '' : 's'} still missing.`
+                : 'This project relies on Afiax-managed SHA claim credentials. Tenant admins do not enter them here; platform ops manages them in Super Admin.'}
+            </Text>
+          </div>
+          {isTenantManagedKenyaShaProject &&
+            kenyaShaClaimsFields.map((field) =>
+              field.sensitive ? (
+                <PasswordInput
+                  key={field.name}
+                  label={field.label}
+                  description={field.description}
+                  placeholder={field.placeholder}
+                  value={getNamedSecretValue(secrets, field.name)}
+                  onChange={(event) => {
+                    const value = event.currentTarget.value;
+                    setSecrets((currentSecrets) => setNamedSecretValue(currentSecrets ?? [], field.name, value));
+                  }}
+                  data-testid={field.name}
+                />
+              ) : (
+                <TextInput
+                  key={field.name}
+                  label={field.label}
+                  description={field.description}
+                  placeholder={field.placeholder}
+                  value={getNamedSecretValue(secrets, field.name)}
+                  onChange={(event) => {
+                    const value = event.currentTarget.value;
+                    setSecrets((currentSecrets) => setNamedSecretValue(currentSecrets ?? [], field.name, value));
+                  }}
+                  data-testid={field.name}
+                />
+              )
+            )}
+          <Text size="sm" c="dimmed">
+            SHA claim transport credentials are stored here for tenant-managed projects. Live SHA submission will use
+            these credentials once the Kenya SHA connector is enabled.
+          </Text>
           <Divider />
         </Stack>
       )}
