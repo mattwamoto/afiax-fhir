@@ -22,4 +22,12 @@ Current implemented Kenya operations in code:
 - `Claim/$submit-national-claim`
 - `Claim/$check-national-claim-status`
 
+Current implementation notes in this folder:
+
+- [verify-facility-authority](./verify-facility-authority.md)
+- [verify-practitioner-authority](./verify-practitioner-authority.md)
+- [check-coverage](./check-coverage.md)
+- [submit-national-claim](./submit-national-claim.md)
+- [check-national-claim-status](./check-national-claim-status.md)
+
 If a new Kenya operation is added in code, add its implementation note here in the same cycle.

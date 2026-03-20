@@ -273,6 +273,16 @@ If you are extending the Kenya UI, start here:
 - `packages/app/src/resource/CoverageEligibilityPanel.tsx`
 - `packages/app/src/resource/ClaimNationalSubmissionPanel.tsx`
 
+## Operation notes in this folder
+
+Use these repo-level documents when you need the Kenya implementation contract for one workflow:
+
+- `operations/verify-facility-authority.md`
+- `operations/verify-practitioner-authority.md`
+- `operations/check-coverage.md`
+- `operations/submit-national-claim.md`
+- `operations/check-national-claim-status.md`
+
 ## Test commands
 
 Target the smallest package-level tests instead of broad repo runs:
