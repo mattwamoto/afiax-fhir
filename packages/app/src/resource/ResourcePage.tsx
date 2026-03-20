@@ -3,7 +3,7 @@
 import { Button, Paper, ScrollArea, Title } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
 import { getReferenceString, isGone, normalizeErrorString } from '@medplum/core';
-import type { OperationOutcome, Organization, Practitioner, Resource, ResourceType, ServiceRequest } from '@medplum/fhirtypes';
+import type { Coverage, OperationOutcome, Organization, Practitioner, Resource, ResourceType, ServiceRequest } from '@medplum/fhirtypes';
 import { Document, LinkTabs, OperationOutcomeAlert, PatientHeader, useMedplum, useResource } from '@medplum/react';
 import type { JSX } from 'react';
 import { useState } from 'react';
@@ -13,6 +13,7 @@ import { QuickStatus } from '../components/QuickStatus';
 import { ResourceHeader } from '../components/ResourceHeader';
 import { SpecimenHeader } from '../components/SpecimenHeader';
 import { getPatient, getSpecimen } from '../utils';
+import { CoverageEligibilityPanel } from './CoverageEligibilityPanel';
 import { OrganizationFacilityVerificationPanel } from './OrganizationFacilityVerificationPanel';
 import { PractitionerAuthorityVerificationPanel } from './PractitionerAuthorityVerificationPanel';
 import { cleanResource } from './utils';
@@ -133,6 +134,7 @@ export function ResourcePage(): JSX.Element | null {
         />
       )}
       {value && <QuickServiceRequests value={value} />}
+      {value?.resourceType === 'Coverage' && <CoverageEligibilityPanel coverage={value as Coverage} />}
       {value?.resourceType === 'Organization' && <OrganizationFacilityVerificationPanel organization={value as Organization} />}
       {value?.resourceType === 'Practitioner' && (
         <PractitionerAuthorityVerificationPanel practitioner={value as Practitioner} />

@@ -77,11 +77,15 @@ Implemented now:
 - DHA facility lookup and first-organization bootstrap from `/admin/country-pack`
 - `Organization`-level facility code capture, lookup, and verification UI
 - `Practitioner`-level identity capture, lookup, and verification UI
+- `Coverage`-level eligibility lookup capture and DHA eligibility UI
 - generic `Organization/$verify-facility-authority`
 - generic `Practitioner/$verify-practitioner-authority`
+- generic `Coverage/$check-coverage`
 - Kenya-specific AfyaLink auth and facility search
 - Kenya-specific AfyaLink practitioner search
+- Kenya-specific AfyaLink eligibility lookup
 - verification `Task` and `AuditEvent` creation
+- eligibility `Task`, `CoverageEligibilityRequest`, `CoverageEligibilityResponse`, and `AuditEvent` creation
 
 ## Current operation bindings
 
@@ -94,7 +98,8 @@ Kenya logic currently sits behind country-neutral operations such as:
 - `$publish-national-record`
 - `$submit-national-claim`
 
-`$verify-facility-authority` and `$verify-practitioner-authority` have implemented Kenya connector paths today.
+`$verify-facility-authority`, `$verify-practitioner-authority`, and `$check-coverage` have implemented Kenya
+connector paths today.
 
 ## Facility verification flow
 
@@ -125,6 +130,28 @@ Current path for `Practitioner/$verify-practitioner-authority`:
 
 The current Kenya UX captures the lookup identity as a national ID or passport number and stores the returned
 registration number as the practitioner authority identifier.
+
+## Coverage eligibility flow
+
+Current path for `Coverage/$check-coverage`:
+
+1. Resolve the active project.
+2. Read `countryPack`, Kenya HIE environment, HIE credential mode, and agent ID from `Project.setting`.
+3. Load credentials from `Project.secret` or `Project.systemSecret`.
+4. Authenticate against AfyaLink.
+5. Call the DHA eligibility endpoint with `identification_type` and `identification_number`.
+6. Persist the eligibility snapshot on the `Coverage`.
+7. Create a `CoverageEligibilityRequest`, `CoverageEligibilityResponse`, `Task`, and `AuditEvent`.
+
+The current Kenya UX captures the eligibility lookup identity directly on the `Coverage`. Supported identifier types
+are:
+
+- `National ID`
+- `Alien ID`
+- `Mandate Number`
+- `Temporary ID`
+- `SHA Number`
+- `Refugee ID`
 
 ## Admin UI flow
 
@@ -158,6 +185,12 @@ For a Kenya project:
   - persists the returned registry snapshot on the resource
   - shows the verification summary and raw DHA lookup payload
   - runs the audited `Verify Practitioner` action
+- `/Coverage/{id}`
+  - captures the Kenya eligibility identification type and number directly on the resource
+  - runs DHA eligibility lookup
+  - persists the eligibility snapshot on the resource
+  - shows the eligibility summary and raw DHA eligibility payload
+  - runs the audited `Check Coverage` action
 
 ## Guardrails
 
@@ -168,10 +201,10 @@ For a Kenya project:
 
 ## Recommended next steps
 
-1. Implement `Coverage/$check-coverage`.
-2. Add reconciliation and retry surfaces around external calls.
-3. Add a Kenya setup flow for practitioner onboarding after facility bootstrap.
-4. Add facility and practitioner verification queue views for operational follow-up.
+1. Add reconciliation and retry surfaces around external calls.
+2. Add a Kenya setup flow for practitioner onboarding after facility bootstrap.
+3. Add facility, practitioner, and coverage queue views for operational follow-up.
+4. Add SHA claim submission after the HIE verification flows are stable.
 
 ## Related docs
 

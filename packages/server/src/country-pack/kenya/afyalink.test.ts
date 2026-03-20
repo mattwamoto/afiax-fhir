@@ -6,6 +6,7 @@ import {
   getAfyaLinkToken,
   getKenyaAfyaLinkCredentials,
   KenyaAfyaLinkSecretNames,
+  searchAfyaLinkEligibility,
   searchAfyaLinkFacility,
   searchAfyaLinkPractitioner,
 } from './afyalink';
@@ -269,5 +270,57 @@ describe('Kenya AfyaLink connector', () => {
         is_active: true,
       },
     });
+  });
+
+  test('searches eligibility with bearer token', async () => {
+    (fetch as unknown as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        text: jest.fn(async () => JSON.stringify({ token: 'jwt-token' })),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: jest.fn(async () => ({
+          message: {
+            id: 2158174,
+            eligible: 'yes',
+            full_name: 'Afiax Test Patient',
+            reason: 'Active member',
+            possible_solution: 'Proceed to service delivery',
+            coverageEndDate: '2026-12-31',
+            transition_status: 'active',
+            request_id_type: 'National ID',
+            request_id_number: '12345678',
+          },
+        })),
+      });
+
+    const credentials = getKenyaAfyaLinkCredentials(project);
+    await expect(searchAfyaLinkEligibility(credentials, 'National ID', '12345678')).resolves.toEqual({
+      message: {
+        id: 2158174,
+        eligible: 1,
+        full_name: 'Afiax Test Patient',
+        reason: 'Active member',
+        possible_solution: 'Proceed to service delivery',
+        coverageEndDate: '2026-12-31',
+        transition_status: 'active',
+        request_id_type: 'National ID',
+        request_id_number: '12345678',
+        message: null,
+        status: null,
+      },
+    });
+
+    expect(fetch).toHaveBeenLastCalledWith(
+      'https://uat.dha.go.ke/v2/eligibility?identification_type=National%20ID&identification_number=12345678',
+      expect.objectContaining({
+        method: 'GET',
+        headers: expect.objectContaining({
+          Authorization: 'Bearer jwt-token',
+        }),
+      })
+    );
   });
 });

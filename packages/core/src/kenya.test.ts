@@ -1,15 +1,19 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
-import type { Organization, Practitioner } from '@medplum/fhirtypes';
+import type { Coverage, Organization, Practitioner } from '@medplum/fhirtypes';
 import {
   applyKenyaFacilityRegistryToOrganization,
   applyKenyaPractitionerRegistryToPractitioner,
   buildKenyaFacilityVerificationExtension,
+  buildKenyaCoverageEligibilityExtension,
   buildKenyaPractitionerVerificationExtension,
   clearKenyaFacilityRegistrySnapshot,
   clearKenyaFacilityVerificationSnapshot,
+  clearKenyaCoverageEligibilitySnapshot,
   clearKenyaPractitionerRegistrySnapshot,
   clearKenyaPractitionerVerificationSnapshot,
+  getKenyaCoverageEligibilityLookupIdentifier,
+  getKenyaCoverageEligibilitySnapshot,
   getKenyaFacilityVerificationSnapshot,
   getKenyaFacilityAuthorityIdentifier,
   getKenyaFacilityRegistrySnapshot,
@@ -20,9 +24,11 @@ import {
   KenyaFacilityVerificationExtension,
   KenyaFacilityAuthorityIdentifierSystem,
   KenyaFacilityRegistrationIdentifierSystem,
+  KenyaCoverageNationalIdIdentifierSystem,
   KenyaPractitionerAuthorityIdentifierSystem,
   KenyaPractitionerNationalIdIdentifierSystem,
   KenyaPractitionerVerificationExtension,
+  setKenyaCoverageEligibilityLookupIdentifier,
   setKenyaFacilityAuthorityIdentifier,
   setKenyaPractitionerAuthorityIdentifier,
   setKenyaPractitionerLookupIdentifier,
@@ -319,5 +325,103 @@ describe('Kenya facility verification helpers', () => {
       isActive: true,
       lookedUpAt: '2026-03-20T16:00:00.000Z',
     });
+  });
+
+  test('builds and reads Kenya coverage eligibility snapshot extensions', () => {
+    const coverage: Coverage = {
+      resourceType: 'Coverage',
+      status: 'active',
+      beneficiary: { reference: 'Patient/123' },
+      payor: [{ reference: 'Organization/sha' }],
+      extension: [
+        buildKenyaCoverageEligibilityExtension(
+          {
+            status: 'eligible',
+            correlationId: 'corr-cov-123',
+            message: 'Coverage is active',
+            nextState: 'ready-for-sha-pathway',
+            identificationType: 'National ID',
+            identificationNumber: '12345678',
+            eligible: true,
+            fullName: 'Afiax Test Patient',
+            reason: 'Active member',
+            possibleSolution: 'Proceed to benefits check',
+            coverageEndDate: '2026-12-31',
+            transitionStatus: 'active',
+            requestId: 'dha-req-123',
+            requestIdNumber: '12345678',
+            requestIdType: 'National ID',
+          },
+          '2026-03-20T17:00:00.000Z',
+          {
+            task: { reference: 'Task/task-cov-123' },
+            eligibilityRequest: { reference: 'CoverageEligibilityRequest/req-123' },
+            eligibilityResponse: { reference: 'CoverageEligibilityResponse/res-123' },
+          }
+        ),
+      ],
+    };
+
+    expect(getKenyaCoverageEligibilitySnapshot(coverage)).toEqual({
+      status: 'eligible',
+      correlationId: 'corr-cov-123',
+      message: 'Coverage is active',
+      nextState: 'ready-for-sha-pathway',
+      checkedAt: '2026-03-20T17:00:00.000Z',
+      task: { reference: 'Task/task-cov-123' },
+      eligibilityRequest: { reference: 'CoverageEligibilityRequest/req-123' },
+      eligibilityResponse: { reference: 'CoverageEligibilityResponse/res-123' },
+      identificationType: 'National ID',
+      identificationNumber: '12345678',
+      eligible: true,
+      fullName: 'Afiax Test Patient',
+      reason: 'Active member',
+      possibleSolution: 'Proceed to benefits check',
+      coverageEndDate: '2026-12-31',
+      transitionStatus: 'active',
+      requestId: 'dha-req-123',
+      requestIdNumber: '12345678',
+      requestIdType: 'National ID',
+    });
+  });
+
+  test('gets and sets Kenya coverage eligibility lookup identifier', () => {
+    const original: Coverage = {
+      resourceType: 'Coverage',
+      status: 'active',
+      beneficiary: { reference: 'Patient/123' },
+      payor: [{ reference: 'Organization/sha' }],
+    };
+
+    const updated = setKenyaCoverageEligibilityLookupIdentifier(original, 'National ID', '12345678');
+    expect(getKenyaCoverageEligibilityLookupIdentifier(updated)).toEqual(
+      expect.objectContaining({
+        identificationType: 'National ID',
+        identifier: expect.objectContaining({
+          system: KenyaCoverageNationalIdIdentifierSystem,
+          value: '12345678',
+        }),
+      })
+    );
+  });
+
+  test('clears Kenya coverage eligibility snapshot', () => {
+    const coverage: Coverage = {
+      resourceType: 'Coverage',
+      status: 'active',
+      beneficiary: { reference: 'Patient/123' },
+      payor: [{ reference: 'Organization/sha' }],
+      extension: [
+        {
+          url: 'https://afiax.africa/fhir/StructureDefinition/kenya-coverage-eligibility',
+          extension: [{ url: 'status', valueCode: 'eligible' }],
+        },
+        { url: 'https://example.com/other', valueString: 'keep-me' },
+      ],
+    };
+
+    expect(clearKenyaCoverageEligibilitySnapshot(coverage).extension).toEqual([
+      { url: 'https://example.com/other', valueString: 'keep-me' },
+    ]);
   });
 });

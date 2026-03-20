@@ -61,6 +61,24 @@ export interface AfyaLinkPractitionerSearchResponse {
   readonly message?: AfyaLinkPractitionerMessage;
 }
 
+export interface AfyaLinkEligibilityMessage {
+  readonly id?: string | number | null;
+  readonly eligible?: string | boolean | number | null;
+  readonly full_name?: string | null;
+  readonly reason?: string | null;
+  readonly possible_solution?: string | null;
+  readonly coverageEndDate?: string | null;
+  readonly transition_status?: string | null;
+  readonly request_id_number?: string | null;
+  readonly request_id_type?: string | null;
+  readonly message?: string | null;
+  readonly status?: string | null;
+}
+
+export interface AfyaLinkEligibilityResponse {
+  readonly message?: AfyaLinkEligibilityMessage;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value);
 }
@@ -202,6 +220,65 @@ function normalizeAfyaLinkPractitionerSearchResponse(payload: unknown): AfyaLink
   }
 
   throw new Error('AfyaLink practitioner search response did not include a recognizable practitioner payload');
+}
+
+function normalizeAfyaLinkEligibilityMessage(payload: Record<string, unknown>): AfyaLinkEligibilityMessage | undefined {
+  const normalizedEligible = normalizeFoundValue(payload.eligible);
+  const message: AfyaLinkEligibilityMessage = {
+    id:
+      typeof payload.id === 'string' || typeof payload.id === 'number'
+        ? (payload.id as string | number)
+        : null,
+    eligible:
+      normalizedEligible !== undefined
+        ? normalizedEligible
+        : typeof payload.eligible === 'string' || typeof payload.eligible === 'boolean'
+          ? (payload.eligible as string | boolean)
+          : null,
+    full_name: typeof payload.full_name === 'string' ? payload.full_name : null,
+    reason: typeof payload.reason === 'string' ? payload.reason : null,
+    possible_solution: typeof payload.possible_solution === 'string' ? payload.possible_solution : null,
+    coverageEndDate: typeof payload.coverageEndDate === 'string' ? payload.coverageEndDate : null,
+    transition_status: typeof payload.transition_status === 'string' ? payload.transition_status : null,
+    request_id_number: typeof payload.request_id_number === 'string' ? payload.request_id_number : null,
+    request_id_type: typeof payload.request_id_type === 'string' ? payload.request_id_type : null,
+    message: typeof payload.message === 'string' ? payload.message : null,
+    status: typeof payload.status === 'string' ? payload.status : null,
+  };
+
+  if (
+    message.eligible === null &&
+    !message.full_name &&
+    !message.reason &&
+    !message.possible_solution &&
+    !message.coverageEndDate &&
+    !message.message &&
+    !message.status
+  ) {
+    return undefined;
+  }
+
+  return message;
+}
+
+function normalizeAfyaLinkEligibilityResponse(payload: unknown): AfyaLinkEligibilityResponse {
+  if (!isRecord(payload)) {
+    throw new Error('AfyaLink eligibility returned an unsupported response body');
+  }
+
+  if (isRecord(payload.message)) {
+    const message = normalizeAfyaLinkEligibilityMessage(payload.message);
+    if (message) {
+      return { message };
+    }
+  }
+
+  const rootMessage = normalizeAfyaLinkEligibilityMessage(payload);
+  if (rootMessage) {
+    return { message: rootMessage };
+  }
+
+  throw new Error('AfyaLink eligibility response did not include a recognizable payload');
 }
 
 function getProjectSecret(project: Project, name: string): string | undefined {
@@ -383,5 +460,47 @@ export async function searchAfyaLinkPractitioner(
     return normalizeAfyaLinkPractitionerSearchResponse(await response.json());
   } catch (err) {
     throw new Error(`Failed to parse AfyaLink practitioner search response: ${normalizeErrorString(err)}`);
+  }
+}
+
+export async function searchAfyaLinkEligibility(
+  credentials: KenyaAfyaLinkCredentials,
+  identificationType: string,
+  identificationNumber: string
+): Promise<AfyaLinkEligibilityResponse> {
+  const token = await getAfyaLinkToken(credentials);
+  const response = await fetch(
+    `${credentials.baseUrl}/v2/eligibility?identification_type=${encodeURIComponent(
+      identificationType
+    )}&identification_number=${encodeURIComponent(identificationNumber)}`,
+    {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+
+  if (response.status === 404) {
+    return {
+      message: {
+        eligible: 0,
+        request_id_type: identificationType,
+        request_id_number: identificationNumber,
+        message: 'No eligibility match found',
+      },
+    };
+  }
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`AfyaLink eligibility failed (${response.status}): ${errorBody}`);
+  }
+
+  try {
+    return normalizeAfyaLinkEligibilityResponse(await response.json());
+  } catch (err) {
+    throw new Error(`Failed to parse AfyaLink eligibility response: ${normalizeErrorString(err)}`);
   }
 }

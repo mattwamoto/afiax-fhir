@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { OperationOutcomeError } from '@medplum/core';
 import { getReferenceString } from '@medplum/core';
-import type { Bot, Organization, Practitioner, Project, Questionnaire, Subscription, ValueSet } from '@medplum/fhirtypes';
+import type { Bot, Coverage, Organization, Practitioner, Project, Questionnaire, Subscription, ValueSet } from '@medplum/fhirtypes';
 import { MockClient } from '@medplum/mock';
 import { act, fireEvent, renderAppRoutes, screen, userEvent, waitFor } from '../test-utils/render';
 
@@ -393,6 +393,101 @@ describe('ResourcePage', () => {
     expect(await screen.findByText('Practitioner verified in Kenya HIE')).toBeInTheDocument();
     expect(screen.getAllByText('40675898').length).toBeGreaterThan(0);
     expect(screen.getByText('Task/task-prac-123')).toBeInTheDocument();
+  });
+
+  test('Coverage eligibility panel saves Kenya eligibility lookup identifier', async () => {
+    const medplum = new MockClient();
+    const coverage = await medplum.createResource<Coverage>({
+      resourceType: 'Coverage',
+      status: 'active',
+      beneficiary: { reference: 'Patient/123' },
+      payor: [{ reference: 'Organization/sha' }],
+    });
+
+    jest.spyOn(medplum, 'getProject').mockReturnValue({
+      resourceType: 'Project',
+      id: 'project-123',
+      setting: [{ name: 'countryPack', valueString: 'kenya' }],
+    } as Project);
+
+    const updateResourceSpy = jest.spyOn(medplum, 'updateResource');
+
+    await setup(`/Coverage/${coverage.id}`, medplum);
+    expect(await screen.findByText('Save Eligibility Lookup')).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Eligibility Identification Number'), { target: { value: '12345678' } });
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Save Eligibility Lookup'));
+    });
+
+    await waitFor(() =>
+      expect(updateResourceSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          resourceType: 'Coverage',
+          id: coverage.id,
+          identifier: expect.arrayContaining([
+            expect.objectContaining({
+              system: 'https://afiax.africa/kenya/identifier/coverage-national-id',
+              value: '12345678',
+            }),
+          ]),
+        })
+      )
+    );
+  });
+
+  test('Coverage eligibility panel runs Kenya coverage eligibility check', async () => {
+    const medplum = new MockClient();
+    const coverage = await medplum.createResource<Coverage>({
+      resourceType: 'Coverage',
+      status: 'active',
+      beneficiary: { reference: 'Patient/123' },
+      payor: [{ reference: 'Organization/sha' }],
+      identifier: [{ system: 'https://afiax.africa/kenya/identifier/coverage-national-id', value: '12345678' }],
+    });
+
+    jest.spyOn(medplum, 'getProject').mockReturnValue({
+      resourceType: 'Project',
+      id: 'project-123',
+      setting: [{ name: 'countryPack', valueString: 'kenya' }],
+    } as Project);
+
+    const postSpy = jest.spyOn(medplum, 'post').mockResolvedValue({
+      resourceType: 'Parameters',
+      parameter: [
+        { name: 'status', valueCode: 'eligible' },
+        { name: 'message', valueString: 'Coverage is active' },
+        { name: 'nextState', valueString: 'ready-for-claim-and-billing' },
+        { name: 'correlationId', valueString: 'corr-cov-123' },
+        { name: 'eligible', valueBoolean: true },
+        { name: 'fullName', valueString: 'Afiax Test Patient' },
+        { name: 'reason', valueString: 'Active member' },
+        { name: 'possibleSolution', valueString: 'Proceed to service delivery' },
+        { name: 'coverageEndDate', valueString: '2026-12-31' },
+        { name: 'requestId', valueString: 'dha-req-123' },
+        { name: 'rawResponse', valueString: '{\n  \"message\": {\n    \"eligible\": 1\n  }\n}' },
+        { name: 'coverageEligibilityRequest', valueReference: { reference: 'CoverageEligibilityRequest/req-123' } },
+        { name: 'coverageEligibilityResponse', valueReference: { reference: 'CoverageEligibilityResponse/res-123' } },
+        { name: 'task', valueReference: { reference: 'Task/task-cov-123' } },
+      ],
+    });
+
+    await setup(`/Coverage/${coverage.id}`, medplum);
+    expect(await screen.findByText('Check Coverage')).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Check Coverage'));
+    });
+
+    expect(postSpy).toHaveBeenCalledWith(medplum.fhirUrl('Coverage', coverage.id as string, '$check-coverage'));
+    expect(await screen.findByText('Coverage is active')).toBeInTheDocument();
+    expect(screen.getByText('CoverageEligibilityRequest/req-123')).toBeInTheDocument();
+    expect(screen.getByText('CoverageEligibilityResponse/res-123')).toBeInTheDocument();
+    expect(screen.getByText('Task/task-cov-123')).toBeInTheDocument();
+    expect(screen.getByText(/"eligible": 1/)).toBeInTheDocument();
   });
 
   test('Questionnaire bots -- create only (default)', async () => {

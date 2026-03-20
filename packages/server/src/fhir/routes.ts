@@ -24,6 +24,7 @@ import { aiOperationHandler } from './operations/ai';
 import { asyncJobCancelHandler } from './operations/asyncjobcancel';
 import { appointmentBookHandler } from './operations/book';
 import { botInitHandler } from './operations/botinit';
+import { checkCoverageHandler } from './operations/check-coverage';
 import { ccdaExportHandler } from './operations/ccdaexport';
 import { chargeItemDefinitionApplyHandler } from './operations/chargeitemdefinitionapply';
 import { claimExportGetHandler, claimExportPostHandler } from './operations/claimexport';
@@ -304,6 +305,11 @@ function initInternalFhirRouter(): FhirRouter {
   // Claim $export operation
   router.add('POST', '/Claim/$export', claimExportPostHandler);
   router.add('GET', '/Claim/:id/$export', claimExportGetHandler);
+
+  // Coverage $check-coverage operation
+  router.add('GET', '/Coverage/:id/$check-coverage', checkCoverageHandler);
+  router.add('POST', '/Coverage/:id/$check-coverage', checkCoverageHandler);
+  router.add('POST', '/Coverage/$check-coverage', checkCoverageHandler);
 
   // Group $export operation
   router.add('GET', '/Group/:id/$export', groupExportHandler);

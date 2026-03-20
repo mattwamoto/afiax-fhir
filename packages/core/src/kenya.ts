@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
 import { getExtensionValue } from './utils';
-import type { Extension, Identifier, Organization, Practitioner, Reference, Task } from '@medplum/fhirtypes';
+import type { Coverage, CoverageEligibilityRequest, CoverageEligibilityResponse, Extension, Identifier, Organization, Practitioner, Reference, Task } from '@medplum/fhirtypes';
 
 export interface KenyaFacilityVerificationResultInput {
   readonly status: string;
@@ -37,6 +37,14 @@ export const KenyaPractitionerAuthorityIdentifierSystem =
   'https://afiax.africa/kenya/identifier/health-worker-registration-number';
 export const KenyaPractitionerNationalIdIdentifierSystem = 'https://afiax.africa/kenya/identifier/national-id';
 export const KenyaPractitionerPassportIdentifierSystem = 'https://afiax.africa/kenya/identifier/passport-number';
+export const KenyaCoverageNationalIdIdentifierSystem = 'https://afiax.africa/kenya/identifier/coverage-national-id';
+export const KenyaCoverageAlienIdIdentifierSystem = 'https://afiax.africa/kenya/identifier/coverage-alien-id';
+export const KenyaCoverageMandateNumberIdentifierSystem =
+  'https://afiax.africa/kenya/identifier/coverage-mandate-number';
+export const KenyaCoverageTemporaryIdIdentifierSystem =
+  'https://afiax.africa/kenya/identifier/coverage-temporary-id';
+export const KenyaCoverageShaNumberIdentifierSystem = 'https://afiax.africa/kenya/identifier/sha-number';
+export const KenyaCoverageRefugeeIdIdentifierSystem = 'https://afiax.africa/kenya/identifier/coverage-refugee-id';
 
 export const KenyaFacilityRegistryExtension = {
   baseUrl: 'https://afiax.africa/fhir/StructureDefinition/kenya-facility-registry',
@@ -443,6 +451,13 @@ function getKenyaRegistryStringValue(
 }
 
 export type KenyaPractitionerIdentificationType = 'ID' | 'PASSPORT';
+export type KenyaCoverageEligibilityIdentificationType =
+  | 'National ID'
+  | 'Alien ID'
+  | 'Mandate Number'
+  | 'Temporary ID'
+  | 'SHA Number'
+  | 'Refugee ID';
 
 export interface KenyaPractitionerVerificationResultInput {
   readonly status: string;
@@ -931,4 +946,307 @@ function getKenyaExtensionStringValue(
 ): string | undefined {
   const value = getExtensionValue(resource, baseUrl, childUrl);
   return typeof value === 'string' && value ? value : undefined;
+}
+
+export interface KenyaCoverageEligibilityResultInput {
+  readonly status: string;
+  readonly correlationId: string;
+  readonly message: string;
+  readonly nextState: string;
+  readonly identificationType?: string;
+  readonly identificationNumber?: string;
+  readonly eligible?: boolean;
+  readonly fullName?: string;
+  readonly reason?: string;
+  readonly possibleSolution?: string;
+  readonly coverageEndDate?: string;
+  readonly transitionStatus?: string;
+  readonly requestId?: string;
+  readonly requestIdNumber?: string;
+  readonly requestIdType?: string;
+}
+
+export const KenyaCoverageEligibilityExtension = {
+  baseUrl: 'https://afiax.africa/fhir/StructureDefinition/kenya-coverage-eligibility',
+  status: 'status',
+  correlationId: 'correlationId',
+  message: 'message',
+  nextState: 'nextState',
+  checkedAt: 'checkedAt',
+  task: 'task',
+  eligibilityRequest: 'eligibilityRequest',
+  eligibilityResponse: 'eligibilityResponse',
+  identificationType: 'identificationType',
+  identificationNumber: 'identificationNumber',
+  eligible: 'eligible',
+  fullName: 'fullName',
+  reason: 'reason',
+  possibleSolution: 'possibleSolution',
+  coverageEndDate: 'coverageEndDate',
+  transitionStatus: 'transitionStatus',
+  requestId: 'requestId',
+  requestIdNumber: 'requestIdNumber',
+  requestIdType: 'requestIdType',
+} as const;
+
+export interface KenyaCoverageEligibilitySnapshot {
+  readonly status?: string;
+  readonly correlationId?: string;
+  readonly message?: string;
+  readonly nextState?: string;
+  readonly checkedAt?: string;
+  readonly task?: Reference<Task>;
+  readonly eligibilityRequest?: Reference<CoverageEligibilityRequest>;
+  readonly eligibilityResponse?: Reference<CoverageEligibilityResponse>;
+  readonly identificationType?: string;
+  readonly identificationNumber?: string;
+  readonly eligible?: boolean;
+  readonly fullName?: string;
+  readonly reason?: string;
+  readonly possibleSolution?: string;
+  readonly coverageEndDate?: string;
+  readonly transitionStatus?: string;
+  readonly requestId?: string;
+  readonly requestIdNumber?: string;
+  readonly requestIdType?: string;
+}
+
+export interface KenyaCoverageEligibilityLookupIdentifier {
+  readonly identificationType: KenyaCoverageEligibilityIdentificationType;
+  readonly identifier: Identifier;
+}
+
+export function buildKenyaCoverageEligibilityExtension(
+  result: KenyaCoverageEligibilityResultInput,
+  checkedAt: string,
+  references?: {
+    readonly task?: Reference<Task>;
+    readonly eligibilityRequest?: Reference<CoverageEligibilityRequest>;
+    readonly eligibilityResponse?: Reference<CoverageEligibilityResponse>;
+  }
+): Extension {
+  const extension: Extension = {
+    url: KenyaCoverageEligibilityExtension.baseUrl,
+    extension: [
+      { url: KenyaCoverageEligibilityExtension.status, valueCode: result.status },
+      { url: KenyaCoverageEligibilityExtension.correlationId, valueString: result.correlationId },
+      { url: KenyaCoverageEligibilityExtension.message, valueString: result.message },
+      { url: KenyaCoverageEligibilityExtension.nextState, valueString: result.nextState },
+      { url: KenyaCoverageEligibilityExtension.checkedAt, valueDateTime: checkedAt },
+    ],
+  };
+
+  if (references?.task) {
+    extension.extension?.push({ url: KenyaCoverageEligibilityExtension.task, valueReference: references.task });
+  }
+  if (references?.eligibilityRequest) {
+    extension.extension?.push({
+      url: KenyaCoverageEligibilityExtension.eligibilityRequest,
+      valueReference: references.eligibilityRequest,
+    });
+  }
+  if (references?.eligibilityResponse) {
+    extension.extension?.push({
+      url: KenyaCoverageEligibilityExtension.eligibilityResponse,
+      valueReference: references.eligibilityResponse,
+    });
+  }
+  pushString(extension, KenyaCoverageEligibilityExtension.identificationType, result.identificationType);
+  pushString(extension, KenyaCoverageEligibilityExtension.identificationNumber, result.identificationNumber);
+  if (result.eligible !== undefined) {
+    extension.extension?.push({ url: KenyaCoverageEligibilityExtension.eligible, valueBoolean: result.eligible });
+  }
+  pushString(extension, KenyaCoverageEligibilityExtension.fullName, result.fullName);
+  pushString(extension, KenyaCoverageEligibilityExtension.reason, result.reason);
+  pushString(extension, KenyaCoverageEligibilityExtension.possibleSolution, result.possibleSolution);
+  pushString(extension, KenyaCoverageEligibilityExtension.coverageEndDate, result.coverageEndDate);
+  pushString(extension, KenyaCoverageEligibilityExtension.transitionStatus, result.transitionStatus);
+  pushString(extension, KenyaCoverageEligibilityExtension.requestId, result.requestId);
+  pushString(extension, KenyaCoverageEligibilityExtension.requestIdNumber, result.requestIdNumber);
+  pushString(extension, KenyaCoverageEligibilityExtension.requestIdType, result.requestIdType);
+
+  return extension;
+}
+
+export function getKenyaCoverageEligibilitySnapshot(
+  coverage: Pick<Coverage, 'extension'> | undefined
+): KenyaCoverageEligibilitySnapshot | undefined {
+  if (!coverage?.extension?.length) {
+    return undefined;
+  }
+
+  const base = KenyaCoverageEligibilityExtension.baseUrl;
+  const status = getExtensionValue(coverage, base, KenyaCoverageEligibilityExtension.status);
+  if (typeof status !== 'string' || !status) {
+    return undefined;
+  }
+
+  const taskValue = getExtensionValue(coverage, base, KenyaCoverageEligibilityExtension.task);
+  const requestValue = getExtensionValue(coverage, base, KenyaCoverageEligibilityExtension.eligibilityRequest);
+  const responseValue = getExtensionValue(coverage, base, KenyaCoverageEligibilityExtension.eligibilityResponse);
+  const eligible = getExtensionValue(coverage, base, KenyaCoverageEligibilityExtension.eligible);
+
+  return {
+    status,
+    correlationId: getKenyaExtensionStringValue(coverage, base, KenyaCoverageEligibilityExtension.correlationId),
+    message: getKenyaExtensionStringValue(coverage, base, KenyaCoverageEligibilityExtension.message),
+    nextState: getKenyaExtensionStringValue(coverage, base, KenyaCoverageEligibilityExtension.nextState),
+    checkedAt: getKenyaExtensionStringValue(coverage, base, KenyaCoverageEligibilityExtension.checkedAt),
+    task: isReference(taskValue) ? (taskValue as Reference<Task>) : undefined,
+    eligibilityRequest: isReference(requestValue) ? (requestValue as Reference<CoverageEligibilityRequest>) : undefined,
+    eligibilityResponse: isReference(responseValue) ? (responseValue as Reference<CoverageEligibilityResponse>) : undefined,
+    identificationType: getKenyaExtensionStringValue(coverage, base, KenyaCoverageEligibilityExtension.identificationType),
+    identificationNumber: getKenyaExtensionStringValue(
+      coverage,
+      base,
+      KenyaCoverageEligibilityExtension.identificationNumber
+    ),
+    eligible: typeof eligible === 'boolean' ? eligible : undefined,
+    fullName: getKenyaExtensionStringValue(coverage, base, KenyaCoverageEligibilityExtension.fullName),
+    reason: getKenyaExtensionStringValue(coverage, base, KenyaCoverageEligibilityExtension.reason),
+    possibleSolution: getKenyaExtensionStringValue(coverage, base, KenyaCoverageEligibilityExtension.possibleSolution),
+    coverageEndDate: getKenyaExtensionStringValue(coverage, base, KenyaCoverageEligibilityExtension.coverageEndDate),
+    transitionStatus: getKenyaExtensionStringValue(coverage, base, KenyaCoverageEligibilityExtension.transitionStatus),
+    requestId: getKenyaExtensionStringValue(coverage, base, KenyaCoverageEligibilityExtension.requestId),
+    requestIdNumber: getKenyaExtensionStringValue(coverage, base, KenyaCoverageEligibilityExtension.requestIdNumber),
+    requestIdType: getKenyaExtensionStringValue(coverage, base, KenyaCoverageEligibilityExtension.requestIdType),
+  };
+}
+
+export function getKenyaCoverageEligibilityLookupIdentifier(
+  coverage: Pick<Coverage, 'identifier' | 'subscriberId'> | undefined
+): KenyaCoverageEligibilityLookupIdentifier | undefined {
+  const identifiers = coverage?.identifier ?? [];
+  for (const identifier of identifiers) {
+    const identificationType = getKenyaCoverageEligibilityTypeForIdentifier(identifier);
+    if (identificationType && identifier.value?.trim()) {
+      return { identificationType, identifier };
+    }
+  }
+
+  if (coverage?.subscriberId?.trim()) {
+    return {
+      identificationType: 'SHA Number',
+      identifier: {
+        system: KenyaCoverageShaNumberIdentifierSystem,
+        value: coverage.subscriberId,
+      },
+    };
+  }
+
+  return undefined;
+}
+
+export function setKenyaCoverageEligibilityLookupIdentifier(
+  coverage: Coverage,
+  identificationType: KenyaCoverageEligibilityIdentificationType,
+  identificationNumber: string
+): Coverage {
+  const trimmedNumber = identificationNumber.trim();
+  const nextIdentifier: Identifier = {
+    system: getKenyaCoverageEligibilitySystem(identificationType),
+    value: trimmedNumber,
+    type: {
+      text: identificationType,
+      coding: [{ code: identificationType, display: identificationType }],
+    },
+  };
+
+  const identifiers = [...(coverage.identifier ?? [])];
+  const existingIndex = identifiers.findIndex(
+    (identifier) => getKenyaCoverageEligibilityTypeForIdentifier(identifier) === identificationType
+  );
+  if (existingIndex >= 0) {
+    identifiers[existingIndex] = { ...identifiers[existingIndex], ...nextIdentifier };
+  } else {
+    identifiers.push(nextIdentifier);
+  }
+
+  return {
+    ...coverage,
+    identifier: identifiers,
+    subscriberId: identificationType === 'SHA Number' ? trimmedNumber : coverage.subscriberId,
+  };
+}
+
+export function clearKenyaCoverageEligibilitySnapshot(coverage: Coverage): Coverage {
+  if (!coverage.extension?.length) {
+    return coverage;
+  }
+
+  return {
+    ...coverage,
+    extension: coverage.extension.filter((ext) => ext.url !== KenyaCoverageEligibilityExtension.baseUrl),
+  };
+}
+
+function getKenyaCoverageEligibilityTypeForIdentifier(
+  identifier: Identifier | undefined
+): KenyaCoverageEligibilityIdentificationType | undefined {
+  if (!identifier?.value?.trim()) {
+    return undefined;
+  }
+
+  switch (identifier.system) {
+    case KenyaCoverageNationalIdIdentifierSystem:
+      return 'National ID';
+    case KenyaCoverageAlienIdIdentifierSystem:
+      return 'Alien ID';
+    case KenyaCoverageMandateNumberIdentifierSystem:
+      return 'Mandate Number';
+    case KenyaCoverageTemporaryIdIdentifierSystem:
+      return 'Temporary ID';
+    case KenyaCoverageShaNumberIdentifierSystem:
+      return 'SHA Number';
+    case KenyaCoverageRefugeeIdIdentifierSystem:
+      return 'Refugee ID';
+    default:
+      break;
+  }
+
+  const typeText = identifier.type?.text?.trim();
+  if (
+    typeText === 'National ID' ||
+    typeText === 'Alien ID' ||
+    typeText === 'Mandate Number' ||
+    typeText === 'Temporary ID' ||
+    typeText === 'SHA Number' ||
+    typeText === 'Refugee ID'
+  ) {
+    return typeText;
+  }
+
+  for (const coding of identifier.type?.coding ?? []) {
+    if (
+      coding.code === 'National ID' ||
+      coding.code === 'Alien ID' ||
+      coding.code === 'Mandate Number' ||
+      coding.code === 'Temporary ID' ||
+      coding.code === 'SHA Number' ||
+      coding.code === 'Refugee ID'
+    ) {
+      return coding.code;
+    }
+  }
+
+  return undefined;
+}
+
+function getKenyaCoverageEligibilitySystem(
+  identificationType: KenyaCoverageEligibilityIdentificationType
+): string {
+  switch (identificationType) {
+    case 'National ID':
+      return KenyaCoverageNationalIdIdentifierSystem;
+    case 'Alien ID':
+      return KenyaCoverageAlienIdIdentifierSystem;
+    case 'Mandate Number':
+      return KenyaCoverageMandateNumberIdentifierSystem;
+    case 'Temporary ID':
+      return KenyaCoverageTemporaryIdIdentifierSystem;
+    case 'SHA Number':
+      return KenyaCoverageShaNumberIdentifierSystem;
+    case 'Refugee ID':
+      return KenyaCoverageRefugeeIdIdentifierSystem;
+  }
 }

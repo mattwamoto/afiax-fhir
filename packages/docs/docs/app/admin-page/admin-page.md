@@ -66,6 +66,7 @@ Kenya also exposes resource-level onboarding panels after project setup:
 
 - `Organization` pages capture the Kenya facility code, run DHA facility lookup, and run audited facility verification
 - `Practitioner` pages capture the Kenya identity document, run DHA practitioner lookup, and run audited practitioner verification
+- `Coverage` pages capture the DHA eligibility lookup identity, run DHA eligibility checks, and record the resulting eligibility workflow artifacts
 
 Pack-specific behavior belongs in the relevant country-pack docs.
 

@@ -1,7 +1,17 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
 import type { WithId } from '@medplum/core';
-import type { Organization, Practitioner, Project, Reference, ResourceType, Task } from '@medplum/fhirtypes';
+import type {
+  Coverage,
+  CoverageEligibilityRequest,
+  CoverageEligibilityResponse,
+  Organization,
+  Practitioner,
+  Project,
+  Reference,
+  ResourceType,
+  Task,
+} from '@medplum/fhirtypes';
 import type { AuthenticatedRequestContext } from '../context';
 
 export type CountryPackOperationCode =
@@ -31,6 +41,7 @@ export interface CountryPackDefinition {
   verifyPractitionerAuthority?: (
     input: CountryPackVerifyPractitionerAuthorityInput
   ) => Promise<VerifyPractitionerAuthorityResult>;
+  checkCoverage?: (input: CountryPackCheckCoverageInput) => Promise<CheckCoverageResult>;
 }
 
 export interface CountryPackVerifyFacilityAuthorityInput {
@@ -42,6 +53,12 @@ export interface CountryPackVerifyFacilityAuthorityInput {
 export interface CountryPackVerifyPractitionerAuthorityInput {
   readonly ctx: AuthenticatedRequestContext;
   readonly practitioner: WithId<Practitioner>;
+  readonly correlationId: string;
+}
+
+export interface CountryPackCheckCoverageInput {
+  readonly ctx: AuthenticatedRequestContext;
+  readonly coverage: WithId<Coverage>;
   readonly correlationId: string;
 }
 
@@ -76,6 +93,31 @@ export interface VerifyPractitionerAuthorityResult {
   readonly identificationType?: string;
   readonly identificationNumber?: string;
   readonly practitionerActiveStatus?: string;
+  readonly task?: Reference<Task>;
+}
+
+export type CoverageCheckStatus = 'eligible' | 'ineligible' | 'error';
+
+export interface CheckCoverageResult {
+  readonly status: CoverageCheckStatus;
+  readonly correlationId: string;
+  readonly message: string;
+  readonly nextState: string;
+  readonly countryPack: string;
+  readonly identificationType?: string;
+  readonly identificationNumber?: string;
+  readonly eligible?: boolean;
+  readonly fullName?: string;
+  readonly reason?: string;
+  readonly possibleSolution?: string;
+  readonly coverageEndDate?: string;
+  readonly transitionStatus?: string;
+  readonly requestId?: string;
+  readonly requestIdNumber?: string;
+  readonly requestIdType?: string;
+  readonly rawResponse?: string;
+  readonly coverageEligibilityRequest?: Reference<CoverageEligibilityRequest>;
+  readonly coverageEligibilityResponse?: Reference<CoverageEligibilityResponse>;
   readonly task?: Reference<Task>;
 }
 
