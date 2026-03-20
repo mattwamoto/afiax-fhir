@@ -140,6 +140,47 @@ describe('ResourcePage', () => {
     expect(screen.getByText('Task/task-123')).toBeInTheDocument();
   });
 
+  test('Organization verification panel saves Kenya MFL code', async () => {
+    const medplum = new MockClient();
+    const organization = await medplum.createResource<Organization>({
+      resourceType: 'Organization',
+      name: 'Test Kenya Facility',
+    });
+
+    jest.spyOn(medplum, 'getProject').mockReturnValue({
+      resourceType: 'Project',
+      id: 'project-123',
+      setting: [{ name: 'countryPack', valueString: 'kenya' }],
+    } as Project);
+
+    const updateResourceSpy = jest.spyOn(medplum, 'updateResource');
+
+    await setup(`/Organization/${organization.id}`, medplum);
+    expect(await screen.findByText('Save MFL Code')).toBeInTheDocument();
+    expect(screen.getByText(/Verification stays disabled until the code is saved/i)).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Kenya MFL Code'), { target: { value: '24749' } });
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Save MFL Code'));
+    });
+
+    expect(updateResourceSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        resourceType: 'Organization',
+        id: organization.id,
+        identifier: expect.arrayContaining([
+          expect.objectContaining({
+            system: 'https://afiax.africa/kenya/identifier/mfl-code',
+            value: '24749',
+          }),
+        ]),
+      })
+    );
+  });
+
   test('Questionnaire bots -- create only (default)', async () => {
     const medplum = new MockClient();
     const bot = await medplum.createResource<Bot>({

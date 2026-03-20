@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
 import type { WithId } from '@medplum/core';
-import { allOk, badRequest, createReference, OperationOutcomeError } from '@medplum/core';
+import { allOk, badRequest, buildKenyaFacilityVerificationExtension, createReference, OperationOutcomeError } from '@medplum/core';
 import type { FhirRequest, FhirResponse } from '@medplum/fhir-router';
 import type { AuditEvent, OperationDefinition, Organization, Reference, Task } from '@medplum/fhirtypes';
 import { randomUUID } from 'node:crypto';
@@ -28,7 +28,7 @@ export const verifyFacilityAuthorityOperation: OperationDefinition = {
   system: false,
   type: true,
   instance: true,
-  affectsState: false,
+  affectsState: true,
   parameter: [
     { use: 'in', name: 'organization', type: 'Reference', min: 0, max: '1' },
     { use: 'out', name: 'status', type: 'code', min: 1, max: '1' },
@@ -73,7 +73,8 @@ export async function verifyFacilityAuthorityHandler(req: FhirRequest): Promise<
     correlationId,
   });
   const updatedTask = await completeVerificationTask(task, result);
-  await createVerificationAuditEvent(updatedTask, organization, result);
+  const updatedOrganization = await persistVerificationResult(organization, updatedTask, result);
+  await createVerificationAuditEvent(updatedTask, updatedOrganization, result);
 
   return [allOk, buildOutputParameters(verifyFacilityAuthorityOperation, { ...result, task: createReference(updatedTask) })];
 }
@@ -183,4 +184,20 @@ async function createVerificationAuditEvent(
   ];
 
   await ctx.systemRepo.createResource<AuditEvent>(auditEvent);
+}
+
+async function persistVerificationResult(
+  organization: WithId<Organization>,
+  task: WithId<Task>,
+  result: VerifyFacilityAuthorityResult
+): Promise<WithId<Organization>> {
+  const ctx = getAuthenticatedContext();
+  const verifiedAt = new Date().toISOString();
+  const extension = buildKenyaFacilityVerificationExtension(result, verifiedAt, createReference(task));
+  const otherExtensions = organization.extension?.filter((ext) => ext.url !== extension.url) ?? [];
+
+  return ctx.systemRepo.updateResource<Organization>({
+    ...organization,
+    extension: [...otherExtensions, extension],
+  });
 }

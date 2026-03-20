@@ -32,6 +32,7 @@ export * from './filter/types';
 export * from './format';
 export * from './hl7';
 export * from './jwt';
+export * from './kenya';
 export * from './keyvalue';
 export * from './logger';
 export * from './outcomes';
