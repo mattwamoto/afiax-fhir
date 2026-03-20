@@ -54,6 +54,14 @@ It shows:
 - secret completeness when relevant
 - next actions for setup
 
+For active packs, it can also expose guided onboarding flows. The current Kenya implementation includes a setup wizard
+that:
+
+- accepts the primary Kenya facility code / MFL code
+- looks up the facility against DHA AfyaLink
+- shows the raw DHA lookup payload for troubleshooting
+- creates or updates the first `Organization` from registry data when DHA returns a match
+
 Pack-specific behavior belongs in the relevant country-pack docs.
 
 ## Secrets

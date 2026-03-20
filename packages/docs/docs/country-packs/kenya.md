@@ -71,9 +71,11 @@ Implemented now:
 
 - country-pack selection during project creation
 - country-pack selection in `/admin/settings`
-- project setup checklist in `/admin/country-pack`
+- Kenya setup wizard in `/admin/country-pack`
 - tenant-managed HIE credentials in `/admin/secrets`
 - Afiax-managed HIE credentials in `/admin/super`
+- DHA facility lookup and first-organization bootstrap from `/admin/country-pack`
+- `Organization`-level facility code capture, lookup, and verification UI
 - generic `Organization/$verify-facility-authority`
 - Kenya-specific AfyaLink auth and facility search
 - verification `Task` and `AuditEvent` creation
@@ -117,11 +119,20 @@ For a Kenya project:
   - sets Kenya HIE agent ID
 - `/admin/country-pack`
   - shows setup status and next steps
+  - accepts the primary Kenya facility code / MFL code
+  - runs DHA facility lookup
+  - shows the raw DHA response for onboarding troubleshooting
+  - creates or updates the first `Organization` from registry data
 - `/admin/secrets`
   - stores tenant-managed HIE credentials
   - supports `Test HIE Connection`
 - `/admin/super`
   - stores Afiax-managed HIE credentials in `Project.systemSecret`
+- `/Organization/{id}`
+  - captures the Kenya facility code directly on the resource
+  - runs DHA lookup
+  - shows the verification summary and raw DHA lookup payload
+  - runs the audited `Verify Facility` action
 
 ## Guardrails
 
@@ -134,8 +145,8 @@ For a Kenya project:
 
 1. Implement `Practitioner/$verify-practitioner-authority`.
 2. Implement `Coverage/$check-coverage`.
-3. Add a UI action to run facility verification from `Organization`.
-4. Add reconciliation and retry surfaces around external calls.
+3. Add reconciliation and retry surfaces around external calls.
+4. Add a Kenya setup flow for practitioner onboarding after facility bootstrap.
 
 ## Related docs
 

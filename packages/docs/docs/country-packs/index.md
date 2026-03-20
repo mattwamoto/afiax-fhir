@@ -73,10 +73,13 @@ placeholders only.
 
 After a pack is selected:
 
-- `/admin/country-pack` becomes the setup checklist
+- `/admin/country-pack` becomes the setup checklist and guided onboarding surface
 - `/admin/settings` holds non-secret country config
 - `/admin/secrets` holds tenant-managed credentials
 - `/admin/super` holds Afiax-managed credentials
+
+Kenya currently uses `/admin/country-pack` to capture the primary facility code, run DHA lookup, and bootstrap the
+first `Organization` from registry data.
 
 ## Lifecycle
 

@@ -6,7 +6,7 @@ import { MockClient } from '@medplum/mock';
 import { MedplumProvider } from '@medplum/react';
 import { MemoryRouter } from 'react-router';
 import { AppRoutes } from '../AppRoutes';
-import { act, render, screen } from '../test-utils/render';
+import { act, fireEvent, render, screen, waitFor } from '../test-utils/render';
 
 let medplum = new MockClient();
 
@@ -67,5 +67,84 @@ describe('CountryPackPage', () => {
     expect(screen.getByText('Production')).toBeInTheDocument();
     expect(screen.getByText('1 of 3 required HIE credentials configured')).toBeInTheDocument();
     expect(screen.getByText(/2 Kenya HIE credentials still missing/)).toBeInTheDocument();
+  });
+
+  test('Runs Kenya setup wizard and creates primary facility from lookup', async () => {
+    await medplum.get('admin/projects/123');
+    await medplum.repo.updateResource({
+      resourceType: 'Project',
+      id: '123',
+      name: 'Project 123',
+      setting: [
+        { name: 'countryPack', valueString: 'kenya' },
+        { name: 'kenyaHieEnvironment', valueString: 'uat' },
+        { name: 'kenyaHieCredentialMode', valueString: 'tenant-managed' },
+        { name: 'kenyaShaClaimsEnvironment', valueString: 'uat' },
+      ],
+      secret: [
+        { name: 'kenyaAfyaLinkConsumerKey', valueString: 'consumer-key-123' },
+        { name: 'kenyaAfyaLinkUsername', valueString: 'user-123' },
+        { name: 'kenyaAfyaLinkPassword', valueString: 'password-123' },
+      ],
+    });
+    await medplum.get('admin/projects/123', { cache: 'reload' });
+
+    const postSpy = jest.spyOn(medplum, 'post').mockResolvedValue({
+      ok: true,
+      baseUrl: 'https://uat.dha.go.ke',
+      facilityCode: '24749',
+      result: {
+        message: {
+          facility_code: '24749',
+          found: 1,
+          facility_name: 'Afiax Test Hospital',
+          registration_number: 'REG-24749',
+          facility_level: 'Level 4',
+          county: 'Nairobi',
+          operational_status: 'Operational',
+        },
+      },
+    });
+    const createResourceSpy = jest.spyOn(medplum, 'createResource');
+
+    await setup('/admin/country-pack');
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Kenya Facility Code / MFL Code'), { target: { value: '24749' } });
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Lookup Facility'));
+    });
+
+    expect(postSpy).toHaveBeenCalledWith('admin/projects/123/kenya/afyalink/facility-lookup', {
+      facilityCode: '24749',
+    });
+    expect(await screen.findByText('Raw Kenya HIE Response')).toBeInTheDocument();
+    expect(await screen.findByText('Create Primary Facility')).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Create Primary Facility'));
+    });
+
+    await waitFor(() =>
+      expect(createResourceSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          resourceType: 'Organization',
+          active: true,
+          name: 'Afiax Test Hospital',
+          identifier: expect.arrayContaining([
+            expect.objectContaining({
+              system: 'https://afiax.africa/kenya/identifier/mfl-code',
+              value: '24749',
+            }),
+            expect.objectContaining({
+              system: 'https://afiax.africa/kenya/identifier/facility-registration-number',
+              value: 'REG-24749',
+            }),
+          ]),
+        })
+      )
+    );
   });
 });
