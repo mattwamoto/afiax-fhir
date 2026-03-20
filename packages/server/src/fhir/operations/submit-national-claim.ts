@@ -50,6 +50,9 @@ export const submitNationalClaimOperation: OperationDefinition = {
     { use: 'out', name: 'bundleEntryCount', type: 'integer', min: 0, max: '1' },
     { use: 'out', name: 'rawBundle', type: 'string', min: 0, max: '1' },
     { use: 'out', name: 'rawResponse', type: 'string', min: 0, max: '1' },
+    { use: 'out', name: 'workflowBot', type: 'string', min: 0, max: '1' },
+    { use: 'out', name: 'workflowBotStatus', type: 'code', min: 0, max: '1' },
+    { use: 'out', name: 'workflowBotMessage', type: 'string', min: 0, max: '1' },
     { use: 'out', name: 'task', type: 'Reference', min: 0, max: '1' },
   ],
 };
@@ -150,6 +153,13 @@ async function completeClaimTask(task: WithId<Task>, result: SubmitNationalClaim
         : []),
       ...(result.responseStatusCode !== undefined
         ? [{ type: { text: 'responseStatusCode' }, valueInteger: result.responseStatusCode }]
+        : []),
+      ...(result.workflowBot ? [{ type: { text: 'workflowBot' }, valueString: result.workflowBot }] : []),
+      ...(result.workflowBotStatus
+        ? [{ type: { text: 'workflowBotStatus' }, valueString: result.workflowBotStatus }]
+        : []),
+      ...(result.workflowBotMessage
+        ? [{ type: { text: 'workflowBotMessage' }, valueString: result.workflowBotMessage }]
         : []),
     ],
   });

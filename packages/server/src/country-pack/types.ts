@@ -145,6 +145,9 @@ export interface SubmitNationalClaimResult {
   readonly bundleEntryCount?: number;
   readonly rawBundle?: string;
   readonly rawResponse?: string;
+  readonly workflowBot?: string;
+  readonly workflowBotStatus?: 'triggered' | 'failed';
+  readonly workflowBotMessage?: string;
   readonly task?: Reference<Task>;
 }
 

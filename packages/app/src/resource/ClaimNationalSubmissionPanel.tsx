@@ -26,6 +26,9 @@ interface ClaimSubmissionResult {
   readonly bundleEntryCount?: number;
   readonly rawBundle?: string;
   readonly rawResponse?: string;
+  readonly workflowBot?: string;
+  readonly workflowBotStatus?: string;
+  readonly workflowBotMessage?: string;
   readonly task?: Reference<Task>;
 }
 
@@ -51,6 +54,9 @@ function getClaimSubmissionResult(parameters: Parameters | undefined): ClaimSubm
     bundleEntryCount: getParameter(parameters, 'bundleEntryCount')?.valueInteger,
     rawBundle: getParameter(parameters, 'rawBundle')?.valueString,
     rawResponse: getParameter(parameters, 'rawResponse')?.valueString,
+    workflowBot: getParameter(parameters, 'workflowBot')?.valueString,
+    workflowBotStatus: getParameter(parameters, 'workflowBotStatus')?.valueCode,
+    workflowBotMessage: getParameter(parameters, 'workflowBotMessage')?.valueString,
     task: getParameter(parameters, 'task')?.valueReference as Reference<Task> | undefined,
   };
 }
@@ -141,6 +147,15 @@ export function ClaimNationalSubmissionPanel(props: ClaimNationalSubmissionPanel
             <DescriptionListEntry term="Bundle ID">{currentResult.bundleId ?? 'Not provided'}</DescriptionListEntry>
             <DescriptionListEntry term="Bundle Entry Count">
               {currentResult.bundleEntryCount ?? 'Not provided'}
+            </DescriptionListEntry>
+            <DescriptionListEntry term="Workflow Bot">
+              {currentResult.workflowBot ?? 'Not configured'}
+            </DescriptionListEntry>
+            <DescriptionListEntry term="Workflow Bot Status">
+              {currentResult.workflowBotStatus ?? 'Not triggered'}
+            </DescriptionListEntry>
+            <DescriptionListEntry term="Workflow Bot Message">
+              {currentResult.workflowBotMessage ?? 'Not provided'}
             </DescriptionListEntry>
             <DescriptionListEntry term="Task">
               {currentResult.task ? (

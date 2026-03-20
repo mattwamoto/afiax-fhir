@@ -543,6 +543,9 @@ describe('ResourcePage', () => {
         { name: 'bundleEntryCount', valueInteger: 5 },
         { name: 'rawBundle', valueString: '{\n  \"resourceType\": \"Bundle\"\n}' },
         { name: 'rawResponse', valueString: '{\n  \"status\": \"accepted\"\n}' },
+        { name: 'workflowBot', valueString: 'Bot/kenya-claim-bot' },
+        { name: 'workflowBotStatus', valueCode: 'triggered' },
+        { name: 'workflowBotMessage', valueString: 'Configured Kenya claim workflow bot executed successfully.' },
         { name: 'task', valueReference: { reference: 'Task/task-claim-123' } },
       ],
     });
@@ -561,6 +564,8 @@ describe('ResourcePage', () => {
       screen.getByText('https://qa-mis.apeiro-digital.com/v1/shr-med/claim-status?claim_id=bundle-123')
     ).toBeInTheDocument();
     expect(screen.getByText('bundle-123')).toBeInTheDocument();
+    expect(screen.getByText('Bot/kenya-claim-bot')).toBeInTheDocument();
+    expect(screen.getByText('triggered')).toBeInTheDocument();
     expect(screen.getByText(/"status": "accepted"/)).toBeInTheDocument();
     expect(screen.getByText(/"resourceType": "Bundle"/)).toBeInTheDocument();
   });

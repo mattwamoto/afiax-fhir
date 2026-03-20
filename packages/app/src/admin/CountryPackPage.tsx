@@ -315,6 +315,7 @@ export function CountryPackPage(): JSX.Element {
     const kenyaHieCredentialMode = getKenyaHieCredentialMode(project);
     const kenyaShaClaimsCredentialMode = getKenyaShaClaimsCredentialMode(project);
     const kenyaHieAgentId = getKenyaHieAgentId(project);
+    const kenyaClaimWorkflowBotId = getProjectSettingString(project, 'kenyaClaimWorkflowBotId');
     const configuredHieSecretCount = kenyaAfyaLinkSecretNames.filter((name) => getProjectSettingString(project.secret, name)).length;
     const missingHieSecretCount = kenyaAfyaLinkSecretNames.length - configuredHieSecretCount;
     const configuredShaSecretCount = kenyaShaClaimsSecretNames.filter((name) => getProjectSettingString(project.secret, name)).length;
@@ -345,6 +346,9 @@ export function CountryPackPage(): JSX.Element {
             {kenyaShaClaimsCredentialMode === 'afiax-managed' ? 'Afiax-managed' : 'Tenant-managed'}
           </DescriptionListEntry>
           <DescriptionListEntry term="Kenya HIE Agent ID">{kenyaHieAgentId ?? 'Not configured'}</DescriptionListEntry>
+          <DescriptionListEntry term="Kenya Claim Workflow Bot">
+            {kenyaClaimWorkflowBotId ?? 'Not configured'}
+          </DescriptionListEntry>
           <DescriptionListEntry term="HIE Credential Status">
             {kenyaHieCredentialMode === 'afiax-managed'
               ? 'Managed by Afiax platform operations'
@@ -379,6 +383,10 @@ export function CountryPackPage(): JSX.Element {
             Add the Kenya HIE agent ID in Settings before you implement client-registry and related HIE operations.
           </List.Item>
           <List.Item>Use an Organization with an MFL code when you are ready to run facility verification.</List.Item>
+          <List.Item>
+            Configure the Kenya claim workflow bot in <MedplumLink to="/admin/settings">Settings</MedplumLink> if you
+            want successful SHA claim submissions to hand off to Afiax Billing, Afiax Pay, or other async workflows.
+          </List.Item>
         </List>
         {kenyaHieCredentialMode === 'tenant-managed' && missingHieSecretCount > 0 && (
           <Text c="dimmed" size="sm">

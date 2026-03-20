@@ -452,6 +452,9 @@ describe('Kenya facility verification helpers', () => {
             responseStatusCode: 202,
             bundleId: 'bundle-123',
             bundleEntryCount: 5,
+            workflowBot: 'Bot/bot-claim-123',
+            workflowBotStatus: 'triggered',
+            workflowBotMessage: 'Configured Kenya claim workflow bot executed successfully.',
           },
           '2026-03-20T18:00:00.000Z',
           { reference: 'Task/task-claim-123' }
@@ -472,6 +475,9 @@ describe('Kenya facility verification helpers', () => {
       responseStatusCode: 202,
       bundleId: 'bundle-123',
       bundleEntryCount: 5,
+      workflowBot: 'Bot/bot-claim-123',
+      workflowBotStatus: 'triggered',
+      workflowBotMessage: 'Configured Kenya claim workflow bot executed successfully.',
     });
   });
 

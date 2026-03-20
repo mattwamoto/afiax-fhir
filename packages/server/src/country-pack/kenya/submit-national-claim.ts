@@ -30,6 +30,7 @@ import {
   normalizeKenyaShaClaimsError,
   submitKenyaShaClaimBundle,
 } from './sha';
+import { triggerKenyaClaimWorkflowBot } from './workflow-bot';
 
 function buildResourceFullUrl(baseUrl: string, resource: WithId<Resource>): string {
   return `${baseUrl}/fhir/${resource.resourceType}/${resource.id}`;
@@ -322,6 +323,21 @@ export async function submitKenyaNationalClaim(
   try {
     const credentials = getKenyaShaClaimsCredentials(input.ctx.project);
     const submission = await submitKenyaShaClaimBundle(credentials, bundle, bundleId);
+    const workflowBotResult = await triggerKenyaClaimWorkflowBot(input.ctx, input.claim, {
+      status: 'submitted',
+      correlationId: input.correlationId,
+      message: 'Kenya SHA claim bundle submitted successfully.',
+      nextState: 'awaiting-sha-status',
+      countryPack: 'kenya',
+      shaClaimsEnvironment,
+      submissionEndpoint: submission.submissionEndpoint,
+      statusTrackingEndpoint: submission.statusTrackingEndpoint,
+      responseStatusCode: submission.responseStatusCode,
+      bundleId,
+      bundleEntryCount,
+      rawBundle: JSON.stringify(bundle, null, 2),
+      rawResponse: submission.rawResponse,
+    });
 
     return {
       status: 'submitted',
@@ -337,6 +353,7 @@ export async function submitKenyaNationalClaim(
       bundleEntryCount,
       rawBundle: JSON.stringify(bundle, null, 2),
       rawResponse: submission.rawResponse,
+      ...workflowBotResult,
     };
   } catch (err) {
     return {

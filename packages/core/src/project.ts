@@ -192,6 +192,7 @@ export const KenyaProjectSettingNames = {
   hieAgentId: 'kenyaHieAgentId',
   shaClaimsEnvironment: 'kenyaShaClaimsEnvironment',
   shaClaimsCredentialMode: 'kenyaShaClaimsCredentialMode',
+  claimWorkflowBotId: 'kenyaClaimWorkflowBotId',
   afyaLinkEnvironment: 'kenyaAfyaLinkEnvironment',
   afyaLinkCredentialMode: 'kenyaAfyaLinkCredentialMode',
 } as const;
@@ -272,6 +273,10 @@ export function getKenyaShaClaimsCredentialMode(source: ProjectSettingsSource): 
     return 'tenant-managed';
   }
   return getKenyaHieCredentialMode(source);
+}
+
+export function getKenyaClaimWorkflowBotId(source: ProjectSettingsSource): string | undefined {
+  return getProjectSettingString(source, KenyaProjectSettingNames.claimWorkflowBotId)?.trim() || undefined;
 }
 
 export function getKenyaAfyaLinkEnvironment(source: ProjectSettingsSource): KenyaAfyaLinkEnvironment {

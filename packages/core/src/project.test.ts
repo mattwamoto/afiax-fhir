@@ -8,6 +8,7 @@ import {
   getCountryPackCatalogEntry,
   getKenyaAfyaLinkCredentialMode,
   getKenyaAfyaLinkEnvironment,
+  getKenyaClaimWorkflowBotId,
   getKenyaHieAgentId,
   getKenyaHieCredentialMode,
   getKenyaHieEnvironment,
@@ -29,6 +30,7 @@ describe('project settings helpers', () => {
       { name: KenyaProjectSettingNames.hieAgentId, valueString: 'agent-001' },
       { name: KenyaProjectSettingNames.shaClaimsEnvironment, valueString: 'uat' },
       { name: KenyaProjectSettingNames.shaClaimsCredentialMode, valueString: 'tenant-managed' },
+      { name: KenyaProjectSettingNames.claimWorkflowBotId, valueString: 'kenya-claim-bot' },
       { name: 'preCommitSubscriptionsEnabled', valueBoolean: true },
     ],
   };
@@ -83,12 +85,14 @@ describe('project settings helpers', () => {
     expect(getKenyaHieAgentId(project)).toBe('agent-001');
     expect(getKenyaShaClaimsEnvironment(project)).toBe('uat');
     expect(getKenyaShaClaimsCredentialMode(project)).toBe('tenant-managed');
+    expect(getKenyaClaimWorkflowBotId(project)).toBe('kenya-claim-bot');
     expect(getKenyaAfyaLinkEnvironment(project)).toBe('production');
     expect(getKenyaAfyaLinkCredentialMode(project)).toBe('afiax-managed');
     expect(getKenyaHieEnvironment(undefined)).toBe('uat');
     expect(getKenyaHieCredentialMode(undefined)).toBe('tenant-managed');
     expect(getKenyaShaClaimsEnvironment(undefined)).toBe('uat');
     expect(getKenyaShaClaimsCredentialMode(undefined)).toBe('tenant-managed');
+    expect(getKenyaClaimWorkflowBotId(undefined)).toBeUndefined();
   });
 
   test('Kenya helpers support legacy AfyaLink setting names', () => {

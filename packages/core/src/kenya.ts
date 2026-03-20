@@ -1211,6 +1211,9 @@ export interface KenyaNationalClaimSubmissionResultInput {
   readonly responseStatusCode?: number;
   readonly bundleId?: string;
   readonly bundleEntryCount?: number;
+  readonly workflowBot?: string;
+  readonly workflowBotStatus?: string;
+  readonly workflowBotMessage?: string;
 }
 
 export const KenyaNationalClaimSubmissionExtension = {
@@ -1227,6 +1230,9 @@ export const KenyaNationalClaimSubmissionExtension = {
   responseStatusCode: 'responseStatusCode',
   bundleId: 'bundleId',
   bundleEntryCount: 'bundleEntryCount',
+  workflowBot: 'workflowBot',
+  workflowBotStatus: 'workflowBotStatus',
+  workflowBotMessage: 'workflowBotMessage',
 } as const;
 
 export interface KenyaNationalClaimSubmissionSnapshot {
@@ -1242,6 +1248,9 @@ export interface KenyaNationalClaimSubmissionSnapshot {
   readonly responseStatusCode?: number;
   readonly bundleId?: string;
   readonly bundleEntryCount?: number;
+  readonly workflowBot?: string;
+  readonly workflowBotStatus?: string;
+  readonly workflowBotMessage?: string;
 }
 
 export function buildKenyaNationalClaimSubmissionExtension(
@@ -1273,6 +1282,9 @@ export function buildKenyaNationalClaimSubmissionExtension(
     });
   }
   pushString(extension, KenyaNationalClaimSubmissionExtension.bundleId, result.bundleId);
+  pushString(extension, KenyaNationalClaimSubmissionExtension.workflowBot, result.workflowBot);
+  pushString(extension, KenyaNationalClaimSubmissionExtension.workflowBotStatus, result.workflowBotStatus);
+  pushString(extension, KenyaNationalClaimSubmissionExtension.workflowBotMessage, result.workflowBotMessage);
   if (result.bundleEntryCount !== undefined) {
     extension.extension?.push({
       url: KenyaNationalClaimSubmissionExtension.bundleEntryCount,
@@ -1314,6 +1326,9 @@ export function getKenyaNationalClaimSubmissionSnapshot(
     responseStatusCode: getKenyaExtensionNumberValue(claim, base, KenyaNationalClaimSubmissionExtension.responseStatusCode),
     bundleId: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimSubmissionExtension.bundleId),
     bundleEntryCount: getKenyaExtensionNumberValue(claim, base, KenyaNationalClaimSubmissionExtension.bundleEntryCount),
+    workflowBot: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimSubmissionExtension.workflowBot),
+    workflowBotStatus: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimSubmissionExtension.workflowBotStatus),
+    workflowBotMessage: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimSubmissionExtension.workflowBotMessage),
   };
 }
 
