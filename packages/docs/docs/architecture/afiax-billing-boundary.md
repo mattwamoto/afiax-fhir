@@ -6,34 +6,49 @@ sidebar_position: 4
 
 This page defines how Afiax FHIR integrates with Afiax Billing.
 
-Use it when you need to decide whether a billing, pharmacy, CRM, HR, or training feature belongs in this repo or in
-an external enterprise system.
+Use it when you need to decide whether a billing, pharmacy, CRM, HR, training, or receivables feature belongs in this
+repo or in the ERP layer around Afiax Enterprise.
 
-For the broader split between national reimbursement, Afiax Pay, and Afiax Billing, use the financial architecture
+For the broader split between country reimbursement, Afiax Pay, and Afiax Billing, use the financial architecture
 page.
 
 ## Core rule
 
-Afiax FHIR remains the clinical source of truth.
+Afiax FHIR remains the clinical and reimbursement source of truth.
 
 Afiax Billing is the ERPNext-based enterprise billing and operations surface under Afiax Enterprise.
 
-It remains the system of record for finance, business operations, workforce administration, and learning
-administration.
+It remains the system of record for:
+
+- finance execution
+- enterprise receivables
+- commercial pharmacy operations
+- CRM
+- HR and payroll
+- training administration
 
 The two systems integrate through APIs and events. They do not share a database or silently overwrite each other's
 domain state.
 
-## Why the split matters
+## Current implementation state
 
-The architecture already separates:
+Implemented in this repo today:
 
-- canonical clinical records
-- country-pack payer and regulator workflows
-- financial and administrative systems
+- Kenya eligibility workflow
+- Kenya SHA claim submission
+- Kenya SHA claim status refresh
+- optional claim submit bot handoff
+- optional claim status bot handoff
+- public and repo-level billing integration contracts
 
-That separation keeps billing and pharmacy operational workflows connected to care without turning the clinical core
-into an ERP.
+Not implemented in this repo:
+
+- ERPNext document creation
+- ERPNext inventory workflows
+- ERPNext invoicing and payment posting
+- CRM, HR, and training synchronization code
+
+This page is therefore both a boundary definition and an anti-drift guardrail.
 
 ## Ownership model
 
@@ -58,13 +73,13 @@ into an ERP.
 
 ## Pharmacy split
 
-Pharmacy is not one domain. It crosses both systems.
+Pharmacy crosses both systems and has to be split intentionally.
 
 ### Afiax FHIR pharmacy scope
 
 - `Medication`
 - `MedicationRequest`
-- `MedicationDispense` when dispensing needs to be part of the patient record
+- `MedicationDispense` when dispensing must be part of the patient record
 - prescription intent, prescribing clinician, patient linkage, and encounter linkage
 - allergy, contraindication, and medication history context
 
@@ -101,6 +116,20 @@ Implementation rule:
 - Afiax FHIR does not become the general ledger
 - Afiax Billing does not become the editable clinical record
 
+## Runtime sequence
+
+The intended runtime sequence is:
+
+1. care is documented in Afiax FHIR
+2. Afiax FHIR creates or updates `ChargeItem`, `Account`, `Coverage`, `Claim`, or `Invoice` context
+3. the country pack performs any required reimbursement workflow
+4. Afiax FHIR records normalized reimbursement evidence
+5. a bot or integration worker hands the outcome to Afiax Billing
+6. Afiax Billing executes invoice, payment, reconciliation, or pharmacy operational workflows
+7. outcomes that affect care or reimbursement write back to Afiax FHIR
+
+This keeps the clinical and reimbursement ledger in Afiax FHIR while allowing ERP execution to remain external.
+
 ## Kenya-specific rule
 
 Kenya SHA claim submission remains in the Kenya country pack.
@@ -113,17 +142,24 @@ That means:
 
 Do not move Kenya claim packaging into Afiax Billing.
 
-## Integration pattern
+## What writes back into Afiax FHIR
 
-Integration flow:
+Afiax Billing should write back only the outcomes that matter to care or reimbursement visibility.
 
-1. Care is documented in Afiax FHIR.
-2. Afiax FHIR creates or updates financial workflow resources such as `ChargeItem`, `Account`, `Coverage`, `Claim`,
-   or `Invoice`.
-3. An integration service maps the relevant state into Afiax Billing APIs.
-4. Afiax Billing performs invoice, payment, CRM, HR, training, or inventory workflows in its own domain.
-5. Results that matter to care or reimbursement are written back to Afiax FHIR as normalized status and workflow
-   evidence.
+That includes:
+
+- invoice reference and billing status
+- payment or settlement status
+- claim-linked financial outcome
+- pharmacy dispense result when it belongs in the patient record
+- correlation and reconciliation metadata
+
+Afiax Billing should not write back:
+
+- editable patient demographics as source truth
+- encounter facts as source truth
+- raw ERP document internals unless needed for correlation
+- general-ledger internals
 
 ## Recommended deployment shape
 
@@ -141,7 +177,7 @@ Recommended shape:
   - reconciliation workers
   - Knative-backed integration endpoints if needed
 
-## Resource to object mapping
+## Resource to object mapping summary
 
 | Concern | Afiax FHIR source | Afiax Billing target |
 | --- | --- | --- |
@@ -152,6 +188,8 @@ Recommended shape:
 | Medication dispense in record | `MedicationDispense` | stock movement and sales posting |
 | Workforce care identity | `Practitioner`, `PractitionerRole`, `Organization` | employee and assignment references |
 | Learning signals from practice | `Task`, `QuestionnaireResponse`, audit patterns | CPD or training completion workflows |
+
+Use the dedicated mapping page when implementing field-level adapters.
 
 ## What not to do
 
@@ -164,11 +202,11 @@ Recommended shape:
 
 ## Build order
 
-1. Define the Afiax FHIR to Afiax Billing contract.
-2. Define the pharmacy clinical-versus-inventory split.
-3. Implement outbound billing and pharmacy events from Afiax FHIR.
-4. Implement inbound payment and reconciliation updates from Afiax Billing.
-5. Add CRM, HR, and training sync after billing is stable.
+1. define the Afiax FHIR to Afiax Billing contract
+2. define the pharmacy clinical-versus-inventory split
+3. implement outbound billing and pharmacy events from Afiax FHIR
+4. implement inbound payment and reconciliation updates from Afiax Billing
+5. add CRM, HR, and training sync after billing is stable
 
 ## Related docs
 

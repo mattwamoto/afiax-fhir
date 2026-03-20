@@ -18,8 +18,25 @@ In this role, the integration covers:
 - insurance product distribution
 - quote and purchase journeys
 - policy lifecycle connectivity
-- claims-facing insurance context for partner products
-- embedded insurance activation inside care and payment journeys
+- partner-facing embedded-insurance activation inside care and payment journeys
+- insurance event results that later influence payment or finance workflows
+
+## Current implementation state
+
+Implemented in this repo today:
+
+- the boundary documentation
+- the clinical and reimbursement context that an embedded-insurance flow would need
+- the payment and finance split that determines where Lami can attach
+
+Not implemented in this repo:
+
+- partner transport and authentication
+- product catalog integration
+- quote and purchase flows
+- policy lifecycle synchronization
+
+This is deliberate. Lami is an adjacent integration service concern, not Medplum core code.
 
 ## Core rule
 
@@ -50,6 +67,14 @@ Afiax Pay provides:
 - subsidy and refund handling
 - payment authorization and settlement support
 
+## What Afiax Billing provides to the Lami rail
+
+Afiax Billing provides:
+
+- finance-side accounting
+- receivable and settlement views
+- downstream reconciliation when partner insurance outcomes affect enterprise finance
+
 ## What Lami provides to Afiax Enterprise
 
 Lami provides the partner integration layer for embedded-insurance workflows.
@@ -61,6 +86,18 @@ That includes:
 - partner-facing embedded-insurance lifecycle orchestration
 - insurance event results that feed payment and finance workflows
 
+## Runtime sequence
+
+The intended sequence is:
+
+1. Afiax FHIR provides the canonical care, patient, and coverage context
+2. Lami provides partner-product and policy workflow
+3. Afiax Pay executes payment or premium movement where needed
+4. Afiax Billing records finance-side settlement when required
+5. normalized outcomes that affect care or reimbursement write back into Afiax FHIR
+
+This keeps partner-product execution outside the clinical core while preserving end-to-end visibility.
+
 ## What stays outside the Lami boundary
 
 Lami does not become:
@@ -71,20 +108,6 @@ Lami does not become:
 - the wallet and payment ledger
 
 Those remain in Afiax FHIR, the country pack, Afiax Billing, and Afiax Pay.
-
-## Integration placement
-
-The Lami integration fits best as a partner integration service outside this repo.
-
-This repo documents:
-
-- canonical data requirements
-- event contracts
-- normalized status expectations
-- where partner insurance outcomes write back into Afiax FHIR
-
-The partner-specific transport, authentication, and product configuration remain in the integration layer around
-Afiax Enterprise.
 
 ## Kenya interpretation
 
@@ -98,6 +121,19 @@ That means:
 - Afiax Billing handles finance-side accounting and reconciliation
 
 This preserves the difference between national health-financing integration and partner-distributed insurance.
+
+## Integration placement
+
+The Lami integration fits best as a partner integration service outside this repo.
+
+This repo should own only:
+
+- canonical data requirements
+- event contracts
+- normalized status expectations
+- rules for where partner insurance outcomes write back into Afiax FHIR
+
+The partner-specific transport, authentication, product configuration, and marketplace logic remain outside this repo.
 
 ## Operational result
 

@@ -6,8 +6,8 @@ sidebar_position: 5
 
 This page defines the live integration contract between Afiax FHIR and Afiax Billing.
 
-Use it to implement billing adapters, reconciliation workers, and ERP-facing event handlers without turning Afiax
-Billing into a second clinical record.
+Use it to implement billing adapters, reconciliation workers, bot-driven handoff, and ERP-facing event handlers
+without turning Afiax Billing into a second clinical record.
 
 ## Contract model
 
@@ -23,6 +23,54 @@ The contract remains event-driven and API-backed.
 Afiax FHIR publishes canonical clinical and reimbursement state.
 
 Afiax Billing publishes financial and operational state.
+
+## Contract status in this repo
+
+Today, this repo provides:
+
+- the documentation contract
+- Kenya claim submit and claim-status bot handoff points
+- the clinical and reimbursement ledger where normalized financial outcomes will be recorded
+
+This repo does not yet provide:
+
+- direct ERPNext document creation
+- inbound Afiax Billing event consumers
+- finance reconciliation workers
+
+That means these contract docs are the implementation target for external integration services, not proof that the ERP
+integration is already running in this repo.
+
+## Producer and consumer rule
+
+### Afiax FHIR as producer
+
+Afiax FHIR is the producer when the event starts from:
+
+- clinical billable state
+- coverage context
+- claim submission
+- claim adjudication
+- invoice-ready clinical workflow state
+
+### Afiax Billing as producer
+
+Afiax Billing is the producer when the event starts from:
+
+- invoice posting
+- payment posting
+- partial settlement
+- write-off or adjustment
+- pharmacy operational completion
+
+### Afiax FHIR as consumer
+
+Afiax FHIR consumes only the normalized outcome needed for:
+
+- claim-financial visibility
+- patient-liability visibility
+- pharmacy dispense write-back
+- audit and reconciliation linkage
 
 ## Outbound events from Afiax FHIR
 
@@ -67,7 +115,7 @@ The pharmacy contract preserves the split between clinical medication state and 
 | `pharmacy.dispense.cancelled` | dispense is cancelled or voided | updates fulfillment status |
 | `pharmacy.stock.exception` | stock issue blocks dispensing | records operational blocker on the workflow task |
 
-## Required identifiers
+## Shared identifiers
 
 Every contract payload carries stable identifiers that allow both systems to reconcile state without shared tables.
 
@@ -102,9 +150,26 @@ Each event includes:
 
 These fields let integration workers retry without duplicating invoices, payments, or dispense write-backs.
 
+## Handoff sequence
+
+Use this sequence when implementing the integration:
+
+1. Afiax FHIR records the clinical or reimbursement state
+2. Afiax FHIR emits the normalized outbound event
+3. Afiax Billing processes the ERP-side workflow
+4. Afiax Billing emits the normalized financial outcome
+5. Afiax FHIR records the normalized write-back in the clinical workflow ledger
+
+In Kenya, the current bot handoff points sit after:
+
+- successful claim submission
+- successful claim status refresh
+
+Those are the correct first async boundaries for downstream finance continuation.
+
 ## Canonical write-back behavior
 
-Afiax FHIR records the financial outcomes that affect clinical or reimbursement workflows.
+Afiax FHIR records only the financial outcomes that affect clinical or reimbursement workflows.
 
 That includes:
 
@@ -121,25 +186,27 @@ Afiax Billing retains ownership of:
 - collections workflow internals
 - inventory bookkeeping
 
-## Payload shape
+## Payload and mapping rule
 
-The contract uses a shared envelope and event-specific body.
+Use the contract this way:
 
-Use the dedicated payload specification for the full examples and field-level event bodies:
+- the event name captures the workflow boundary
+- the payload body carries only the data the receiver needs
+- normalized status values use the shared status model
+- raw ERP or payer codes travel as references, not as the primary application state
+
+For the full field-level examples, use:
 
 - [Afiax FHIR and Afiax Billing payload spec](./afiax-billing-payload-spec)
+- [Afiax FHIR and Afiax Billing object mapping](./afiax-billing-object-mapping)
+- [Afiax FHIR and Afiax Billing status model](./afiax-billing-status-model)
 
-## Reconciliation view
+## What not to do
 
-The contract exposes a clear reconciliation loop:
-
-1. Afiax FHIR emits the billable or reimbursement event.
-2. Afiax Billing processes the financial workflow.
-3. Afiax Billing emits the financial outcome.
-4. Afiax FHIR records the normalized settlement result in the clinical workflow ledger.
-
-This loop keeps clinical truth, country-pack workflows, and finance operations synchronized without overlapping
-ownership.
+- do not send raw ERP document internals as the primary workflow state
+- do not make Afiax Billing responsible for clinical truth
+- do not make Afiax FHIR responsible for full ERP execution
+- do not let a payment or billing event bypass Afiax FHIR when care or reimbursement visibility depends on it
 
 ## Related docs
 
