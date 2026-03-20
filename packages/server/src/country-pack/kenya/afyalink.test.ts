@@ -57,7 +57,7 @@ describe('Kenya AfyaLink connector', () => {
   test('gets token with basic auth', async () => {
     (fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
-      json: jest.fn(async () => ({ token: 'jwt-token' })),
+      text: jest.fn(async () => JSON.stringify({ token: 'jwt-token' })),
     });
 
     const credentials = getKenyaAfyaLinkCredentials(project);
@@ -74,11 +74,23 @@ describe('Kenya AfyaLink connector', () => {
     );
   });
 
+  test('gets raw JWT token when DHA returns plain text', async () => {
+    (fetch as unknown as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      text: jest.fn(async () => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.payload.signature'),
+    });
+
+    const credentials = getKenyaAfyaLinkCredentials(project);
+    await expect(getAfyaLinkToken(credentials)).resolves.toBe(
+      'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.payload.signature'
+    );
+  });
+
   test('searches facility registry with bearer token', async () => {
     (fetch as unknown as jest.Mock)
       .mockResolvedValueOnce({
         ok: true,
-        json: jest.fn(async () => ({ token: 'jwt-token' })),
+        text: jest.fn(async () => JSON.stringify({ token: 'jwt-token' })),
       })
       .mockResolvedValueOnce({
         ok: true,

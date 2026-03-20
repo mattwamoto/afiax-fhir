@@ -122,12 +122,27 @@ export async function getAfyaLinkToken(credentials: KenyaAfyaLinkCredentials): P
     throw new Error(`AfyaLink auth failed (${response.status}): ${errorBody}`);
   }
 
-  const data = (await response.json()) as AfyaLinkTokenResponse;
-  if (!data.token) {
-    throw new Error('AfyaLink auth response did not include a token');
+  const rawBody = (await response.text()).trim();
+  if (!rawBody) {
+    throw new Error('AfyaLink auth response was empty');
   }
 
-  return data.token;
+  try {
+    const data = JSON.parse(rawBody) as AfyaLinkTokenResponse | string;
+    if (typeof data === 'string' && data.trim()) {
+      return data.trim();
+    }
+    if (data && typeof data === 'object' && typeof data.token === 'string' && data.token.trim()) {
+      return data.token.trim();
+    }
+  } catch {
+    // DHA UAT may return the JWT token as a raw string instead of a JSON object.
+    if (/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(rawBody)) {
+      return rawBody;
+    }
+  }
+
+  throw new Error('AfyaLink auth response did not include a valid token');
 }
 
 export async function searchAfyaLinkFacility(
