@@ -15,7 +15,7 @@ import { Router } from 'express';
 import { body, validationResult } from 'express-validator';
 import { setPassword } from '../auth/setpassword';
 import { getAuthenticatedContext } from '../context';
-import { getAfyaLinkToken, getKenyaAfyaLinkCredentials } from '../country-pack/kenya/afyalink';
+import { getAfyaLinkToken, getKenyaAfyaLinkCredentials, searchAfyaLinkFacility } from '../country-pack/kenya/afyalink';
 import { invalidRequest, sendOutcome } from '../fhir/outcomes';
 import { authenticateRequest } from '../oauth/middleware';
 import { getUserByEmailInProject } from '../oauth/utils';
@@ -121,6 +121,34 @@ projectAdminRouter.post('/:projectId/kenya/afyalink/test', async (req: Request, 
       ok: true,
       message: `Kenya HIE authentication succeeded for ${credentials.baseUrl}`,
       baseUrl: credentials.baseUrl,
+    });
+  } catch (err) {
+    sendOutcome(res, badRequest(normalizeErrorString(err)));
+  }
+});
+
+projectAdminRouter.post('/:projectId/kenya/afyalink/facility-lookup', async (req: Request, res: Response) => {
+  const ctx = getAuthenticatedContext();
+
+  if (getProjectSettingString(ctx.project, 'countryPack') !== 'kenya') {
+    sendOutcome(res, badRequest('Kenya country pack is not enabled for this project'));
+    return;
+  }
+
+  const facilityCode = String(req.body?.facilityCode ?? '').trim();
+  if (!facilityCode) {
+    sendOutcome(res, badRequest('facilityCode is required'));
+    return;
+  }
+
+  try {
+    const credentials = getKenyaAfyaLinkCredentials(ctx.project);
+    const result = await searchAfyaLinkFacility(credentials, facilityCode);
+    res.json({
+      ok: true,
+      baseUrl: credentials.baseUrl,
+      facilityCode,
+      result,
     });
   } catch (err) {
     sendOutcome(res, badRequest(normalizeErrorString(err)));

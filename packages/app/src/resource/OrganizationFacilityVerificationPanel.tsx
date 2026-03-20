@@ -3,8 +3,11 @@
 import { Alert, Button, Group, Stack, Text, TextInput, Title } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
 import {
+  applyKenyaFacilityRegistryToOrganization,
+  clearKenyaFacilityRegistrySnapshot,
   clearKenyaFacilityVerificationSnapshot,
   getKenyaFacilityAuthorityIdentifier,
+  getKenyaFacilityRegistrySnapshot,
   getKenyaFacilityVerificationSnapshot,
   getProjectSettingString,
   normalizeErrorString,
@@ -26,6 +29,31 @@ interface FacilityVerificationResult {
   readonly currentLicenseExpiryDate?: string;
   readonly facilityAuthorityIdentifier?: string;
   readonly task?: Reference<Task>;
+}
+
+interface KenyaFacilityLookupMessage {
+  readonly id?: string | null;
+  readonly facility_name?: string | null;
+  readonly registration_number?: string | null;
+  readonly regulator?: string | null;
+  readonly facility_code?: string | null;
+  readonly found?: number | null;
+  readonly approved?: string | boolean | null;
+  readonly facility_level?: string | null;
+  readonly facility_category?: string | null;
+  readonly facility_owner?: string | null;
+  readonly facility_type?: string | null;
+  readonly county?: string | null;
+  readonly sub_county?: string | null;
+  readonly ward?: string | null;
+  readonly operational_status?: string | null;
+  readonly current_license_expiry_date?: string | null;
+}
+
+interface KenyaFacilityLookupResponse {
+  readonly result?: {
+    readonly message?: KenyaFacilityLookupMessage;
+  } & KenyaFacilityLookupMessage;
 }
 
 export interface OrganizationFacilityVerificationPanelProps {
@@ -50,6 +78,23 @@ function getVerificationResult(parameters: Parameters | undefined): FacilityVeri
   };
 }
 
+function getLookupMessage(response: KenyaFacilityLookupResponse | undefined): KenyaFacilityLookupMessage | undefined {
+  const result = response?.result;
+  if (!result) {
+    return undefined;
+  }
+
+  if (result.message) {
+    return result.message;
+  }
+
+  if ('facility_code' in result || 'found' in result || 'facility_name' in result) {
+    return result;
+  }
+
+  return undefined;
+}
+
 export function OrganizationFacilityVerificationPanel(
   props: OrganizationFacilityVerificationPanelProps
 ): JSX.Element | null {
@@ -66,11 +111,16 @@ export function OrganizationFacilityVerificationPanel(
   const [savedMflCode, setSavedMflCode] = useState(currentFacilityIdentifier?.value ?? '');
   const [loadedKey, setLoadedKey] = useState(syncKey);
   const [saving, setSaving] = useState(false);
+  const [lookingUp, setLookingUp] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState<string>();
   const [result, setResult] = useState<FacilityVerificationResult>();
-  const [snapshotOverride, setSnapshotOverride] = useState<FacilityVerificationResult | null>();
+  const facilityRegistrySnapshot = getKenyaFacilityRegistrySnapshot(props.organization);
   const persistedResult = getKenyaFacilityVerificationSnapshot(props.organization);
+  const [registrySnapshotOverride, setRegistrySnapshotOverride] = useState(facilityRegistrySnapshot);
+  const [snapshotOverride, setSnapshotOverride] = useState<FacilityVerificationResult | null>();
+  const currentRegistrySnapshot =
+    registrySnapshotOverride === undefined ? facilityRegistrySnapshot : registrySnapshotOverride ?? undefined;
   const currentResult = result ?? (snapshotOverride === undefined ? persistedResult : snapshotOverride ?? undefined);
 
   if (!props.organization.id || countryPack !== 'kenya') {
@@ -82,6 +132,7 @@ export function OrganizationFacilityVerificationPanel(
       setMflCode(currentFacilityIdentifier?.value ?? '');
       setSavedMflCode(currentFacilityIdentifier?.value ?? '');
       setLoadedKey(syncKey);
+      setRegistrySnapshotOverride(undefined);
       setSnapshotOverride(undefined);
     }
   }, [currentFacilityIdentifier?.value, loadedKey, syncKey]);
@@ -96,12 +147,13 @@ export function OrganizationFacilityVerificationPanel(
     setSaving(true);
     setError(undefined);
     try {
-      const updatedOrganization = clearKenyaFacilityVerificationSnapshot(
-        setKenyaFacilityAuthorityIdentifier(props.organization, trimmedCode)
+      const updatedOrganization = clearKenyaFacilityRegistrySnapshot(
+        clearKenyaFacilityVerificationSnapshot(setKenyaFacilityAuthorityIdentifier(props.organization, trimmedCode))
       );
-      await medplum.updateResource(updatedOrganization);
+      const savedOrganization = await medplum.updateResource(updatedOrganization);
       setMflCode(trimmedCode);
       setSavedMflCode(trimmedCode);
+      setRegistrySnapshotOverride(getKenyaFacilityRegistrySnapshot(savedOrganization));
       setResult(undefined);
       setSnapshotOverride(null);
       showNotification({ color: 'green', message: 'Kenya MFL code saved' });
@@ -111,6 +163,64 @@ export function OrganizationFacilityVerificationPanel(
       showNotification({ color: 'red', message, autoClose: false });
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleLookupFacility(): Promise<void> {
+    const trimmedCode = mflCode.trim();
+    if (!trimmedCode) {
+      setError('Kenya MFL code is required before facility lookup.');
+      return;
+    }
+
+    setLookingUp(true);
+    setError(undefined);
+    try {
+      const lookupResult = (await medplum.post(`admin/projects/${project?.id}/kenya/afyalink/facility-lookup`, {
+        facilityCode: trimmedCode,
+      })) as KenyaFacilityLookupResponse;
+      const message = getLookupMessage(lookupResult);
+      const lookedUpAt = new Date().toISOString();
+
+      const updatedOrganization = applyKenyaFacilityRegistryToOrganization(
+        clearKenyaFacilityVerificationSnapshot(props.organization),
+        {
+          facilityCode: message?.facility_code ?? trimmedCode,
+          found: message?.found,
+          facilityName: message?.facility_name,
+          registrationNumber: message?.registration_number,
+          regulator: message?.regulator,
+          approvalStatus: message?.approved,
+          facilityLevel: message?.facility_level,
+          facilityCategory: message?.facility_category,
+          facilityOwner: message?.facility_owner,
+          facilityType: message?.facility_type,
+          county: message?.county,
+          subCounty: message?.sub_county,
+          ward: message?.ward,
+          operationalStatus: message?.operational_status,
+          currentLicenseExpiryDate: message?.current_license_expiry_date,
+        },
+        lookedUpAt
+      );
+
+      const savedOrganization = await medplum.updateResource(updatedOrganization);
+      setSavedMflCode(trimmedCode);
+      setRegistrySnapshotOverride(getKenyaFacilityRegistrySnapshot(savedOrganization));
+      setResult(undefined);
+      setSnapshotOverride(null);
+
+      if (message?.found === 1) {
+        showNotification({ color: 'green', message: 'Facility details populated from Kenya HIE' });
+      } else {
+        showNotification({ color: 'yellow', message: `No Kenya HIE facility match found for ${trimmedCode}` });
+      }
+    } catch (err) {
+      const message = normalizeErrorString(err);
+      setError(message);
+      showNotification({ color: 'red', message, autoClose: false });
+    } finally {
+      setLookingUp(false);
     }
   }
 
@@ -143,13 +253,23 @@ export function OrganizationFacilityVerificationPanel(
             Runs the Kenya HIE facility-registry verification flow for this organization using its MFL code.
           </Text>
         </div>
-        <Button
-          onClick={() => handleVerifyFacility().catch(console.error)}
-          loading={verifying}
-          disabled={!savedMflCode.trim() || saving || mflCode.trim() !== savedMflCode.trim()}
-        >
-          Verify Facility
-        </Button>
+        <Group>
+          <Button
+            variant="light"
+            onClick={() => handleLookupFacility().catch(console.error)}
+            loading={lookingUp}
+            disabled={!mflCode.trim() || saving || verifying}
+          >
+            Lookup Facility
+          </Button>
+          <Button
+            onClick={() => handleVerifyFacility().catch(console.error)}
+            loading={verifying}
+            disabled={!savedMflCode.trim() || saving || lookingUp || mflCode.trim() !== savedMflCode.trim()}
+          >
+            Verify Facility
+          </Button>
+        </Group>
       </Group>
       <Group align="flex-end" grow>
         <TextInput
@@ -175,6 +295,47 @@ export function OrganizationFacilityVerificationPanel(
         <Alert color="blue">Save the MFL code first. Verification always uses the saved Organization identifier.</Alert>
       )}
       {error && <Alert color="red">{error}</Alert>}
+      {currentRegistrySnapshot && (
+        <DescriptionList>
+          <DescriptionListEntry term="Registry Match">
+            {currentRegistrySnapshot.found === true ? 'Found' : 'No match returned'}
+          </DescriptionListEntry>
+          <DescriptionListEntry term="Facility Name">{currentRegistrySnapshot.facilityName ?? 'Not returned'}</DescriptionListEntry>
+          <DescriptionListEntry term="Registration Number">
+            {currentRegistrySnapshot.registrationNumber ?? 'Not returned'}
+          </DescriptionListEntry>
+          <DescriptionListEntry term="Regulator">{currentRegistrySnapshot.regulator ?? 'Not returned'}</DescriptionListEntry>
+          <DescriptionListEntry term="Facility Level">
+            {currentRegistrySnapshot.facilityLevel ?? 'Not returned'}
+          </DescriptionListEntry>
+          <DescriptionListEntry term="Facility Category">
+            {currentRegistrySnapshot.facilityCategory ?? 'Not returned'}
+          </DescriptionListEntry>
+          <DescriptionListEntry term="Facility Owner">
+            {currentRegistrySnapshot.facilityOwner ?? 'Not returned'}
+          </DescriptionListEntry>
+          <DescriptionListEntry term="Facility Type">
+            {currentRegistrySnapshot.facilityType ?? 'Not returned'}
+          </DescriptionListEntry>
+          <DescriptionListEntry term="County">{currentRegistrySnapshot.county ?? 'Not returned'}</DescriptionListEntry>
+          <DescriptionListEntry term="Sub County">
+            {currentRegistrySnapshot.subCounty ?? 'Not returned'}
+          </DescriptionListEntry>
+          <DescriptionListEntry term="Ward">{currentRegistrySnapshot.ward ?? 'Not returned'}</DescriptionListEntry>
+          <DescriptionListEntry term="Registry Approval">
+            {currentRegistrySnapshot.approvalStatus ?? 'Not returned'}
+          </DescriptionListEntry>
+          <DescriptionListEntry term="Registry Operational Status">
+            {currentRegistrySnapshot.operationalStatus ?? 'Not returned'}
+          </DescriptionListEntry>
+          <DescriptionListEntry term="Registry License Expiry">
+            {currentRegistrySnapshot.currentLicenseExpiryDate ?? 'Not returned'}
+          </DescriptionListEntry>
+          <DescriptionListEntry term="Last Lookup">
+            {currentRegistrySnapshot.lookedUpAt ?? 'Not returned'}
+          </DescriptionListEntry>
+        </DescriptionList>
+      )}
       {currentResult?.status && (
         <DescriptionList>
           <DescriptionListEntry term="Status">{currentResult.status}</DescriptionListEntry>

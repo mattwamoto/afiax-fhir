@@ -123,4 +123,45 @@ describe('Kenya AfyaLink connector', () => {
       })
     );
   });
+
+  test('normalizes facility search when DHA returns facility fields at the root', async () => {
+    (fetch as unknown as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        text: jest.fn(async () => JSON.stringify({ token: 'jwt-token' })),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: jest.fn(async () => ({
+          facility_code: '15409',
+          found: 1,
+          facility_name: 'Mbagathi County Hospital',
+          facility_level: 'Level 4',
+          county: 'Nairobi',
+        })),
+      });
+
+    const credentials = getKenyaAfyaLinkCredentials(project);
+    await expect(searchAfyaLinkFacility(credentials, '15409')).resolves.toEqual({
+      message: {
+        id: null,
+        facility_name: 'Mbagathi County Hospital',
+        registration_number: null,
+        regulator: null,
+        facility_code: '15409',
+        found: 1,
+        approved: null,
+        facility_level: 'Level 4',
+        facility_category: null,
+        facility_owner: null,
+        facility_type: null,
+        county: 'Nairobi',
+        sub_county: null,
+        ward: null,
+        operational_status: null,
+        current_license_expiry_date: null,
+      },
+    });
+  });
 });

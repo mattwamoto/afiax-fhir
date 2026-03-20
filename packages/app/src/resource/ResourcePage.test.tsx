@@ -4,7 +4,7 @@ import type { OperationOutcomeError } from '@medplum/core';
 import { getReferenceString } from '@medplum/core';
 import type { Bot, Organization, Practitioner, Project, Questionnaire, Subscription, ValueSet } from '@medplum/fhirtypes';
 import { MockClient } from '@medplum/mock';
-import { act, fireEvent, renderAppRoutes, screen, userEvent } from '../test-utils/render';
+import { act, fireEvent, renderAppRoutes, screen, userEvent, waitFor } from '../test-utils/render';
 
 describe('ResourcePage', () => {
   async function setup(url: string, medplum = new MockClient()): Promise<void> {
@@ -167,14 +167,77 @@ describe('ResourcePage', () => {
       fireEvent.click(screen.getByText('Save MFL Code'));
     });
 
+    await waitFor(() =>
+      expect(updateResourceSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          resourceType: 'Organization',
+          id: organization.id,
+          identifier: expect.arrayContaining([
+            expect.objectContaining({
+              system: 'https://afiax.africa/kenya/identifier/mfl-code',
+              value: '24749',
+            }),
+          ]),
+        })
+      )
+    );
+  });
+
+  test('Organization verification panel looks up facility details from Kenya HIE', async () => {
+    const medplum = new MockClient();
+    const organization = await medplum.createResource<Organization>({
+      resourceType: 'Organization',
+      name: 'Temporary Name',
+    });
+
+    jest.spyOn(medplum, 'getProject').mockReturnValue({
+      resourceType: 'Project',
+      id: 'project-123',
+      setting: [{ name: 'countryPack', valueString: 'kenya' }],
+    } as Project);
+
+    const updateResourceSpy = jest.spyOn(medplum, 'updateResource');
+    const postSpy = jest.spyOn(medplum, 'post').mockResolvedValue({
+      ok: true,
+      result: {
+        message: {
+          facility_code: '15409',
+          found: 1,
+          facility_name: 'Mbagathi County Hospital',
+          registration_number: 'REG-15409',
+          county: 'Nairobi',
+          facility_level: 'Level 4',
+        },
+      },
+    });
+
+    await setup(`/Organization/${organization.id}`, medplum);
+    expect(await screen.findByText('Lookup Facility')).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Kenya MFL Code'), { target: { value: '15409' } });
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Lookup Facility'));
+    });
+
+    expect(postSpy).toHaveBeenCalledWith('admin/projects/project-123/kenya/afyalink/facility-lookup', {
+      facilityCode: '15409',
+    });
     expect(updateResourceSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         resourceType: 'Organization',
         id: organization.id,
+        name: 'Mbagathi County Hospital',
         identifier: expect.arrayContaining([
           expect.objectContaining({
             system: 'https://afiax.africa/kenya/identifier/mfl-code',
-            value: '24749',
+            value: '15409',
+          }),
+          expect.objectContaining({
+            system: 'https://afiax.africa/kenya/identifier/facility-registration-number',
+            value: 'REG-15409',
           }),
         ]),
       })

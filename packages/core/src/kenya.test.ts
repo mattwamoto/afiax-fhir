@@ -2,12 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { Organization } from '@medplum/fhirtypes';
 import {
+  applyKenyaFacilityRegistryToOrganization,
   buildKenyaFacilityVerificationExtension,
+  clearKenyaFacilityRegistrySnapshot,
   clearKenyaFacilityVerificationSnapshot,
   getKenyaFacilityVerificationSnapshot,
   getKenyaFacilityAuthorityIdentifier,
+  getKenyaFacilityRegistrySnapshot,
   KenyaFacilityVerificationExtension,
   KenyaFacilityAuthorityIdentifierSystem,
+  KenyaFacilityRegistrationIdentifierSystem,
   setKenyaFacilityAuthorityIdentifier,
 } from './kenya';
 
@@ -80,5 +84,85 @@ describe('Kenya facility verification helpers', () => {
     expect(clearKenyaFacilityVerificationSnapshot(organization).extension).toEqual([
       { url: 'https://example.com/other', valueString: 'keep-me' },
     ]);
+  });
+
+  test('clears Kenya facility registry snapshot', () => {
+    const organization: Organization = {
+      resourceType: 'Organization',
+      extension: [
+        {
+          url: 'https://afiax.africa/fhir/StructureDefinition/kenya-facility-registry',
+          extension: [{ url: 'facilityCode', valueString: '15409' }],
+        },
+        { url: 'https://example.com/other', valueString: 'keep-me' },
+      ],
+    };
+
+    expect(clearKenyaFacilityRegistrySnapshot(organization).extension).toEqual([
+      { url: 'https://example.com/other', valueString: 'keep-me' },
+    ]);
+  });
+
+  test('applies Kenya facility registry data to organization', () => {
+    const organization: Organization = {
+      resourceType: 'Organization',
+      name: 'Local Name',
+    };
+
+    const updated = applyKenyaFacilityRegistryToOrganization(
+      organization,
+      {
+        facilityCode: '15409',
+        found: 1,
+        facilityName: 'Registry Facility',
+        registrationNumber: 'REG-001',
+        regulator: 'KMPDC',
+        approvalStatus: 'yes',
+        facilityLevel: 'Level 4',
+        facilityCategory: 'Hospital',
+        facilityOwner: 'faith-based',
+        facilityType: 'Hospital',
+        county: 'Nairobi',
+        subCounty: 'Westlands',
+        ward: 'Parklands',
+        operationalStatus: 'active',
+        currentLicenseExpiryDate: '2026-12-31',
+      },
+      '2026-03-20T14:00:00.000Z'
+    );
+
+    expect(updated.name).toBe('Registry Facility');
+    expect(getKenyaFacilityAuthorityIdentifier(updated)).toEqual(
+      expect.objectContaining({
+        system: KenyaFacilityAuthorityIdentifierSystem,
+        value: '15409',
+      })
+    );
+    expect(updated.identifier).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          system: KenyaFacilityRegistrationIdentifierSystem,
+          value: 'REG-001',
+        }),
+      ])
+    );
+    expect(getKenyaFacilityRegistrySnapshot(updated)).toEqual({
+      facilityCode: '15409',
+      found: true,
+      facilityName: 'Registry Facility',
+      registrationNumber: 'REG-001',
+      regulator: 'KMPDC',
+      approvalStatus: 'yes',
+      facilityLevel: 'Level 4',
+      facilityCategory: 'Hospital',
+      facilityOwner: 'faith-based',
+      facilityType: 'Hospital',
+      county: 'Nairobi',
+      subCounty: 'Westlands',
+      ward: 'Parklands',
+      operationalStatus: 'active',
+      currentLicenseExpiryDate: '2026-12-31',
+      lookedUpAt: '2026-03-20T14:00:00.000Z',
+    });
   });
 });

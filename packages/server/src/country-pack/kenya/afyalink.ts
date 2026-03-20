@@ -29,16 +29,93 @@ export interface AfyaLinkTokenResponse {
 }
 
 export interface AfyaLinkFacilityMessage {
+  readonly id?: string | null;
+  readonly facility_name?: string | null;
+  readonly registration_number?: string | null;
+  readonly regulator?: string | null;
   readonly facility_code?: string;
   readonly found?: number;
   readonly approved?: boolean | string | null;
   readonly facility_level?: string | null;
+  readonly facility_category?: string | null;
+  readonly facility_owner?: string | null;
+  readonly facility_type?: string | null;
+  readonly county?: string | null;
+  readonly sub_county?: string | null;
+  readonly ward?: string | null;
   readonly operational_status?: string | null;
   readonly current_license_expiry_date?: string | null;
 }
 
 export interface AfyaLinkFacilitySearchResponse {
   readonly message?: AfyaLinkFacilityMessage;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+
+function normalizeAfyaLinkFacilityMessage(
+  payload: Record<string, unknown>,
+  facilityCode: string
+): AfyaLinkFacilityMessage | undefined {
+  const message: AfyaLinkFacilityMessage = {
+    id: typeof payload.id === 'string' ? payload.id : null,
+    facility_name: typeof payload.facility_name === 'string' ? payload.facility_name : null,
+    registration_number: typeof payload.registration_number === 'string' ? payload.registration_number : null,
+    regulator: typeof payload.regulator === 'string' ? payload.regulator : null,
+    facility_code:
+      typeof payload.facility_code === 'string' && payload.facility_code.trim() ? payload.facility_code : facilityCode,
+    found: typeof payload.found === 'number' ? payload.found : undefined,
+    approved:
+      typeof payload.approved === 'boolean' || typeof payload.approved === 'string' ? payload.approved : null,
+    facility_level: typeof payload.facility_level === 'string' ? payload.facility_level : null,
+    facility_category: typeof payload.facility_category === 'string' ? payload.facility_category : null,
+    facility_owner: typeof payload.facility_owner === 'string' ? payload.facility_owner : null,
+    facility_type: typeof payload.facility_type === 'string' ? payload.facility_type : null,
+    county: typeof payload.county === 'string' ? payload.county : null,
+    sub_county: typeof payload.sub_county === 'string' ? payload.sub_county : null,
+    ward: typeof payload.ward === 'string' ? payload.ward : null,
+    operational_status: typeof payload.operational_status === 'string' ? payload.operational_status : null,
+    current_license_expiry_date:
+      typeof payload.current_license_expiry_date === 'string' ? payload.current_license_expiry_date : null,
+  };
+
+  if (
+    message.found === undefined &&
+    !message.facility_name &&
+    !message.registration_number &&
+    !message.facility_level &&
+    !message.county &&
+    !message.operational_status
+  ) {
+    return undefined;
+  }
+
+  return message;
+}
+
+function normalizeAfyaLinkFacilitySearchResponse(
+  payload: unknown,
+  facilityCode: string
+): AfyaLinkFacilitySearchResponse {
+  if (!isRecord(payload)) {
+    throw new Error('AfyaLink facility search returned an unsupported response body');
+  }
+
+  if (isRecord(payload.message)) {
+    const message = normalizeAfyaLinkFacilityMessage(payload.message, facilityCode);
+    if (message) {
+      return { message };
+    }
+  }
+
+  const rootMessage = normalizeAfyaLinkFacilityMessage(payload, facilityCode);
+  if (rootMessage) {
+    return { message: rootMessage };
+  }
+
+  throw new Error('AfyaLink facility search response did not include a recognizable facility payload');
 }
 
 function getProjectSecret(project: Project, name: string): string | undefined {
@@ -176,7 +253,7 @@ export async function searchAfyaLinkFacility(
   }
 
   try {
-    return (await response.json()) as AfyaLinkFacilitySearchResponse;
+    return normalizeAfyaLinkFacilitySearchResponse(await response.json(), facilityCode);
   } catch (err) {
     throw new Error(`Failed to parse AfyaLink facility search response: ${normalizeErrorString(err)}`);
   }
