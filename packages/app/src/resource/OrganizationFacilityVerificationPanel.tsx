@@ -151,7 +151,7 @@ export function OrganizationFacilityVerificationPanel(
   async function handleSaveMflCode(): Promise<void> {
     const trimmedCode = mflCode.trim();
     if (!trimmedCode) {
-      setError('Kenya MFL code is required before verification.');
+      setError('Kenya facility code is required before verification.');
       return;
     }
 
@@ -168,7 +168,7 @@ export function OrganizationFacilityVerificationPanel(
       setLookupDebug(undefined);
       setResult(undefined);
       setSnapshotOverride(null);
-      showNotification({ color: 'green', message: 'Kenya MFL code saved' });
+      showNotification({ color: 'green', message: 'Kenya facility code saved' });
     } catch (err) {
       const message = normalizeErrorString(err);
       setError(message);
@@ -181,7 +181,7 @@ export function OrganizationFacilityVerificationPanel(
   async function handleLookupFacility(): Promise<void> {
     const trimmedCode = mflCode.trim();
     if (!trimmedCode) {
-      setError('Kenya MFL code is required before facility lookup.');
+      setError('Kenya facility code is required before lookup.');
       return;
     }
 
@@ -230,7 +230,7 @@ export function OrganizationFacilityVerificationPanel(
       if (message?.found === 1) {
         showNotification({ color: 'green', message: 'Facility details populated from Kenya HIE' });
       } else {
-        showNotification({ color: 'yellow', message: `No Kenya HIE facility match found for ${trimmedCode}` });
+        showNotification({ color: 'yellow', message: `No Kenya HIE facility match found for facility code ${trimmedCode}` });
       }
     } catch (err) {
       const message = normalizeErrorString(err);
@@ -267,7 +267,7 @@ export function OrganizationFacilityVerificationPanel(
         <div>
           <Title order={3}>Kenya Facility Verification</Title>
           <Text size="sm" c="dimmed">
-            Runs the Kenya HIE facility-registry verification flow for this organization using its MFL code.
+            Runs the Kenya HIE facility-registry verification flow for this organization using the DHA facility code.
           </Text>
         </div>
         <Group>
@@ -290,8 +290,8 @@ export function OrganizationFacilityVerificationPanel(
       </Group>
       <Group align="flex-end" grow>
         <TextInput
-          label="Kenya MFL Code"
-          description="Stored in Organization.identifier using the Kenya facility authority identifier system."
+          label="Kenya Facility Code / MFL Code"
+          description="DHA facility lookup uses the facility code parameter. The value is stored in Organization.identifier."
           placeholder="24749"
           value={mflCode}
           onChange={(event) => setMflCode(event.currentTarget.value)}
@@ -302,14 +302,14 @@ export function OrganizationFacilityVerificationPanel(
           loading={saving}
           disabled={!mflCode.trim() || mflCode.trim() === savedMflCode.trim()}
         >
-          Save MFL Code
+          Save Facility Code
         </Button>
       </Group>
       {!mflCode.trim() && (
-        <Alert color="yellow">Add the Kenya MFL code first. Verification stays disabled until the code is saved.</Alert>
+        <Alert color="yellow">Add the Kenya facility code first. Verification stays disabled until the code is saved.</Alert>
       )}
       {mflCode.trim() && mflCode.trim() !== savedMflCode.trim() && (
-        <Alert color="blue">Save the MFL code first. Verification always uses the saved Organization identifier.</Alert>
+        <Alert color="blue">Save the facility code first. Verification always uses the saved Organization identifier.</Alert>
       )}
       {error && <Alert color="red">{error}</Alert>}
       {currentRegistrySnapshot && (

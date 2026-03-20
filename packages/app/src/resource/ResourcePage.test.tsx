@@ -140,7 +140,7 @@ describe('ResourcePage', () => {
     expect(screen.getByText('Task/task-123')).toBeInTheDocument();
   });
 
-  test('Organization verification panel saves Kenya MFL code', async () => {
+  test('Organization verification panel saves Kenya facility code', async () => {
     const medplum = new MockClient();
     const organization = await medplum.createResource<Organization>({
       resourceType: 'Organization',
@@ -156,15 +156,15 @@ describe('ResourcePage', () => {
     const updateResourceSpy = jest.spyOn(medplum, 'updateResource');
 
     await setup(`/Organization/${organization.id}`, medplum);
-    expect(await screen.findByText('Save MFL Code')).toBeInTheDocument();
+    expect(await screen.findByText('Save Facility Code')).toBeInTheDocument();
     expect(screen.getByText(/Verification stays disabled until the code is saved/i)).toBeInTheDocument();
 
     await act(async () => {
-      fireEvent.change(screen.getByLabelText('Kenya MFL Code'), { target: { value: '24749' } });
+      fireEvent.change(screen.getByLabelText('Kenya Facility Code / MFL Code'), { target: { value: '24749' } });
     });
 
     await act(async () => {
-      fireEvent.click(screen.getByText('Save MFL Code'));
+      fireEvent.click(screen.getByText('Save Facility Code'));
     });
 
     await waitFor(() =>
@@ -217,7 +217,7 @@ describe('ResourcePage', () => {
     expect(await screen.findByText('Lookup Facility')).toBeInTheDocument();
 
     await act(async () => {
-      fireEvent.change(screen.getByLabelText('Kenya MFL Code'), { target: { value: '15409' } });
+      fireEvent.change(screen.getByLabelText('Kenya Facility Code / MFL Code'), { target: { value: '15409' } });
     });
 
     await act(async () => {
