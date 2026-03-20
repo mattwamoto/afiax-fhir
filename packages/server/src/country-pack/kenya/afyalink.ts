@@ -55,10 +55,44 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value);
 }
 
+function normalizeFoundValue(value: unknown): number | undefined {
+  if (typeof value === 'number') {
+    return value;
+  }
+
+  if (typeof value === 'boolean') {
+    return value ? 1 : 0;
+  }
+
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (!normalized) {
+      return undefined;
+    }
+    if (normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'found') {
+      return 1;
+    }
+    if (normalized === '0' || normalized === 'false' || normalized === 'no' || normalized === 'not found') {
+      return 0;
+    }
+  }
+
+  return undefined;
+}
+
 function normalizeAfyaLinkFacilityMessage(
   payload: Record<string, unknown>,
   facilityCode: string
 ): AfyaLinkFacilityMessage | undefined {
+  const normalizedFound = normalizeFoundValue(payload.found);
+  const inferredFound =
+    normalizedFound ??
+    (typeof payload.facility_name === 'string' ||
+    typeof payload.registration_number === 'string' ||
+    typeof payload.facility_level === 'string'
+      ? 1
+      : undefined);
+
   const message: AfyaLinkFacilityMessage = {
     id: typeof payload.id === 'string' ? payload.id : null,
     facility_name: typeof payload.facility_name === 'string' ? payload.facility_name : null,
@@ -66,7 +100,7 @@ function normalizeAfyaLinkFacilityMessage(
     regulator: typeof payload.regulator === 'string' ? payload.regulator : null,
     facility_code:
       typeof payload.facility_code === 'string' && payload.facility_code.trim() ? payload.facility_code : facilityCode,
-    found: typeof payload.found === 'number' ? payload.found : undefined,
+    found: inferredFound,
     approved:
       typeof payload.approved === 'boolean' || typeof payload.approved === 'string' ? payload.approved : null,
     facility_level: typeof payload.facility_level === 'string' ? payload.facility_level : null,

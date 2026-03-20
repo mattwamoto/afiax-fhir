@@ -49,7 +49,7 @@ describe('verifyKenyaFacilityAuthority', () => {
     (fetch as unknown as jest.Mock)
       .mockResolvedValueOnce({
         ok: true,
-        json: jest.fn(async () => ({ token: 'jwt-token' })),
+        text: jest.fn(async () => JSON.stringify({ token: 'jwt-token' })),
       })
       .mockResolvedValueOnce({
         ok: true,
@@ -95,7 +95,7 @@ describe('verifyKenyaFacilityAuthority', () => {
     (fetch as unknown as jest.Mock)
       .mockResolvedValueOnce({
         ok: true,
-        json: jest.fn(async () => ({ token: 'jwt-token' })),
+        text: jest.fn(async () => JSON.stringify({ token: 'jwt-token' })),
       })
       .mockResolvedValueOnce({
         ok: true,
@@ -120,11 +120,42 @@ describe('verifyKenyaFacilityAuthority', () => {
     });
   });
 
+  test('returns verified when DHA returns found as a string', async () => {
+    (fetch as unknown as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        text: jest.fn(async () => JSON.stringify({ token: 'jwt-token' })),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: jest.fn(async () => ({
+          message: { facility_code: '12345', found: '1', approved: true, operational_status: 'Operational' },
+        })),
+      });
+
+    await expect(
+      verifyKenyaFacilityAuthority(
+        buildInput({
+          resourceType: 'Organization',
+          name: 'Afiax Clinic',
+          active: true,
+          identifier: [{ system: 'https://afiax.africa/kenya/identifier/mfl-code', value: '12345' }],
+        })
+      )
+    ).resolves.toMatchObject({
+      status: 'verified',
+      facilityAuthorityIdentifier: '12345',
+      registryFound: true,
+      nextState: 'ready-for-registry-check',
+    });
+  });
+
   test('returns unverified when AfyaLink facility is not found', async () => {
     (fetch as unknown as jest.Mock)
       .mockResolvedValueOnce({
         ok: true,
-        json: jest.fn(async () => ({ token: 'jwt-token' })),
+        text: jest.fn(async () => JSON.stringify({ token: 'jwt-token' })),
       })
       .mockResolvedValueOnce({
         ok: false,
