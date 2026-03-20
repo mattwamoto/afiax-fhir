@@ -1,7 +1,18 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
 import { getExtensionValue } from './utils';
-import type { Coverage, CoverageEligibilityRequest, CoverageEligibilityResponse, Extension, Identifier, Organization, Practitioner, Reference, Task } from '@medplum/fhirtypes';
+import type {
+  Claim,
+  Coverage,
+  CoverageEligibilityRequest,
+  CoverageEligibilityResponse,
+  Extension,
+  Identifier,
+  Organization,
+  Practitioner,
+  Reference,
+  Task,
+} from '@medplum/fhirtypes';
 
 export interface KenyaFacilityVerificationResultInput {
   readonly status: string;
@@ -940,12 +951,21 @@ function normalizeOptionalBoolean(value: unknown): boolean | undefined {
 }
 
 function getKenyaExtensionStringValue(
-  resource: Pick<Organization, 'extension'> | Pick<Practitioner, 'extension'>,
+  resource: Pick<Organization, 'extension'> | Pick<Practitioner, 'extension'> | Pick<Coverage, 'extension'> | Pick<Claim, 'extension'>,
   baseUrl: string,
   childUrl: string
 ): string | undefined {
   const value = getExtensionValue(resource, baseUrl, childUrl);
   return typeof value === 'string' && value ? value : undefined;
+}
+
+function getKenyaExtensionNumberValue(
+  resource: Pick<Coverage, 'extension'> | Pick<Claim, 'extension'>,
+  baseUrl: string,
+  childUrl: string
+): number | undefined {
+  const value = getExtensionValue(resource, baseUrl, childUrl);
+  return typeof value === 'number' ? value : undefined;
 }
 
 export interface KenyaCoverageEligibilityResultInput {
@@ -1177,6 +1197,115 @@ export function clearKenyaCoverageEligibilitySnapshot(coverage: Coverage): Cover
   return {
     ...coverage,
     extension: coverage.extension.filter((ext) => ext.url !== KenyaCoverageEligibilityExtension.baseUrl),
+  };
+}
+
+export interface KenyaNationalClaimSubmissionResultInput {
+  readonly status: string;
+  readonly correlationId: string;
+  readonly message: string;
+  readonly nextState: string;
+  readonly shaClaimsEnvironment?: string;
+  readonly submissionEndpoint?: string;
+  readonly bundleId?: string;
+  readonly bundleEntryCount?: number;
+}
+
+export const KenyaNationalClaimSubmissionExtension = {
+  baseUrl: 'https://afiax.africa/fhir/StructureDefinition/kenya-national-claim-submission',
+  status: 'status',
+  correlationId: 'correlationId',
+  message: 'message',
+  nextState: 'nextState',
+  submittedAt: 'submittedAt',
+  task: 'task',
+  shaClaimsEnvironment: 'shaClaimsEnvironment',
+  submissionEndpoint: 'submissionEndpoint',
+  bundleId: 'bundleId',
+  bundleEntryCount: 'bundleEntryCount',
+} as const;
+
+export interface KenyaNationalClaimSubmissionSnapshot {
+  readonly status?: string;
+  readonly correlationId?: string;
+  readonly message?: string;
+  readonly nextState?: string;
+  readonly submittedAt?: string;
+  readonly task?: Reference<Task>;
+  readonly shaClaimsEnvironment?: string;
+  readonly submissionEndpoint?: string;
+  readonly bundleId?: string;
+  readonly bundleEntryCount?: number;
+}
+
+export function buildKenyaNationalClaimSubmissionExtension(
+  result: KenyaNationalClaimSubmissionResultInput,
+  submittedAt: string,
+  task?: Reference<Task>
+): Extension {
+  const extension: Extension = {
+    url: KenyaNationalClaimSubmissionExtension.baseUrl,
+    extension: [
+      { url: KenyaNationalClaimSubmissionExtension.status, valueCode: result.status },
+      { url: KenyaNationalClaimSubmissionExtension.correlationId, valueString: result.correlationId },
+      { url: KenyaNationalClaimSubmissionExtension.message, valueString: result.message },
+      { url: KenyaNationalClaimSubmissionExtension.nextState, valueString: result.nextState },
+      { url: KenyaNationalClaimSubmissionExtension.submittedAt, valueDateTime: submittedAt },
+    ],
+  };
+
+  if (task) {
+    extension.extension?.push({ url: KenyaNationalClaimSubmissionExtension.task, valueReference: task });
+  }
+  pushString(extension, KenyaNationalClaimSubmissionExtension.shaClaimsEnvironment, result.shaClaimsEnvironment);
+  pushString(extension, KenyaNationalClaimSubmissionExtension.submissionEndpoint, result.submissionEndpoint);
+  pushString(extension, KenyaNationalClaimSubmissionExtension.bundleId, result.bundleId);
+  if (result.bundleEntryCount !== undefined) {
+    extension.extension?.push({
+      url: KenyaNationalClaimSubmissionExtension.bundleEntryCount,
+      valueUnsignedInt: result.bundleEntryCount,
+    });
+  }
+
+  return extension;
+}
+
+export function getKenyaNationalClaimSubmissionSnapshot(
+  claim: Pick<Claim, 'extension'> | undefined
+): KenyaNationalClaimSubmissionSnapshot | undefined {
+  if (!claim?.extension?.length) {
+    return undefined;
+  }
+
+  const base = KenyaNationalClaimSubmissionExtension.baseUrl;
+  const status = getExtensionValue(claim, base, KenyaNationalClaimSubmissionExtension.status);
+  if (typeof status !== 'string' || !status) {
+    return undefined;
+  }
+
+  const taskValue = getExtensionValue(claim, base, KenyaNationalClaimSubmissionExtension.task);
+  return {
+    status,
+    correlationId: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimSubmissionExtension.correlationId),
+    message: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimSubmissionExtension.message),
+    nextState: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimSubmissionExtension.nextState),
+    submittedAt: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimSubmissionExtension.submittedAt),
+    task: isReference(taskValue) ? (taskValue as Reference<Task>) : undefined,
+    shaClaimsEnvironment: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimSubmissionExtension.shaClaimsEnvironment),
+    submissionEndpoint: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimSubmissionExtension.submissionEndpoint),
+    bundleId: getKenyaExtensionStringValue(claim, base, KenyaNationalClaimSubmissionExtension.bundleId),
+    bundleEntryCount: getKenyaExtensionNumberValue(claim, base, KenyaNationalClaimSubmissionExtension.bundleEntryCount),
+  };
+}
+
+export function clearKenyaNationalClaimSubmissionSnapshot(claim: Claim): Claim {
+  if (!claim.extension?.length) {
+    return claim;
+  }
+
+  return {
+    ...claim,
+    extension: claim.extension.filter((ext) => ext.url !== KenyaNationalClaimSubmissionExtension.baseUrl),
   };
 }
 

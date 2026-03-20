@@ -68,6 +68,7 @@ import { rotateSecretHandler } from './operations/rotatesecret';
 import { setAccountsHandler } from './operations/set-accounts';
 import { structureDefinitionExpandProfileHandler } from './operations/structuredefinitionexpandprofile';
 import { codeSystemSubsumesOperation } from './operations/subsumes';
+import { submitNationalClaimHandler } from './operations/submit-national-claim';
 import { updateUserEmailOperation } from './operations/update-user-email';
 import { verifyFacilityAuthorityHandler } from './operations/verify-facility-authority';
 import { verifyPractitionerAuthorityHandler } from './operations/verify-practitioner-authority';
@@ -305,6 +306,11 @@ function initInternalFhirRouter(): FhirRouter {
   // Claim $export operation
   router.add('POST', '/Claim/$export', claimExportPostHandler);
   router.add('GET', '/Claim/:id/$export', claimExportGetHandler);
+
+  // Claim $submit-national-claim operation
+  router.add('GET', '/Claim/:id/$submit-national-claim', submitNationalClaimHandler);
+  router.add('POST', '/Claim/:id/$submit-national-claim', submitNationalClaimHandler);
+  router.add('POST', '/Claim/$submit-national-claim', submitNationalClaimHandler);
 
   // Coverage $check-coverage operation
   router.add('GET', '/Coverage/:id/$check-coverage', checkCoverageHandler);

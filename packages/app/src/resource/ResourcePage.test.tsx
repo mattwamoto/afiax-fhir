@@ -2,7 +2,17 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { OperationOutcomeError } from '@medplum/core';
 import { getReferenceString } from '@medplum/core';
-import type { Bot, Coverage, Organization, Practitioner, Project, Questionnaire, Subscription, ValueSet } from '@medplum/fhirtypes';
+import type {
+  Bot,
+  Claim,
+  Coverage,
+  Organization,
+  Practitioner,
+  Project,
+  Questionnaire,
+  Subscription,
+  ValueSet,
+} from '@medplum/fhirtypes';
 import { MockClient } from '@medplum/mock';
 import { act, fireEvent, renderAppRoutes, screen, userEvent, waitFor } from '../test-utils/render';
 
@@ -488,6 +498,63 @@ describe('ResourcePage', () => {
     expect(screen.getByText('CoverageEligibilityResponse/res-123')).toBeInTheDocument();
     expect(screen.getByText('Task/task-cov-123')).toBeInTheDocument();
     expect(screen.getByText(/"eligible": 1/)).toBeInTheDocument();
+  });
+
+  test('Claim panel prepares Kenya SHA claim bundle', async () => {
+    const medplum = new MockClient();
+    const claim = await medplum.createResource<Claim>({
+      resourceType: 'Claim',
+      status: 'active',
+      type: { text: 'Institutional' },
+      use: 'claim',
+      patient: { reference: 'Patient/123' },
+      created: '2026-03-20',
+      provider: { reference: 'Organization/456' },
+      priority: { text: 'normal' },
+      insurance: [{ sequence: 1, focal: true, coverage: { reference: 'Coverage/123' } }],
+      item: [{ sequence: 1, productOrService: { text: 'Consultation' } }],
+      total: { value: 1000, currency: 'KES' },
+    });
+
+    jest.spyOn(medplum, 'getProject').mockReturnValue({
+      resourceType: 'Project',
+      id: 'project-123',
+      setting: [
+        { name: 'countryPack', valueString: 'kenya' },
+        { name: 'kenyaShaClaimsEnvironment', valueString: 'uat' },
+      ],
+    } as Project);
+
+    const postSpy = jest.spyOn(medplum, 'post').mockResolvedValue({
+      resourceType: 'Parameters',
+      parameter: [
+        { name: 'status', valueCode: 'prepared' },
+        { name: 'message', valueString: 'Kenya SHA claim bundle prepared from the current Medplum claim resources.' },
+        { name: 'nextState', valueString: 'ready-for-sha-transport' },
+        { name: 'correlationId', valueString: 'corr-claim-123' },
+        { name: 'shaClaimsEnvironment', valueString: 'uat' },
+        { name: 'submissionEndpoint', valueString: 'https://qa-mis.apeiro-digital.com/fhir' },
+        { name: 'bundleId', valueString: 'bundle-123' },
+        { name: 'bundleEntryCount', valueInteger: 5 },
+        { name: 'rawBundle', valueString: '{\n  \"resourceType\": \"Bundle\"\n}' },
+        { name: 'task', valueReference: { reference: 'Task/task-claim-123' } },
+      ],
+    });
+
+    await setup(`/Claim/${claim.id}`, medplum);
+    expect(await screen.findByText('Prepare Kenya SHA Claim')).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Prepare Kenya SHA Claim'));
+    });
+
+    expect(postSpy).toHaveBeenCalledWith(medplum.fhirUrl('Claim', claim.id as string, '$submit-national-claim'));
+    expect(
+      await screen.findByText('Kenya SHA claim bundle prepared from the current Medplum claim resources.')
+    ).toBeInTheDocument();
+    expect(screen.getByText('https://qa-mis.apeiro-digital.com/fhir')).toBeInTheDocument();
+    expect(screen.getByText('bundle-123')).toBeInTheDocument();
+    expect(screen.getByText(/"resourceType": "Bundle"/)).toBeInTheDocument();
   });
 
   test('Questionnaire bots -- create only (default)', async () => {

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { WithId } from '@medplum/core';
 import type {
+  Claim,
   Coverage,
   CoverageEligibilityRequest,
   CoverageEligibilityResponse,
@@ -42,6 +43,7 @@ export interface CountryPackDefinition {
     input: CountryPackVerifyPractitionerAuthorityInput
   ) => Promise<VerifyPractitionerAuthorityResult>;
   checkCoverage?: (input: CountryPackCheckCoverageInput) => Promise<CheckCoverageResult>;
+  submitNationalClaim?: (input: CountryPackSubmitNationalClaimInput) => Promise<SubmitNationalClaimResult>;
 }
 
 export interface CountryPackVerifyFacilityAuthorityInput {
@@ -59,6 +61,12 @@ export interface CountryPackVerifyPractitionerAuthorityInput {
 export interface CountryPackCheckCoverageInput {
   readonly ctx: AuthenticatedRequestContext;
   readonly coverage: WithId<Coverage>;
+  readonly correlationId: string;
+}
+
+export interface CountryPackSubmitNationalClaimInput {
+  readonly ctx: AuthenticatedRequestContext;
+  readonly claim: WithId<Claim>;
   readonly correlationId: string;
 }
 
@@ -118,6 +126,22 @@ export interface CheckCoverageResult {
   readonly rawResponse?: string;
   readonly coverageEligibilityRequest?: Reference<CoverageEligibilityRequest>;
   readonly coverageEligibilityResponse?: Reference<CoverageEligibilityResponse>;
+  readonly task?: Reference<Task>;
+}
+
+export type NationalClaimSubmissionStatus = 'prepared' | 'submitted' | 'error';
+
+export interface SubmitNationalClaimResult {
+  readonly status: NationalClaimSubmissionStatus;
+  readonly correlationId: string;
+  readonly message: string;
+  readonly nextState: string;
+  readonly countryPack: string;
+  readonly shaClaimsEnvironment?: string;
+  readonly submissionEndpoint?: string;
+  readonly bundleId?: string;
+  readonly bundleEntryCount?: number;
+  readonly rawBundle?: string;
   readonly task?: Reference<Task>;
 }
 

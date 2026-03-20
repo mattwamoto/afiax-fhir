@@ -3,11 +3,21 @@
 import { Button, Paper, ScrollArea, Title } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
 import { getReferenceString, isGone, normalizeErrorString } from '@medplum/core';
-import type { Coverage, OperationOutcome, Organization, Practitioner, Resource, ResourceType, ServiceRequest } from '@medplum/fhirtypes';
+import type {
+  Claim,
+  Coverage,
+  OperationOutcome,
+  Organization,
+  Practitioner,
+  Resource,
+  ResourceType,
+  ServiceRequest,
+} from '@medplum/fhirtypes';
 import { Document, LinkTabs, OperationOutcomeAlert, PatientHeader, useMedplum, useResource } from '@medplum/react';
 import type { JSX } from 'react';
 import { useState } from 'react';
 import { Outlet, useParams } from 'react-router';
+import { ClaimNationalSubmissionPanel } from './ClaimNationalSubmissionPanel';
 import { QuickServiceRequests } from '../components/QuickServiceRequests';
 import { QuickStatus } from '../components/QuickStatus';
 import { ResourceHeader } from '../components/ResourceHeader';
@@ -134,6 +144,7 @@ export function ResourcePage(): JSX.Element | null {
         />
       )}
       {value && <QuickServiceRequests value={value} />}
+      {value?.resourceType === 'Claim' && <ClaimNationalSubmissionPanel claim={value as Claim} />}
       {value?.resourceType === 'Coverage' && <CoverageEligibilityPanel coverage={value as Coverage} />}
       {value?.resourceType === 'Organization' && <OrganizationFacilityVerificationPanel organization={value as Organization} />}
       {value?.resourceType === 'Practitioner' && (

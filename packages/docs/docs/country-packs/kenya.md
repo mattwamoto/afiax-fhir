@@ -78,14 +78,17 @@ Implemented now:
 - `Organization`-level facility code capture, lookup, and verification UI
 - `Practitioner`-level identity capture, lookup, and verification UI
 - `Coverage`-level eligibility lookup capture and DHA eligibility UI
+- `Claim`-level Kenya SHA claim bundle preparation UI
 - generic `Organization/$verify-facility-authority`
 - generic `Practitioner/$verify-practitioner-authority`
 - generic `Coverage/$check-coverage`
+- generic `Claim/$submit-national-claim`
 - Kenya-specific AfyaLink auth and facility search
 - Kenya-specific AfyaLink practitioner search
 - Kenya-specific AfyaLink eligibility lookup
 - verification `Task` and `AuditEvent` creation
 - eligibility `Task`, `CoverageEligibilityRequest`, `CoverageEligibilityResponse`, and `AuditEvent` creation
+- claim submission preparation `Task`, persisted claim snapshot, and `AuditEvent` creation
 
 ## Current operation bindings
 
@@ -98,7 +101,7 @@ Kenya logic currently sits behind country-neutral operations such as:
 - `$publish-national-record`
 - `$submit-national-claim`
 
-`$verify-facility-authority`, `$verify-practitioner-authority`, and `$check-coverage` have implemented Kenya
+`$verify-facility-authority`, `$verify-practitioner-authority`, `$check-coverage`, and `$submit-national-claim` have implemented Kenya
 connector paths today.
 
 ## Facility verification flow
@@ -153,6 +156,20 @@ are:
 - `SHA Number`
 - `Refugee ID`
 
+## National claim submission flow
+
+Current path for `Claim/$submit-national-claim`:
+
+1. Resolve the active project.
+2. Read the Kenya SHA claims environment from `Project.setting`.
+3. Validate the current `Claim` and its linked `Patient`, `Coverage`, `Organization`, and `Practitioner` resources.
+4. Build a Kenya SHA-style FHIR `Bundle` using the SHA environment URL prefix.
+5. Persist the submission preparation snapshot on the `Claim`.
+6. Create a `Task` and `AuditEvent`.
+
+The current implementation prepares the national claim bundle inside Afiax FHIR. It does not yet perform the final
+remote SHA transport call.
+
 ## Admin UI flow
 
 For a Kenya project:
@@ -191,6 +208,10 @@ For a Kenya project:
   - persists the eligibility snapshot on the resource
   - shows the eligibility summary and raw DHA eligibility payload
   - runs the audited `Check Coverage` action
+- `/Claim/{id}`
+  - prepares the Kenya SHA claim bundle from the current Medplum claim graph
+  - shows the submission environment, bundle summary, and raw bundle payload
+  - records the workflow snapshot and task on the resource
 
 ## Guardrails
 
@@ -204,7 +225,7 @@ For a Kenya project:
 1. Add reconciliation and retry surfaces around external calls.
 2. Add a Kenya setup flow for practitioner onboarding after facility bootstrap.
 3. Add facility, practitioner, and coverage queue views for operational follow-up.
-4. Add SHA claim submission after the HIE verification flows are stable.
+4. Add live SHA transport and response mapping on top of the current claim bundle preparation flow.
 
 ## Related docs
 

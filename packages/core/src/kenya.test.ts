@@ -1,15 +1,17 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
-import type { Coverage, Organization, Practitioner } from '@medplum/fhirtypes';
+import type { Claim, Coverage, Organization, Practitioner } from '@medplum/fhirtypes';
 import {
   applyKenyaFacilityRegistryToOrganization,
   applyKenyaPractitionerRegistryToPractitioner,
   buildKenyaFacilityVerificationExtension,
   buildKenyaCoverageEligibilityExtension,
+  buildKenyaNationalClaimSubmissionExtension,
   buildKenyaPractitionerVerificationExtension,
   clearKenyaFacilityRegistrySnapshot,
   clearKenyaFacilityVerificationSnapshot,
   clearKenyaCoverageEligibilitySnapshot,
+  clearKenyaNationalClaimSubmissionSnapshot,
   clearKenyaPractitionerRegistrySnapshot,
   clearKenyaPractitionerVerificationSnapshot,
   getKenyaCoverageEligibilityLookupIdentifier,
@@ -17,6 +19,7 @@ import {
   getKenyaFacilityVerificationSnapshot,
   getKenyaFacilityAuthorityIdentifier,
   getKenyaFacilityRegistrySnapshot,
+  getKenyaNationalClaimSubmissionSnapshot,
   getKenyaPractitionerAuthorityIdentifier,
   getKenyaPractitionerLookupIdentifier,
   getKenyaPractitionerRegistrySnapshot,
@@ -421,6 +424,74 @@ describe('Kenya facility verification helpers', () => {
     };
 
     expect(clearKenyaCoverageEligibilitySnapshot(coverage).extension).toEqual([
+      { url: 'https://example.com/other', valueString: 'keep-me' },
+    ]);
+  });
+
+  test('builds and reads Kenya national claim submission snapshot extensions', () => {
+    const claim: Claim = {
+      resourceType: 'Claim',
+      status: 'active',
+      type: { text: 'Institutional' },
+      use: 'claim',
+      patient: { reference: 'Patient/123' },
+      created: '2026-03-20',
+      provider: { reference: 'Organization/456' },
+      priority: { text: 'normal' },
+      insurance: [{ sequence: 1, focal: true, coverage: { reference: 'Coverage/123' } }],
+      extension: [
+        buildKenyaNationalClaimSubmissionExtension(
+          {
+            status: 'prepared',
+            correlationId: 'corr-claim-123',
+            message: 'Kenya SHA claim bundle prepared',
+            nextState: 'ready-for-sha-connector',
+            shaClaimsEnvironment: 'uat',
+            submissionEndpoint: 'https://qa-mis.apeiro-digital.com/fhir',
+            bundleId: 'bundle-123',
+            bundleEntryCount: 5,
+          },
+          '2026-03-20T18:00:00.000Z',
+          { reference: 'Task/task-claim-123' }
+        ),
+      ],
+    };
+
+    expect(getKenyaNationalClaimSubmissionSnapshot(claim)).toEqual({
+      status: 'prepared',
+      correlationId: 'corr-claim-123',
+      message: 'Kenya SHA claim bundle prepared',
+      nextState: 'ready-for-sha-connector',
+      submittedAt: '2026-03-20T18:00:00.000Z',
+      task: { reference: 'Task/task-claim-123' },
+      shaClaimsEnvironment: 'uat',
+      submissionEndpoint: 'https://qa-mis.apeiro-digital.com/fhir',
+      bundleId: 'bundle-123',
+      bundleEntryCount: 5,
+    });
+  });
+
+  test('clears Kenya national claim submission snapshot', () => {
+    const claim: Claim = {
+      resourceType: 'Claim',
+      status: 'active',
+      type: { text: 'Institutional' },
+      use: 'claim',
+      patient: { reference: 'Patient/123' },
+      created: '2026-03-20',
+      provider: { reference: 'Organization/456' },
+      priority: { text: 'normal' },
+      insurance: [{ sequence: 1, focal: true, coverage: { reference: 'Coverage/123' } }],
+      extension: [
+        {
+          url: 'https://afiax.africa/fhir/StructureDefinition/kenya-national-claim-submission',
+          extension: [{ url: 'status', valueCode: 'prepared' }],
+        },
+        { url: 'https://example.com/other', valueString: 'keep-me' },
+      ],
+    };
+
+    expect(clearKenyaNationalClaimSubmissionSnapshot(claim).extension).toEqual([
       { url: 'https://example.com/other', valueString: 'keep-me' },
     ]);
   });
