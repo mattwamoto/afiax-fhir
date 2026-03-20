@@ -7,7 +7,7 @@ sidebar_position: 7
 This page defines the normalized status model used across Afiax FHIR and Afiax Billing.
 
 Use it to keep invoice workflows, payment workflows, reimbursement workflows, and pharmacy fulfillment workflows
-consistent across integration services and write-back logic.
+consistent across integration services, bot handoff, and write-back logic.
 
 ## Purpose
 
@@ -23,17 +23,32 @@ The status model gives both systems a shared vocabulary for:
 - denial and adjustment handling
 - pharmacy fulfillment lifecycle
 
+## Current role in this repo
+
+Today, this repo uses the status model as the contract target for:
+
+- outbound finance and reimbursement events
+- inbound finance write-back design
+- Kenya claim and reimbursement interpretation
+- future billing and pharmacy integration workers
+
+The full Afiax Billing execution side is not implemented in this repo yet, so this page defines the shared language
+that those workers and adapters must use.
+
 ## Status design rules
 
-The status model follows five rules:
+The status model follows these rules:
 
 1. each status family has a narrow meaning
 2. each write-back records the latest normalized state plus correlation metadata
 3. external ERP or payer statuses remain available as raw references, but normalized status drives product logic
 4. status transitions are replay-safe and idempotent
 5. status updates that affect care or reimbursement write back into Afiax FHIR
+6. raw external status never becomes the only visible application state
 
-## Invoice status family
+## Status families
+
+### Invoice status family
 
 Invoice status tracks the commercial lifecycle of a billable financial artifact.
 
@@ -48,7 +63,7 @@ Invoice status tracks the commercial lifecycle of a billable financial artifact.
 | `cancelled` | invoice is voided and no longer active |
 | `written-off` | receivable is closed through write-off logic |
 
-## Payment status family
+### Payment status family
 
 Payment status tracks money movement and settlement progress.
 
@@ -62,7 +77,7 @@ Payment status tracks money movement and settlement progress.
 | `refunded` | payment or part of payment is returned |
 | `failed` | payment attempt fails or is reversed before settlement |
 
-## Claim-financial status family
+### Claim-financial status family
 
 Claim-financial status tracks the reimbursement path from submission to cash outcome.
 
@@ -79,7 +94,7 @@ Claim-financial status tracks the reimbursement path from submission to cash out
 | `settled` | claim-linked financial outcome is fully reconciled |
 | `exception` | claim requires manual reconciliation or intervention |
 
-## Denial and adjustment status family
+### Denial and adjustment status family
 
 Denial and adjustment status records the financial resolution path when a claim or invoice diverges from the expected
 settlement path.
@@ -94,7 +109,7 @@ settlement path.
 | `written-off` | the balance is closed through write-off logic |
 | `resolved` | denial or adjustment path is complete |
 
-## Pharmacy fulfillment status family
+### Pharmacy fulfillment status family
 
 Pharmacy fulfillment status tracks the operational outcome of medication fulfillment across Afiax FHIR and Afiax
 Billing.
@@ -134,9 +149,13 @@ The integration supports predictable transitions across the status families.
 
 ### Invoice transitions
 
-`draft -> ready -> issued -> part-paid -> paid`
+Primary path:
 
-Additional terminal or side transitions:
+```text
+draft -> ready -> issued -> part-paid -> paid
+```
+
+Additional branches:
 
 - `issued -> adjusted`
 - `issued -> cancelled`
@@ -144,7 +163,11 @@ Additional terminal or side transitions:
 
 ### Payment transitions
 
-`pending -> posted -> allocated -> settled`
+Primary path:
+
+```text
+pending -> posted -> allocated -> settled
+```
 
 Additional branches:
 
@@ -154,7 +177,11 @@ Additional branches:
 
 ### Claim-financial transitions
 
-`pending-submission -> submitted -> received -> adjudicating -> approved -> remitted -> settled`
+Primary path:
+
+```text
+pending-submission -> submitted -> received -> adjudicating -> approved -> remitted -> settled
+```
 
 Additional branches:
 
@@ -164,7 +191,11 @@ Additional branches:
 
 ### Pharmacy fulfillment transitions
 
-`pending -> reserved -> in-progress -> dispensed`
+Primary path:
+
+```text
+pending -> reserved -> in-progress -> dispensed
+```
 
 Additional branches:
 
@@ -173,10 +204,9 @@ Additional branches:
 - `pending -> blocked-authorization`
 - any active state -> `cancelled`
 
-## Integration outcome mapping
+## Outcome mapping rule
 
-The normalized status model lets the platform record external results without leaking raw ERP or payer semantics into
-the canonical model.
+Use the normalized status model to translate external results into Afiax FHIR state.
 
 | External outcome type | Normalized write-back |
 | --- | --- |
@@ -189,14 +219,23 @@ the canonical model.
 | stock shortfall on dispense | `blocked-stock` |
 | dispense completed | `dispensed` |
 
-## Operational result
+## Kenya interpretation
 
-This status model offers:
+In Kenya, this model should be read together with the country-pack claim workflow:
 
-- shared workflow language across Afiax FHIR and Afiax Billing
-- predictable reconciliation behavior
-- stable UI state for billing, payment, and pharmacy workflows
-- traceable write-back into the Afiax FHIR ledger
+- the Kenya pack owns claim submission and claim-status interpretation
+- Afiax Billing later owns invoice and receivable execution
+- Afiax Pay later owns co-pay and wallet execution
+- normalized outcomes still return to Afiax FHIR using this shared status language
+
+That is how the Kenya pack stays country-specific while the finance model stays reusable.
+
+## Status design guardrails
+
+- do not expose raw ERP statuses as the only visible workflow state
+- do not create one-off Kenya statuses in the shared finance model unless the status is first normalized at the country-pack boundary
+- do not skip correlation metadata when writing back a status transition
+- do not let payment or pharmacy execution silently update care-visible state without a normalized mapping
 
 ## Related docs
 

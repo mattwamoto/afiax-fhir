@@ -6,7 +6,24 @@ sidebar_position: 8
 
 This page defines the canonical payload envelope and example event bodies used between Afiax FHIR and Afiax Billing.
 
-Use it to implement event publishers, integration workers, callback handlers, and reconciliation pipelines.
+Use it to implement event publishers, bot handoff, integration workers, callback handlers, and reconciliation
+pipelines.
+
+## Payload role in this repo
+
+Today, this repo provides:
+
+- the payload contract
+- Kenya claim workflow bot handoff points that can later use this contract model
+- the canonical FHIR side of the state that will populate these events
+
+This repo does not yet provide:
+
+- the Afiax Billing event publishers
+- the Afiax Billing inbound consumers
+- the external integration workers that carry these payloads across systems
+
+So this page is the payload target for those services, not a claim that all of these events are already emitted here.
 
 ## Envelope
 
@@ -48,6 +65,18 @@ Every billing and pharmacy event uses the same top-level envelope.
 | `externalReference` | business-facing cross-system reference |
 | `subject` | primary resource or document anchor |
 | `body` | event-specific payload |
+
+## Envelope rules
+
+Every event should follow these rules:
+
+1. `projectId` and `countryPack` are always present
+2. `correlationId` is stable across retries and write-back
+3. `idempotencyKey` is specific enough to deduplicate the business action
+4. `subject` points to the primary business object
+5. `body` carries only the data the receiving system actually needs
+
+Do not overload the envelope with raw ERP internals or full clinical resources when a normalized summary is enough.
 
 ## Event: `billing.invoice.ready`
 
@@ -100,6 +129,11 @@ This event carries invoice-ready financial state from Afiax FHIR into Afiax Bill
 }
 ```
 
+Use this event when:
+
+- billable activity is complete enough for ERP invoice or receivable work
+- the receiving system needs account, encounter, coverage, and line-item context
+
 ## Event: `billing.claim.adjudicated`
 
 This event carries reimbursement outcome state from Afiax FHIR into Afiax Billing.
@@ -140,6 +174,11 @@ This event carries reimbursement outcome state from Afiax FHIR into Afiax Billin
   }
 }
 ```
+
+Use this event when:
+
+- claim adjudication has entered canonical workflow state
+- the ERP side needs settlement expectations, denial context, or reimbursement correlation
 
 ## Event: `billing.payment.posted`
 
@@ -184,6 +223,11 @@ This event carries finance settlement state from Afiax Billing back into Afiax F
 }
 ```
 
+Use this event when:
+
+- money movement has been posted in Afiax Billing
+- Afiax FHIR needs normalized settlement visibility
+
 ## Event: `pharmacy.dispense.completed`
 
 This event carries a clinically relevant pharmacy completion result from Afiax Billing back into Afiax FHIR.
@@ -221,6 +265,11 @@ This event carries a clinically relevant pharmacy completion result from Afiax B
 }
 ```
 
+Use this event when:
+
+- a pharmacy operational workflow completes in Afiax Billing
+- the clinically relevant dispense outcome needs to return to Afiax FHIR
+
 ## Event families
 
 The payload spec currently covers the primary event families:
@@ -249,6 +298,13 @@ Payload validation follows the contract and status model already defined in this
 - event bodies carry only the fields needed for the receiving system
 - normalized status values use the Afiax Billing status model
 - raw ERP or payer codes travel as references, not as the primary workflow state
+
+## Design guardrails
+
+- do not send secrets in the event body
+- do not send entire FHIR resources when a normalized subset is enough
+- do not omit `countryPack` when country-specific routing or settlement semantics matter
+- do not omit `correlationId` if the event will need replay, reconciliation, or write-back
 
 ## Related docs
 
