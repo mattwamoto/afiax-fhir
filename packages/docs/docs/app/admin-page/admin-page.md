@@ -45,7 +45,8 @@ For Kenya, that currently means separate non-secret settings for:
 - HIE environment and HIE credential mode
 - SHA claims environment and SHA claims credential mode
 - Kenya HIE agent ID
-- optional Kenya claim workflow bot ID for downstream orchestration
+- optional Kenya claim submit workflow bot ID for downstream orchestration after submit
+- optional Kenya claim status workflow bot ID for downstream orchestration after status refresh
 
 The advanced editor remains available for additional `Project.setting` values.
 
@@ -74,7 +75,7 @@ Kenya also exposes resource-level onboarding panels after project setup:
 - `Organization` pages capture the Kenya facility code, run DHA facility lookup, and run audited facility verification
 - `Practitioner` pages capture the Kenya identity document, run DHA practitioner lookup, and run audited practitioner verification
 - `Coverage` pages capture the DHA eligibility lookup identity, run DHA eligibility checks, and record the resulting eligibility workflow artifacts
-- `Claim` pages build the Kenya SHA claim bundle, submit it when SHA credentials are configured, check the latest Kenya SHA claim status, optionally trigger a downstream workflow bot, show the raw SHA response, and record the resulting workflow artifacts
+- `Claim` pages build the Kenya SHA claim bundle, submit it when SHA credentials are configured, check the latest Kenya SHA claim status, optionally trigger downstream submit and status workflow bots, show the raw SHA response, and record the resulting workflow artifacts
 
 Pack-specific behavior belongs in the relevant country-pack docs.
 

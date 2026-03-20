@@ -87,8 +87,14 @@ describe('SettingsPage', () => {
     });
 
     await act(async () => {
-      fireEvent.change(screen.getByLabelText('Kenya Claim Workflow Bot ID', { exact: false }), {
-        target: { value: 'Bot/kenya-claim-bot' },
+      fireEvent.change(screen.getByLabelText('Kenya Claim Submit Workflow Bot ID', { exact: false }), {
+        target: { value: 'Bot/kenya-claim-submit-bot' },
+      });
+    });
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Kenya Claim Status Workflow Bot ID', { exact: false }), {
+        target: { value: 'Bot/kenya-claim-status-bot' },
       });
     });
 
@@ -106,7 +112,8 @@ describe('SettingsPage', () => {
         expect.objectContaining({ name: 'kenyaShaClaimsEnvironment', valueString: 'production' }),
         expect.objectContaining({ name: 'kenyaShaClaimsCredentialMode', valueString: 'tenant-managed' }),
         expect.objectContaining({ name: 'kenyaHieAgentId', valueString: 'agent-001' }),
-        expect.objectContaining({ name: 'kenyaClaimWorkflowBotId', valueString: 'Bot/kenya-claim-bot' }),
+        expect.objectContaining({ name: 'kenyaClaimSubmitWorkflowBotId', valueString: 'Bot/kenya-claim-submit-bot' }),
+        expect.objectContaining({ name: 'kenyaClaimStatusWorkflowBotId', valueString: 'Bot/kenya-claim-status-bot' }),
       ])
     );
     postSpy.mockRestore();

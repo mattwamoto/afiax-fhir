@@ -1,6 +1,12 @@
 // SPDX-FileCopyrightText: Copyright Orangebot, Inc. and Medplum contributors
 // SPDX-License-Identifier: Apache-2.0
-import { ContentType, createReference, getProjectSettingString, normalizeErrorString } from '@medplum/core';
+import {
+  ContentType,
+  createReference,
+  getKenyaClaimStatusWorkflowBotId,
+  getKenyaClaimSubmitWorkflowBotId,
+  normalizeErrorString,
+} from '@medplum/core';
 import type { Bot, Claim } from '@medplum/fhirtypes';
 import { executeBot } from '../../bots/execute';
 import { getBotProjectMembership } from '../../bots/utils';
@@ -20,10 +26,10 @@ function normalizeBotId(value: string): string {
 async function triggerKenyaClaimWorkflowEvent(
   ctx: AuthenticatedRequestContext,
   claim: Claim,
+  configuredBot: string | undefined,
   eventType: string,
   payload: Record<string, unknown>
 ): Promise<KenyaClaimWorkflowBotResult> {
-  const configuredBot = getProjectSettingString(ctx.project, 'kenyaClaimWorkflowBotId');
   if (!configuredBot) {
     return {};
   }
@@ -77,7 +83,7 @@ export async function triggerKenyaClaimWorkflowBot(
     return {};
   }
 
-  return triggerKenyaClaimWorkflowEvent(ctx, claim, 'kenya.claim.submitted', {
+  return triggerKenyaClaimWorkflowEvent(ctx, claim, getKenyaClaimSubmitWorkflowBotId(ctx.project), 'kenya.claim.submitted', {
     submission: {
       status: result.status,
       correlationId: result.correlationId,
@@ -103,19 +109,25 @@ export async function triggerKenyaClaimStatusWorkflowBot(
     return {};
   }
 
-  return triggerKenyaClaimWorkflowEvent(ctx, claim, 'kenya.claim.status-updated', {
-    claimStatus: {
-      status: result.status,
-      correlationId: result.correlationId,
-      message: result.message,
-      nextState: result.nextState,
-      shaClaimsEnvironment: result.shaClaimsEnvironment,
-      statusEndpoint: result.statusEndpoint,
-      responseStatusCode: result.responseStatusCode,
-      claimId: result.claimId,
-      claimState: result.claimState,
-      claimResponse: result.claimResponse,
-      task: result.task,
-    },
-  });
+  return triggerKenyaClaimWorkflowEvent(
+    ctx,
+    claim,
+    getKenyaClaimStatusWorkflowBotId(ctx.project),
+    'kenya.claim.status-updated',
+    {
+      claimStatus: {
+        status: result.status,
+        correlationId: result.correlationId,
+        message: result.message,
+        nextState: result.nextState,
+        shaClaimsEnvironment: result.shaClaimsEnvironment,
+        statusEndpoint: result.statusEndpoint,
+        responseStatusCode: result.responseStatusCode,
+        claimId: result.claimId,
+        claimState: result.claimState,
+        claimResponse: result.claimResponse,
+        task: result.task,
+      },
+    }
+  );
 }

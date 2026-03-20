@@ -45,7 +45,8 @@ Project.setting.kenyaHieCredentialMode=tenant-managed | afiax-managed
 Project.setting.kenyaHieAgentId=<agent-id>
 Project.setting.kenyaShaClaimsEnvironment=uat | production
 Project.setting.kenyaShaClaimsCredentialMode=tenant-managed | afiax-managed
-Project.setting.kenyaClaimWorkflowBotId=Bot/<id> | <id>
+Project.setting.kenyaClaimSubmitWorkflowBotId=Bot/<id> | <id>
+Project.setting.kenyaClaimStatusWorkflowBotId=Bot/<id> | <id>
 ```
 
 Tenant-managed Kenya credentials currently use:
@@ -85,7 +86,8 @@ Implemented now:
 - `Coverage`-level eligibility lookup capture and DHA eligibility UI
 - `Claim`-level Kenya SHA claim submission UI
 - `Claim`-level Kenya SHA claim status check UI
-- optional post-submit Kenya claim workflow bot hook
+- optional Kenya claim submit workflow bot hook
+- optional Kenya claim status workflow bot hook
 - generic `Organization/$verify-facility-authority`
 - generic `Practitioner/$verify-practitioner-authority`
 - generic `Coverage/$check-coverage`
@@ -174,14 +176,14 @@ Current path for `Claim/$submit-national-claim`:
 4. Build a Kenya SHA-style FHIR `Bundle` using the SHA environment URL prefix.
 5. If Kenya SHA credentials are configured, sign a DHA-style JWT using the SHA access key and secret key.
 6. Submit the bundle to the SHA bundle endpoint.
-7. If `Project.setting.kenyaClaimWorkflowBotId` is configured, execute that bot after a successful submit.
+7. If `Project.setting.kenyaClaimSubmitWorkflowBotId` is configured, execute that bot after a successful submit.
 8. Persist the submission snapshot on the `Claim`.
 9. Create a `Task` and `AuditEvent`.
 
 If Kenya SHA credentials are not configured, the same operation still returns a prepared bundle and leaves the claim in
 `ready-for-sha-transport`. When credentials are configured, the claim moves to `awaiting-sha-status` and the UI shows
-the live SHA response and status-tracking endpoint. When the optional claim workflow bot is configured, the UI also
-shows whether the downstream bot handoff was triggered successfully.
+the live SHA response and status-tracking endpoint. When the optional claim submit workflow bot is configured, the UI
+also shows whether the downstream bot handoff was triggered successfully.
 
 ## National claim status flow
 
@@ -194,7 +196,7 @@ Current path for `Claim/$check-national-claim-status`:
 5. Call the SHA claim-status endpoint.
 6. Normalize the returned claim state into shared workflow state such as `queued`, `in-review`, `adjudicated`, or `rejected`.
 7. Upsert a local `ClaimResponse` for the latest payer-side status evidence.
-8. If `Project.setting.kenyaClaimWorkflowBotId` is configured, execute that bot after a successful status refresh.
+8. If `Project.setting.kenyaClaimStatusWorkflowBotId` is configured, execute that bot after a successful status refresh. If that setting is not present, older projects can still fall back to the legacy shared Kenya claim bot setting.
 9. Persist the status snapshot on the `Claim`.
 10. Create a `Task` and `AuditEvent`.
 
@@ -212,7 +214,8 @@ For a Kenya project:
   - sets HIE credential mode
   - sets SHA claim credential mode
   - sets Kenya HIE agent ID
-  - optionally sets the Kenya claim workflow bot ID for downstream orchestration
+  - optionally sets the Kenya claim submit workflow bot ID for downstream orchestration after submit
+  - optionally sets the Kenya claim status workflow bot ID for downstream orchestration after status refresh
 - `/admin/country-pack`
   - shows setup status and next steps
   - accepts the primary Kenya facility code / MFL code
@@ -247,8 +250,8 @@ For a Kenya project:
   - builds the Kenya SHA claim bundle from the current Medplum claim graph
   - submits it when Kenya SHA credentials are configured
   - checks the latest Kenya SHA claim status against the last submitted bundle ID
-  - optionally triggers a downstream Kenya claim workflow bot
-  - shows the submission environment, submission endpoint, status-tracking endpoint, current claim state, local `ClaimResponse`, raw SHA response, workflow bot status, and raw bundle payload
+  - optionally triggers downstream Kenya workflow bots after submit and after status refresh
+  - shows the submission environment, submission endpoint, status-tracking endpoint, current claim state, local `ClaimResponse`, workflow bot status, and raw SHA response alongside the raw bundle payload
   - records both submission and claim-status workflow snapshots and tasks on the resource
 
 ## Guardrails

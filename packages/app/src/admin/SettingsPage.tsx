@@ -9,6 +9,8 @@ import {
   getCountryPackCatalog,
   getCountryPackCatalogEntry,
   getElementDefinition,
+  getKenyaClaimStatusWorkflowBotId,
+  getKenyaClaimSubmitWorkflowBotId,
   getKenyaHieAgentId,
   getKenyaHieCredentialMode,
   getKenyaHieEnvironment,
@@ -22,8 +24,6 @@ import { ResourcePropertyInput, useMedplum } from '@medplum/react';
 import type { FormEvent, JSX } from 'react';
 import { useEffect, useState } from 'react';
 import { getProjectId } from '../utils';
-
-const kenyaClaimWorkflowBotSettingName = 'kenyaClaimWorkflowBotId';
 
 function setNamedProjectSettingValue(settings: ProjectSetting[], name: string, value: string): ProjectSetting[] {
   const nextSettings = deepClone(settings);
@@ -60,7 +60,8 @@ function handleSettingsChange(
   setSelectedKenyaHieCredentialMode: (value: 'tenant-managed' | 'afiax-managed') => void,
   setSelectedKenyaShaClaimsCredentialMode: (value: 'tenant-managed' | 'afiax-managed') => void,
   setKenyaHieAgentId: (value: string) => void,
-  setKenyaClaimWorkflowBotId: (value: string) => void
+  setKenyaClaimSubmitWorkflowBotId: (value: string) => void,
+  setKenyaClaimStatusWorkflowBotId: (value: string) => void
 ): void {
   setSettings(nextSettings);
   setSelectedCountryPack(getProjectSettingString(nextSettings, 'countryPack') ?? '');
@@ -69,7 +70,8 @@ function handleSettingsChange(
   setSelectedKenyaHieCredentialMode(getKenyaHieCredentialMode(nextSettings));
   setSelectedKenyaShaClaimsCredentialMode(getKenyaShaClaimsCredentialMode(nextSettings));
   setKenyaHieAgentId(getKenyaHieAgentId(nextSettings) ?? '');
-  setKenyaClaimWorkflowBotId(getProjectSettingString(nextSettings, kenyaClaimWorkflowBotSettingName) ?? '');
+  setKenyaClaimSubmitWorkflowBotId(getKenyaClaimSubmitWorkflowBotId(nextSettings) ?? '');
+  setKenyaClaimStatusWorkflowBotId(getKenyaClaimStatusWorkflowBotId(nextSettings) ?? '');
 }
 
 export function SettingsPage(): JSX.Element {
@@ -95,7 +97,8 @@ export function SettingsPage(): JSX.Element {
     'tenant-managed'
   );
   const [kenyaHieAgentId, setKenyaHieAgentId] = useState('');
-  const [kenyaClaimWorkflowBotId, setKenyaClaimWorkflowBotId] = useState('');
+  const [kenyaClaimSubmitWorkflowBotId, setKenyaClaimSubmitWorkflowBotId] = useState('');
+  const [kenyaClaimStatusWorkflowBotId, setKenyaClaimStatusWorkflowBotId] = useState('');
 
   useEffect(() => {
     medplum
@@ -113,7 +116,8 @@ export function SettingsPage(): JSX.Element {
     setSelectedKenyaHieCredentialMode(getKenyaHieCredentialMode(nextSettings));
     setSelectedKenyaShaClaimsCredentialMode(getKenyaShaClaimsCredentialMode(nextSettings));
     setKenyaHieAgentId(getKenyaHieAgentId(nextSettings) ?? '');
-    setKenyaClaimWorkflowBotId(getProjectSettingString(nextSettings, kenyaClaimWorkflowBotSettingName) ?? '');
+    setKenyaClaimSubmitWorkflowBotId(getKenyaClaimSubmitWorkflowBotId(nextSettings) ?? '');
+    setKenyaClaimStatusWorkflowBotId(getKenyaClaimStatusWorkflowBotId(nextSettings) ?? '');
   }, [loadedSettingsKey]);
 
   if (!schemaLoaded || settings === undefined) {
@@ -164,8 +168,18 @@ export function SettingsPage(): JSX.Element {
         );
         settingsToSave = setNamedProjectSettingValue(
           settingsToSave,
-          kenyaClaimWorkflowBotSettingName,
-          selectedCountryPack === 'kenya' ? kenyaClaimWorkflowBotId : ''
+          KenyaProjectSettingNames.claimSubmitWorkflowBotId,
+          selectedCountryPack === 'kenya' ? kenyaClaimSubmitWorkflowBotId : ''
+        );
+        settingsToSave = setNamedProjectSettingValue(
+          settingsToSave,
+          KenyaProjectSettingNames.claimStatusWorkflowBotId,
+          selectedCountryPack === 'kenya' ? kenyaClaimStatusWorkflowBotId : ''
+        );
+        settingsToSave = setNamedProjectSettingValue(
+          settingsToSave,
+          KenyaProjectSettingNames.claimWorkflowBotId,
+          ''
         );
         settingsToSave = setNamedProjectSettingValue(
           settingsToSave,
@@ -277,11 +291,18 @@ export function SettingsPage(): JSX.Element {
               placeholder="Enter DHA HIE agent ID"
             />
             <TextInput
-              label="Kenya Claim Workflow Bot ID"
+              label="Kenya Claim Submit Workflow Bot ID"
               description="Optional Bot ID or Bot/{id}. Triggered after a successful Kenya SHA claim submit for downstream orchestration such as Afiax Billing or Afiax Pay."
-              value={kenyaClaimWorkflowBotId}
-              onChange={(event) => setKenyaClaimWorkflowBotId(event.currentTarget.value)}
-              placeholder="Bot/123 or 123"
+              value={kenyaClaimSubmitWorkflowBotId}
+              onChange={(event) => setKenyaClaimSubmitWorkflowBotId(event.currentTarget.value)}
+              placeholder="Bot/kenya-claim-submit-bot"
+            />
+            <TextInput
+              label="Kenya Claim Status Workflow Bot ID"
+              description="Optional Bot ID or Bot/{id}. Triggered after a Kenya SHA claim status refresh. Leave this blank if the submit bot should continue to own both steps."
+              value={kenyaClaimStatusWorkflowBotId}
+              onChange={(event) => setKenyaClaimStatusWorkflowBotId(event.currentTarget.value)}
+              placeholder="Bot/kenya-claim-status-bot"
             />
             {selectedKenyaHieCredentialMode === 'afiax-managed' && (
               <Text size="sm">
@@ -319,7 +340,8 @@ export function SettingsPage(): JSX.Element {
             setSelectedKenyaHieCredentialMode,
             setSelectedKenyaShaClaimsCredentialMode,
             setKenyaHieAgentId,
-            setKenyaClaimWorkflowBotId
+            setKenyaClaimSubmitWorkflowBotId,
+            setKenyaClaimStatusWorkflowBotId
           )
         }
         outcome={undefined}

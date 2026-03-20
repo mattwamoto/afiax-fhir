@@ -56,6 +56,7 @@ describe('CountryPackPage', () => {
         { name: 'kenyaHieCredentialMode', valueString: 'tenant-managed' },
         { name: 'kenyaShaClaimsEnvironment', valueString: 'production' },
         { name: 'kenyaShaClaimsCredentialMode', valueString: 'tenant-managed' },
+        { name: 'kenyaClaimSubmitWorkflowBotId', valueString: 'Bot/kenya-claim-submit-bot' },
       ],
       secret: [
         { name: 'kenyaAfyaLinkConsumerKey', valueString: 'consumer-key-123' },
@@ -69,6 +70,7 @@ describe('CountryPackPage', () => {
     expect(await screen.findByText(/Kenya is active for this project/)).toBeInTheDocument();
     expect(screen.getAllByText('Tenant-managed')).toHaveLength(2);
     expect(screen.getByText('Production')).toBeInTheDocument();
+    expect(screen.getAllByText('Bot/kenya-claim-submit-bot').length).toBeGreaterThan(0);
     expect(screen.getByText('1 of 3 required HIE credentials configured')).toBeInTheDocument();
     expect(screen.getByText(/2 Kenya HIE credentials still missing/)).toBeInTheDocument();
     expect(screen.getByText('1 of 3 required SHA credentials configured')).toBeInTheDocument();

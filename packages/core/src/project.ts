@@ -192,6 +192,8 @@ export const KenyaProjectSettingNames = {
   hieAgentId: 'kenyaHieAgentId',
   shaClaimsEnvironment: 'kenyaShaClaimsEnvironment',
   shaClaimsCredentialMode: 'kenyaShaClaimsCredentialMode',
+  claimSubmitWorkflowBotId: 'kenyaClaimSubmitWorkflowBotId',
+  claimStatusWorkflowBotId: 'kenyaClaimStatusWorkflowBotId',
   claimWorkflowBotId: 'kenyaClaimWorkflowBotId',
   afyaLinkEnvironment: 'kenyaAfyaLinkEnvironment',
   afyaLinkCredentialMode: 'kenyaAfyaLinkCredentialMode',
@@ -275,7 +277,24 @@ export function getKenyaShaClaimsCredentialMode(source: ProjectSettingsSource): 
   return getKenyaHieCredentialMode(source);
 }
 
+export function getKenyaClaimSubmitWorkflowBotId(source: ProjectSettingsSource): string | undefined {
+  return (
+    getProjectSettingString(source, KenyaProjectSettingNames.claimSubmitWorkflowBotId)?.trim() ||
+    getProjectSettingString(source, KenyaProjectSettingNames.claimWorkflowBotId)?.trim() ||
+    undefined
+  );
+}
+
+export function getKenyaClaimStatusWorkflowBotId(source: ProjectSettingsSource): string | undefined {
+  return (
+    getProjectSettingString(source, KenyaProjectSettingNames.claimStatusWorkflowBotId)?.trim() ||
+    getProjectSettingString(source, KenyaProjectSettingNames.claimWorkflowBotId)?.trim() ||
+    undefined
+  );
+}
+
 export function getKenyaClaimWorkflowBotId(source: ProjectSettingsSource): string | undefined {
+  // Legacy alias kept for backward compatibility with older Kenya settings.
   return getProjectSettingString(source, KenyaProjectSettingNames.claimWorkflowBotId)?.trim() || undefined;
 }
 

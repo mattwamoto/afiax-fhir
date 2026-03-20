@@ -8,6 +8,8 @@ import {
   getCountryPackCatalogEntry,
   getKenyaAfyaLinkCredentialMode,
   getKenyaAfyaLinkEnvironment,
+  getKenyaClaimStatusWorkflowBotId,
+  getKenyaClaimSubmitWorkflowBotId,
   getKenyaClaimWorkflowBotId,
   getKenyaHieAgentId,
   getKenyaHieCredentialMode,
@@ -30,7 +32,8 @@ describe('project settings helpers', () => {
       { name: KenyaProjectSettingNames.hieAgentId, valueString: 'agent-001' },
       { name: KenyaProjectSettingNames.shaClaimsEnvironment, valueString: 'uat' },
       { name: KenyaProjectSettingNames.shaClaimsCredentialMode, valueString: 'tenant-managed' },
-      { name: KenyaProjectSettingNames.claimWorkflowBotId, valueString: 'kenya-claim-bot' },
+      { name: KenyaProjectSettingNames.claimSubmitWorkflowBotId, valueString: 'kenya-claim-submit-bot' },
+      { name: KenyaProjectSettingNames.claimStatusWorkflowBotId, valueString: 'kenya-claim-status-bot' },
       { name: 'preCommitSubscriptionsEnabled', valueBoolean: true },
     ],
   };
@@ -85,13 +88,17 @@ describe('project settings helpers', () => {
     expect(getKenyaHieAgentId(project)).toBe('agent-001');
     expect(getKenyaShaClaimsEnvironment(project)).toBe('uat');
     expect(getKenyaShaClaimsCredentialMode(project)).toBe('tenant-managed');
-    expect(getKenyaClaimWorkflowBotId(project)).toBe('kenya-claim-bot');
+    expect(getKenyaClaimSubmitWorkflowBotId(project)).toBe('kenya-claim-submit-bot');
+    expect(getKenyaClaimStatusWorkflowBotId(project)).toBe('kenya-claim-status-bot');
+    expect(getKenyaClaimWorkflowBotId(project)).toBeUndefined();
     expect(getKenyaAfyaLinkEnvironment(project)).toBe('production');
     expect(getKenyaAfyaLinkCredentialMode(project)).toBe('afiax-managed');
     expect(getKenyaHieEnvironment(undefined)).toBe('uat');
     expect(getKenyaHieCredentialMode(undefined)).toBe('tenant-managed');
     expect(getKenyaShaClaimsEnvironment(undefined)).toBe('uat');
     expect(getKenyaShaClaimsCredentialMode(undefined)).toBe('tenant-managed');
+    expect(getKenyaClaimSubmitWorkflowBotId(undefined)).toBeUndefined();
+    expect(getKenyaClaimStatusWorkflowBotId(undefined)).toBeUndefined();
     expect(getKenyaClaimWorkflowBotId(undefined)).toBeUndefined();
   });
 
@@ -108,5 +115,16 @@ describe('project settings helpers', () => {
     expect(getKenyaHieCredentialMode(legacyProject)).toBe('afiax-managed');
     expect(getKenyaShaClaimsEnvironment(legacyProject)).toBe('production');
     expect(getKenyaShaClaimsCredentialMode(legacyProject)).toBe('afiax-managed');
+  });
+
+  test('Kenya claim workflow bot helpers fall back to legacy shared setting', () => {
+    const legacyProject: Project = {
+      resourceType: 'Project',
+      setting: [{ name: KenyaProjectSettingNames.claimWorkflowBotId, valueString: 'legacy-claim-bot' }],
+    };
+
+    expect(getKenyaClaimSubmitWorkflowBotId(legacyProject)).toBe('legacy-claim-bot');
+    expect(getKenyaClaimStatusWorkflowBotId(legacyProject)).toBe('legacy-claim-bot');
+    expect(getKenyaClaimWorkflowBotId(legacyProject)).toBe('legacy-claim-bot');
   });
 });

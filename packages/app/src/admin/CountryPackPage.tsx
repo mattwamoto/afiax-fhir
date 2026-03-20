@@ -6,6 +6,8 @@ import {
   applyKenyaFacilityRegistryToOrganization,
   formatCountryPackLabel,
   getCountryPackCatalogEntry,
+  getKenyaClaimStatusWorkflowBotId,
+  getKenyaClaimSubmitWorkflowBotId,
   getKenyaHieAgentId,
   getKenyaHieCredentialMode,
   getKenyaHieEnvironment,
@@ -315,7 +317,8 @@ export function CountryPackPage(): JSX.Element {
     const kenyaHieCredentialMode = getKenyaHieCredentialMode(project);
     const kenyaShaClaimsCredentialMode = getKenyaShaClaimsCredentialMode(project);
     const kenyaHieAgentId = getKenyaHieAgentId(project);
-    const kenyaClaimWorkflowBotId = getProjectSettingString(project, 'kenyaClaimWorkflowBotId');
+    const kenyaClaimSubmitWorkflowBotId = getKenyaClaimSubmitWorkflowBotId(project);
+    const kenyaClaimStatusWorkflowBotId = getKenyaClaimStatusWorkflowBotId(project);
     const configuredHieSecretCount = kenyaAfyaLinkSecretNames.filter((name) => getProjectSettingString(project.secret, name)).length;
     const missingHieSecretCount = kenyaAfyaLinkSecretNames.length - configuredHieSecretCount;
     const configuredShaSecretCount = kenyaShaClaimsSecretNames.filter((name) => getProjectSettingString(project.secret, name)).length;
@@ -346,8 +349,11 @@ export function CountryPackPage(): JSX.Element {
             {kenyaShaClaimsCredentialMode === 'afiax-managed' ? 'Afiax-managed' : 'Tenant-managed'}
           </DescriptionListEntry>
           <DescriptionListEntry term="Kenya HIE Agent ID">{kenyaHieAgentId ?? 'Not configured'}</DescriptionListEntry>
-          <DescriptionListEntry term="Kenya Claim Workflow Bot">
-            {kenyaClaimWorkflowBotId ?? 'Not configured'}
+          <DescriptionListEntry term="Kenya Claim Submit Workflow Bot">
+            {kenyaClaimSubmitWorkflowBotId ?? 'Not configured'}
+          </DescriptionListEntry>
+          <DescriptionListEntry term="Kenya Claim Status Workflow Bot">
+            {kenyaClaimStatusWorkflowBotId ?? kenyaClaimSubmitWorkflowBotId ?? 'Not configured'}
           </DescriptionListEntry>
           <DescriptionListEntry term="HIE Credential Status">
             {kenyaHieCredentialMode === 'afiax-managed'
@@ -384,8 +390,9 @@ export function CountryPackPage(): JSX.Element {
           </List.Item>
           <List.Item>Use an Organization with an MFL code when you are ready to run facility verification.</List.Item>
           <List.Item>
-            Configure the Kenya claim workflow bot in <MedplumLink to="/admin/settings">Settings</MedplumLink> if you
-            want successful SHA claim submissions to hand off to Afiax Billing, Afiax Pay, or other async workflows.
+            Configure the Kenya claim submit and claim status workflow bots in{' '}
+            <MedplumLink to="/admin/settings">Settings</MedplumLink> if you want SHA submission and adjudication
+            updates to hand off to Afiax Billing, Afiax Pay, or other async workflows.
           </List.Item>
         </List>
         {kenyaHieCredentialMode === 'tenant-managed' && missingHieSecretCount > 0 && (
