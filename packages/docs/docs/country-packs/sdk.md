@@ -6,7 +6,8 @@ sidebar_position: 2
 
 This page defines the contract for adding a new country pack to this repo.
 
-Treat it as an implementation guide, not as a high-level architecture note.
+Treat it as an engineering guide. It is meant for developers who are adding a new pack to this fork, not for a
+marketing or architecture overview.
 
 ## What the core already provides
 
@@ -22,6 +23,17 @@ The Medplum fork already provides these generic extension points:
 
 The goal of the SDK is to add country behavior without forking core behavior per country.
 
+## Use this page correctly
+
+When implementing a new pack, follow this sequence:
+
+1. identify the generic workflow you are trying to support
+2. prove it belongs behind a generic operation name
+3. add namespaced settings and secret names
+4. implement the country handler behind the generic contract
+5. add resource-level or admin UI only after the server contract exists
+6. add docs and tests before treating the pack as real
+
 ## Minimum pack contract
 
 A new pack should define:
@@ -32,6 +44,7 @@ A new pack should define:
 - at least one internal operation or bot-driven workflow
 - fixtures for request and response payloads
 - developer docs and setup notes
+- at least one troubleshooting path for operators and developers
 
 ## Directory contract
 
@@ -63,6 +76,9 @@ Responsibilities:
 | `mappings/` | canonical-to-country payload transforms |
 | `compliance/` | runbooks, audit notes, approval artifacts |
 | `fixtures/` | request, response, and UAT samples |
+
+Do not add folders just because the structure allows them. A folder should stay empty until the pack actually has
+artifacts for that layer.
 
 ## Runtime contract
 
@@ -144,6 +160,9 @@ Regulator-facing operations should also persist workflow evidence, typically thr
 - `AuditEvent`
 - `Provenance` when needed
 
+For long-running workflows, also define how status refresh or callback ingestion works. Do not stop at the first
+transport call if the regulator workflow is asynchronous.
+
 ## Connector contract
 
 Each connector should do the same sequence of work:
@@ -178,6 +197,18 @@ Bots are optional for a pack, but when used they should follow the same rules as
 
 Bots should read project context rather than hard-code country selection.
 
+Use bots for asynchronous orchestration boundaries, not for every synchronous lookup:
+
+- good bot candidates:
+  - post-submit claim handoff
+  - claim-status polling
+  - payer callback processing
+  - downstream billing or payment handoff
+- poor bot candidates:
+  - immediate facility lookup
+  - immediate practitioner lookup
+  - immediate eligibility checks that need instant user feedback
+
 ## Normalized status model
 
 Use shared status vocabularies instead of country-specific strings:
@@ -208,8 +239,24 @@ Use this split consistently:
 2. Define pack-specific setting names and secret names.
 3. Create `country-packs/<pack-id>/` with the standard directory structure.
 4. Add at least one generic operation and one country-specific handler.
-5. Add fixtures and tests.
-6. Add admin docs so project admins know how to configure it.
+5. Add admin support only for the settings and secret surfaces that are actually needed.
+6. Add resource-level UX only after the operation contract is stable.
+7. Add fixtures and tests.
+8. Add developer docs so another engineer can reproduce the setup without reading the implementation first.
+
+## What to document for every pack
+
+Every real pack should document:
+
+- required settings
+- required tenant-managed secrets
+- required Afiax-managed secrets if supported
+- setup order
+- exact resource prerequisites for each workflow
+- which FHIR resources are updated
+- which workflow evidence resources are created
+- which raw payloads or snapshots are persisted for debugging
+- the smallest test commands that validate the pack
 
 ## Quality gates
 

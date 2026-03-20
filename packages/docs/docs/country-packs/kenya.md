@@ -6,7 +6,14 @@ sidebar_position: 3
 
 Kenya is the first active country pack in this repo.
 
-This page documents the current implementation contract, not the long-term product vision.
+This page is the developer-facing implementation guide for the current Kenya pack.
+
+Read it as:
+
+- what is implemented
+- how to configure it
+- how to run each Kenya workflow end to end
+- where Kenya logic starts and where core Medplum behavior stops
 
 ## Purpose
 
@@ -15,7 +22,7 @@ a Kenya-only fork.
 
 ## Scope
 
-Current and planned Kenya scope:
+Current Kenya pack scope in this repo:
 
 - DHA client registry
 - DHA AfyaLink facility registry and MFL verification
@@ -23,7 +30,7 @@ Current and planned Kenya scope:
 - coverage and eligibility services
 - shared health record outpatient publishing
 - SHA claim submission
-- Kenya settlement sync with Afiax Billing
+- Kenya settlement sync handoff toward Afiax Billing
 
 ## Canonical bindings
 
@@ -34,7 +41,7 @@ The pack binds shared identifier categories to Kenya semantics:
 - `practitioner-authority-id` to health worker registry identity
 - `payer-member-id` to SHA or scheme member identity
 
-## Current runtime contract
+## Runtime contract
 
 These settings activate Kenya behavior:
 
@@ -68,10 +75,10 @@ base URL.
 The Kenya HIE environment covers auth, facility registry, practitioner registry, eligibility, and client-registry
 operations.
 
-The Kenya SHA claims environment is separate because DHA publishes different endpoint families for claim submission
-surfaces.
+The Kenya SHA claims environment is separate because DHA publishes different endpoint families for claim submission,
+status lookup, and related payer workflows.
 
-## Current implementation in this repo
+## What is implemented today
 
 Implemented now:
 
@@ -99,8 +106,16 @@ Implemented now:
 - verification `Task` and `AuditEvent` creation
 - eligibility `Task`, `CoverageEligibilityRequest`, `CoverageEligibilityResponse`, and `AuditEvent` creation
 - claim submission `Task`, persisted claim snapshot, and `AuditEvent` creation
+- claim status `Task`, persisted claim status snapshot, local `ClaimResponse`, and `AuditEvent` creation
 
-## Current operation bindings
+Not implemented yet:
+
+- SHA callback ingestion
+- Kenya client-registry workflow
+- Kenya SHR publishing
+- Kenya queue views and reconciliation dashboards
+
+## Operation bindings
 
 Kenya logic currently sits behind country-neutral operations such as:
 
@@ -114,7 +129,45 @@ Kenya logic currently sits behind country-neutral operations such as:
 `$verify-facility-authority`, `$verify-practitioner-authority`, `$check-coverage`, `$submit-national-claim`, and
 `$check-national-claim-status` have implemented Kenya connector paths today.
 
-## Facility verification flow
+## Setup sequence
+
+If you are setting up Kenya from scratch, use this order:
+
+1. Set `Country Pack = Kenya` in project creation or `/admin/settings`.
+2. Select Kenya HIE environment and Kenya SHA claims environment.
+3. Choose credential mode for HIE and SHA separately.
+4. Enter HIE credentials in `/admin/secrets` if the project is tenant-managed.
+5. Enter SHA credentials in `/admin/secrets` if the project is tenant-managed.
+6. Use `Test HIE Connection` before attempting any Kenya HIE workflow.
+7. Use `/admin/country-pack` to create or update the first facility from the Kenya facility code.
+8. Move to resource-level workflows for `Organization`, `Practitioner`, `Coverage`, and `Claim`.
+
+### Admin pages and exact purpose
+
+Use these pages in this order:
+
+- `/admin/settings`
+  - enable Kenya
+  - set Kenya HIE environment
+  - set Kenya SHA claims environment
+  - set HIE credential mode
+  - set SHA credential mode
+  - set Kenya HIE agent ID
+  - optionally set Kenya claim submit bot and Kenya claim status bot
+- `/admin/secrets`
+  - enter tenant-managed Kenya HIE credentials
+  - enter tenant-managed Kenya SHA credentials
+  - run `Test HIE Connection`
+- `/admin/super`
+  - use only when the project is in Afiax-managed mode
+  - manage `Project.systemSecret` for Kenya HIE and Kenya SHA
+- `/admin/country-pack`
+  - run the Kenya onboarding wizard
+  - enter primary facility code / MFL code
+  - view raw DHA lookup payload
+  - create or update the first `Organization`
+
+## Facility workflow
 
 Current path for `Organization/$verify-facility-authority`:
 
@@ -128,7 +181,40 @@ Current path for `Organization/$verify-facility-authority`:
 
 The expected identifier is the MFL code bound to `facility-authority-id`.
 
-## Practitioner verification flow
+### User flow on the `Organization` page
+
+Page: `/Organization/{id}`
+
+Expected resource preparation:
+
+- the `Organization` must already exist
+- the project must have `countryPack=kenya`
+
+Normal workflow:
+
+1. Enter `Kenya Facility Code / MFL Code`.
+2. Click `Save MFL Code`.
+3. Click `Lookup Facility`.
+4. Review the Kenya registry snapshot shown on the page.
+5. Click `Verify Facility`.
+
+What the UI persists:
+
+- Kenya facility identifier in `Organization.identifier`
+- Kenya facility registry snapshot in `Organization.extension`
+- Kenya verification snapshot in `Organization.extension`
+
+What the server creates:
+
+- `Task`
+- `AuditEvent`
+
+If lookup succeeds but verification fails, treat those as two separate concerns:
+
+- lookup proves the registry record was fetched
+- verification proves the auditable workflow completed and normalized correctly
+
+## Practitioner workflow
 
 Current path for `Practitioner/$verify-practitioner-authority`:
 
@@ -144,7 +230,26 @@ Current path for `Practitioner/$verify-practitioner-authority`:
 The current Kenya UX captures the lookup identity as a national ID or passport number and stores the returned
 registration number as the practitioner authority identifier.
 
-## Coverage eligibility flow
+### User flow on the `Practitioner` page
+
+Page: `/Practitioner/{id}`
+
+Normal workflow:
+
+1. Choose `ID` or `PASSPORT`.
+2. Enter the identification number.
+3. Save the lookup identity.
+4. Run DHA practitioner lookup.
+5. Run `Verify Practitioner`.
+
+What the UI persists:
+
+- lookup identifier in `Practitioner.identifier`
+- Kenya registration number in `Practitioner.identifier`
+- Kenya practitioner registry snapshot in `Practitioner.extension`
+- Kenya practitioner verification snapshot in `Practitioner.extension`
+
+## Coverage workflow
 
 Current path for `Coverage/$check-coverage`:
 
@@ -166,7 +271,30 @@ are:
 - `SHA Number`
 - `Refugee ID`
 
-## National claim submission flow
+### User flow on the `Coverage` page
+
+Page: `/Coverage/{id}`
+
+Normal workflow:
+
+1. Choose the Kenya eligibility lookup identifier type.
+2. Enter the identifier number.
+3. Save the lookup identity.
+4. Run `Check Coverage`.
+
+What the UI persists:
+
+- lookup identifier in `Coverage.identifier`
+- Kenya eligibility snapshot in `Coverage.extension`
+
+What the server creates:
+
+- `CoverageEligibilityRequest`
+- `CoverageEligibilityResponse`
+- `Task`
+- `AuditEvent`
+
+## Claim submission workflow
 
 Current path for `Claim/$submit-national-claim`:
 
@@ -185,7 +313,35 @@ If Kenya SHA credentials are not configured, the same operation still returns a 
 the live SHA response and status-tracking endpoint. When the optional claim submit workflow bot is configured, the UI
 also shows whether the downstream bot handoff was triggered successfully.
 
-## National claim status flow
+### User flow on the `Claim` page for submission
+
+Page: `/Claim/{id}`
+
+Required resource graph before submit:
+
+- `Claim`
+- linked `Patient`
+- linked `Coverage`
+- linked `Organization`
+- linked `Practitioner` when present in the claim graph
+
+Normal workflow:
+
+1. Open the `Claim`.
+2. Click `Submit Kenya SHA Claim`.
+3. Inspect the returned submission environment, endpoint, response status, and raw bundle.
+4. Confirm that the persisted claim snapshot contains the bundle ID.
+
+What the UI persists:
+
+- Kenya claim submission snapshot in `Claim.extension`
+
+What the server creates:
+
+- `Task`
+- `AuditEvent`
+
+## Claim status workflow
 
 Current path for `Claim/$check-national-claim-status`:
 
@@ -203,69 +359,57 @@ Current path for `Claim/$check-national-claim-status`:
 The `Claim` page exposes this as an explicit `Check Kenya SHA Claim Status` action. The panel shows the current
 claim state, local `ClaimResponse` reference, raw SHA status response, and workflow bot handoff state.
 
-## Admin UI flow
+### User flow on the `Claim` page for status refresh
 
-For a Kenya project:
+Normal workflow:
 
-- `/admin/settings`
-  - selects `Kenya`
-  - sets Kenya HIE environment
-  - sets Kenya SHA claims environment
-  - sets HIE credential mode
-  - sets SHA claim credential mode
-  - sets Kenya HIE agent ID
-  - optionally sets the Kenya claim submit workflow bot ID for downstream orchestration after submit
-  - optionally sets the Kenya claim status workflow bot ID for downstream orchestration after status refresh
-- `/admin/country-pack`
-  - shows setup status and next steps
-  - accepts the primary Kenya facility code / MFL code
-  - runs DHA facility lookup
-  - shows the raw DHA response for onboarding troubleshooting
-  - creates or updates the first `Organization` from registry data
-- `/admin/secrets`
-  - stores tenant-managed HIE credentials
-  - stores tenant-managed SHA claim credentials
-  - supports `Test HIE Connection`
-- `/admin/super`
-  - stores Afiax-managed HIE credentials in `Project.systemSecret`
-  - stores Afiax-managed SHA claim credentials in `Project.systemSecret`
-- `/Organization/{id}`
-  - captures the Kenya facility code directly on the resource
-  - runs DHA lookup
-  - shows the verification summary and raw DHA lookup payload
-  - runs the audited `Verify Facility` action
-- `/Practitioner/{id}`
-  - captures the practitioner identification type and number directly on the resource
-  - runs DHA practitioner lookup
-  - persists the returned registry snapshot on the resource
-  - shows the verification summary and raw DHA lookup payload
-  - runs the audited `Verify Practitioner` action
-- `/Coverage/{id}`
-  - captures the Kenya eligibility identification type and number directly on the resource
-  - runs DHA eligibility lookup
-  - persists the eligibility snapshot on the resource
-  - shows the eligibility summary and raw DHA eligibility payload
-  - runs the audited `Check Coverage` action
-- `/Claim/{id}`
-  - builds the Kenya SHA claim bundle from the current Medplum claim graph
-  - submits it when Kenya SHA credentials are configured
-  - checks the latest Kenya SHA claim status against the last submitted bundle ID
-  - optionally triggers downstream Kenya workflow bots after submit and after status refresh
-  - shows the submission environment, submission endpoint, status-tracking endpoint, current claim state, local `ClaimResponse`, workflow bot status, and raw SHA response alongside the raw bundle payload
-  - records both submission and claim-status workflow snapshots and tasks on the resource
+1. Ensure the `Claim` already has a Kenya submission snapshot with a bundle ID.
+2. Click `Check Kenya SHA Claim Status`.
+3. Inspect the normalized state:
+   - `queued`
+   - `in-review`
+   - `adjudicated`
+   - `rejected`
+4. Inspect the local `ClaimResponse` created or updated by the refresh.
+5. Inspect workflow bot status if a Kenya claim status bot is configured.
 
-## Guardrails
+What the UI persists:
+
+- Kenya claim status snapshot in `Claim.extension`
+
+What the server creates or updates:
+
+- `ClaimResponse`
+- `Task`
+- `AuditEvent`
+
+## Debugging and operational checks
+
+When a Kenya flow fails, check these in order:
+
+1. the project is actually on `countryPack=kenya`
+2. HIE and SHA environments are correct for the action you are running
+3. credentials are stored in the correct secret surface for the selected credential mode
+4. the resource has the expected Kenya identifier before the operation is called
+5. the raw DHA or SHA payload shown in the UI contains the expected fields
+6. the created `Task` and `AuditEvent` use the same correlation ID returned by the operation
+
+Use the raw payloads shown in the UI as the first debugging artifact. Do not start by guessing at the parser if DHA or
+SHA is explicitly returning a negative result.
+
+## Engineering guardrails
 
 - no direct DHA calls from browser or mobile UI
 - no Kenya-specific field names in the shared canonical model
+- no direct ERPNext or Afiax Billing logic in the Kenya pack implementation
+- no country-specific logic in generic core routes unless that logic is pack-dispatched
 - no production rollout without audit and reconciliation
-- no coupling Kenya pack logic to Afiax FHIR core routing or UI components
 
 ## Recommended next steps
 
 1. Add SHA callback support for asynchronous payer updates when DHA makes that path available.
 2. Add reconciliation and retry surfaces around external calls.
-3. Split claim-status bots from submission bots if Kenya operations need different downstream orchestration.
+3. Add dedicated queue views for failed or pending Kenya operations.
 4. Add facility, practitioner, coverage, and claim work queues for operational follow-up.
 
 ## Related docs

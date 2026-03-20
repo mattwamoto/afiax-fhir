@@ -50,6 +50,18 @@ For Kenya, that currently means separate non-secret settings for:
 
 The advanced editor remains available for additional `Project.setting` values.
 
+Recommended Kenya setup sequence in `Settings`:
+
+1. set `Country Pack = Kenya`
+2. set Kenya HIE environment
+3. set Kenya SHA claims environment
+4. set HIE credential mode
+5. set SHA claims credential mode
+6. set Kenya HIE agent ID if that workflow is in scope
+7. optionally set Kenya claim submit bot ID
+8. optionally set Kenya claim status bot ID
+9. save before moving to `Secrets` or `Country Pack`
+
 ## Country Pack
 
 This is the setup checklist page for country-specific workflows.
@@ -77,6 +89,17 @@ Kenya also exposes resource-level onboarding panels after project setup:
 - `Coverage` pages capture the DHA eligibility lookup identity, run DHA eligibility checks, and record the resulting eligibility workflow artifacts
 - `Claim` pages build the Kenya SHA claim bundle, submit it when SHA credentials are configured, check the latest Kenya SHA claim status, optionally trigger downstream submit and status workflow bots, show the raw SHA response, and record the resulting workflow artifacts
 
+Recommended Kenya setup sequence in `Country Pack`:
+
+1. confirm the project is already on `Kenya`
+2. enter the primary facility code / MFL code
+3. run DHA facility lookup
+4. inspect the raw DHA payload if the lookup result is unexpected
+5. create the first `Organization` or apply the registry data to an existing one
+6. move to the `Organization` page for audited verification
+
+The purpose of this page is onboarding. It is not the final operational workflow surface for Kenya.
+
 Pack-specific behavior belongs in the relevant country-pack docs.
 
 ## Secrets
@@ -98,6 +121,17 @@ The current Kenya implementation exposes:
 - tenant-managed SHA claim credentials
 - HIE connection testing
 - platform-managed HIE and SHA credential management in Super Admin
+
+Recommended Kenya setup sequence in `Secrets`:
+
+1. confirm whether the project is tenant-managed or Afiax-managed
+2. if tenant-managed, enter HIE credentials first
+3. run `Test HIE Connection`
+4. enter SHA claim credentials
+5. save
+6. move to the resource pages only after HIE auth succeeds
+
+If the project is Afiax-managed, this page is expected to show status and not accept the platform-managed credentials.
 
 For concrete Kenya settings, secrets, and connection behavior, see the [Kenya reference pack](/docs/country-packs/kenya).
 
