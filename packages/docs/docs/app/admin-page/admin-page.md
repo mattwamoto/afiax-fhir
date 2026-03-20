@@ -12,9 +12,29 @@ For developers and project admins, this is the main place to:
 
 ![App Admin Page](./admin-page.png)
 
+## How to use this page correctly
+
+Treat the admin area as a staged workflow, not as a flat collection of tabs.
+
+Use the tabs in this order:
+
+1. `Details`
+2. `Settings`
+3. `Secrets`
+4. `Country Pack`
+5. resource pages such as `Organization`, `Practitioner`, `Coverage`, and `Claim`
+
+Only use `Super Admin` when the project runs in Afiax-managed mode.
+
 ## Details
 
 Shows the current [`Project`](/docs/api/fhir/medplum/project) values, including the selected country pack.
+
+Use this tab to confirm:
+
+- the current project id
+- the active country pack
+- whether the project is the one you intended to configure
 
 ## Users
 
@@ -29,6 +49,9 @@ Shows project [`ClientApplication`](/docs/api/fhir/medplum/clientapplication) re
 
 Shows project [`Bot`](/docs/api/fhir/medplum/bot) resources and creation flows.
 
+This is where you create the bots later referenced by country-pack settings such as Kenya claim submit or claim status
+workflow bots.
+
 ## Settings
 
 Use `Settings` for non-secret project configuration.
@@ -36,31 +59,49 @@ Use `Settings` for non-secret project configuration.
 Current country-pack-related fields are generic:
 
 - `Country Pack`
-- environment selection when a pack needs more than one endpoint family
+- environment selection when a pack uses more than one endpoint family
 - agent or routing identifiers when a pack requires them
-- credential ownership mode when a pack supports tenant-managed or platform-managed access
+- credential ownership mode when a pack supports tenant-managed or Afiax-managed access
+- optional workflow bot ids
 
 For Kenya, that currently means separate non-secret settings for:
 
 - HIE environment and HIE credential mode
 - SHA claims environment and SHA claims credential mode
-- Kenya HIE agent ID
-- optional Kenya claim submit workflow bot ID for downstream orchestration after submit
-- optional Kenya claim status workflow bot ID for downstream orchestration after status refresh
+- Kenya HIE agent id
+- optional Kenya claim submit workflow bot id
+- optional Kenya claim status workflow bot id
 
-The advanced editor remains available for additional `Project.setting` values.
+The advanced editor remains available for additional `Project.setting` values, but the curated Kenya fields are the
+default path and should be used first.
 
-Recommended Kenya setup sequence in `Settings`:
+### Recommended Kenya settings sequence
 
 1. set `Country Pack = Kenya`
 2. set Kenya HIE environment
 3. set Kenya SHA claims environment
 4. set HIE credential mode
 5. set SHA claims credential mode
-6. set Kenya HIE agent ID if that workflow is in scope
-7. optionally set Kenya claim submit bot ID
-8. optionally set Kenya claim status bot ID
+6. set Kenya HIE agent id if that workflow is in scope
+7. optionally set Kenya claim submit bot id
+8. optionally set Kenya claim status bot id
 9. save before moving to `Secrets` or `Country Pack`
+
+### Settings ownership rule
+
+Use `Settings` for:
+
+- environment choice
+- credential ownership mode
+- routing or agent ids
+- workflow bot ids
+
+Do not use `Settings` for:
+
+- API usernames
+- passwords
+- access keys
+- secret keys
 
 ## Country Pack
 
@@ -78,18 +119,11 @@ For active packs, it can also expose guided onboarding flows. The current Kenya 
 that:
 
 - accepts the primary Kenya facility code / MFL code
-- looks up the facility against DHA AfyaLink
+- looks up the facility against DHA HIE
 - shows the raw DHA lookup payload for troubleshooting
 - creates or updates the first `Organization` from registry data when DHA returns a match
 
-Kenya also exposes resource-level onboarding panels after project setup:
-
-- `Organization` pages capture the Kenya facility code, run DHA facility lookup, and run audited facility verification
-- `Practitioner` pages capture the Kenya identity document, run DHA practitioner lookup, and run audited practitioner verification
-- `Coverage` pages capture the DHA eligibility lookup identity, run DHA eligibility checks, and record the resulting eligibility workflow artifacts
-- `Claim` pages build the Kenya SHA claim bundle, submit it when SHA credentials are configured, check the latest Kenya SHA claim status, optionally trigger downstream submit and status workflow bots, show the raw SHA response, and record the resulting workflow artifacts
-
-Recommended Kenya setup sequence in `Country Pack`:
+### Recommended Kenya onboarding sequence
 
 1. confirm the project is already on `Kenya`
 2. enter the primary facility code / MFL code
@@ -98,9 +132,16 @@ Recommended Kenya setup sequence in `Country Pack`:
 5. create the first `Organization` or apply the registry data to an existing one
 6. move to the `Organization` page for audited verification
 
-The purpose of this page is onboarding. It is not the final operational workflow surface for Kenya.
+### What this page is for
 
-Pack-specific behavior belongs in the relevant country-pack docs.
+Use `Country Pack` for onboarding.
+
+Do not treat it as the long-term operational workflow surface. After onboarding:
+
+- `Organization` pages own facility verification
+- `Practitioner` pages own practitioner verification
+- `Coverage` pages own eligibility
+- `Claim` pages own claim submit and claim status
 
 ## Secrets
 
@@ -109,7 +150,7 @@ Use `Secrets` for project-scoped credentials and other sensitive values. See [Pr
 When a country pack supports curated credential forms, this page can expose pack-specific secret fields and connection
 validation actions.
 
-Config split:
+Current ownership split:
 
 - `Settings` owns non-secret country-pack config
 - `Secrets` owns tenant-managed credentials for the pack's connector families
@@ -120,9 +161,9 @@ The current Kenya implementation exposes:
 - tenant-managed HIE credentials
 - tenant-managed SHA claim credentials
 - HIE connection testing
-- platform-managed HIE and SHA credential management in Super Admin
+- status visibility when the project is Afiax-managed
 
-Recommended Kenya setup sequence in `Secrets`:
+### Recommended Kenya secret setup sequence
 
 1. confirm whether the project is tenant-managed or Afiax-managed
 2. if tenant-managed, enter HIE credentials first
@@ -131,10 +172,62 @@ Recommended Kenya setup sequence in `Secrets`:
 5. save
 6. move to the resource pages only after HIE auth succeeds
 
-If the project is Afiax-managed, this page is expected to show status and not accept the platform-managed credentials.
+If the project is Afiax-managed, this page should show status rather than accept the platform-managed credentials.
 
-For concrete Kenya settings, secrets, and connection behavior, see the [Kenya reference pack](/docs/country-packs/kenya).
+### Secret ownership rule
+
+Use `Secrets` for tenant-managed:
+
+- HIE consumer key
+- HIE username
+- HIE password
+- SHA access key
+- SHA secret key
+- SHA callback URL
+
+Do not put Afiax-managed project credentials here. Those belong in `Super Admin`.
+
+## Super Admin
+
+Use `Super Admin` only when credentials are platform-managed by Afiax.
+
+The current Kenya implementation uses it to manage:
+
+- Afiax-managed HIE credentials in `Project.systemSecret`
+- Afiax-managed SHA credentials in `Project.systemSecret`
+
+This is also the correct place to manage platform-level ownership of Kenya connector access across projects.
+
+## Resource pages after admin setup
+
+Once the project is configured, move out of the admin tabs and onto the actual workflow pages:
+
+- `Organization` page
+  - save Kenya facility code
+  - run DHA facility lookup
+  - run audited facility verification
+- `Practitioner` page
+  - save Kenya identification
+  - run DHA practitioner lookup
+  - run audited practitioner verification
+- `Coverage` page
+  - save DHA eligibility lookup identity
+  - run coverage eligibility
+- `Claim` page
+  - build and submit Kenya SHA claim bundle
+  - check latest Kenya SHA claim status
+  - inspect raw SHA response and workflow evidence
+
+This separation is deliberate:
+
+- admin pages configure the project
+- resource pages execute the workflow
 
 ## Sites
 
 Manages custom domains for the project.
+
+## Related docs
+
+- [Kenya reference pack](/docs/country-packs/kenya)
+- [Country pack SDK](/docs/country-packs/sdk)
